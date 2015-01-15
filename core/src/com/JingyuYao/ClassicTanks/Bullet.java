@@ -49,10 +49,12 @@ public class Bullet extends Rectangle{
                 this.height = HEIGHT;
                 break;
             case LEFT:
+                // Intentional
                 this.width = HEIGHT;
                 this.height = WIDTH;
                 break;
             case RIGHT:
+                // Intentional
                 this.width = HEIGHT;
                 this.height = WIDTH;
                 break;

@@ -116,40 +116,42 @@ public class Tank extends Rectangle{
 
     // Tell the update method to start actually updating
     // Also checks for collision with walls
-    public void move() {
+    public boolean move() {
         moving = true;
         // set a target value to avoid rounding errors
         switch (direction) {
             case DOWN:
                 target = y - ONE_DISTANCE;
-                checkWall(x,target);
+                moving = checkWall(x,target);
                 break;
             case LEFT:
                 target = x - ONE_DISTANCE;
-                checkWall(target,y);
+                moving = checkWall(target,y);
                 break;
             case RIGHT:
                 target = x + ONE_DISTANCE;
-                checkWall(target,y);
+                moving = checkWall(target,y);
                 break;
             case UP:
                 target = y + ONE_DISTANCE;
-                checkWall(x,target);
+                moving = checkWall(x,target);
                 break;
         }
+        return moving;
     }
 
-    private void checkWall(float a, float b){
+    private boolean checkWall(float a, float b){
         for(Wall w : g.walls){
             if(w.contains(a+SIZE/2, b+SIZE/2))
-                moving = false;
+                return false;
         }
         if(player){
             for(Tank t :g.enemies){
                 if(t.contains(a+SIZE/2, b+SIZE/2))
-                    moving = false;
+                    return false;
             }
         }
+        return true;
     }
 
     // Updates the tanks position
@@ -158,7 +160,6 @@ public class Tank extends Rectangle{
             float curMove = t * velocity;
             distanceLeft -= curMove;
             if (distanceLeft < 0) {
-                curMove += distanceLeft;// travel w/e is distance left
                 distanceLeft = ONE_DISTANCE;// reset
                 moving = false;// finished moving
 

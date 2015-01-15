@@ -352,7 +352,8 @@ public class GameScreen implements Screen {
     }
 
     private void moveEnemy(Tank t){
-        if(t.moving == true) return;
+        if(t.moving == true || t.move()) return;
+
         int i;
         Direction d;
         //check for valid directions
