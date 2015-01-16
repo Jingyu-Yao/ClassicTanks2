@@ -22,23 +22,17 @@ public class Bullet extends GameObj{
      */
     private void setProperRecBound(){
         switch(direction){
+            case UP:
             case DOWN:
                 this.body.width = WIDTH;
                 this.body.height = HEIGHT;
                 break;
             case LEFT:
-                // Intentional
-                this.body.width = HEIGHT;
-                this.body.height = WIDTH;
-                break;
             case RIGHT:
+                // Fall through
                 // Intentional
                 this.body.width = HEIGHT;
                 this.body.height = WIDTH;
-                break;
-            case UP:
-                this.body.width = WIDTH;
-                this.body.height = HEIGHT;
                 break;
         }
     }
