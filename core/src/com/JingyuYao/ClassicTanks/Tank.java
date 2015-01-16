@@ -1,10 +1,9 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 @SuppressWarnings("serial")
-public class Tank extends Rectangle{
+public class Tank extends GameObj{
 
     // Constants
     static final float ONE_DISTANCE = 16f; // pixels
@@ -12,12 +11,9 @@ public class Tank extends Rectangle{
     static final float HALF_SIZE = SIZE / 2f;
 
     // Tank properties
-    static GameScreen g;
-    TankType type;
-    Direction direction;
-    float velocity = 100f; // 10 pixel/sec
-    boolean player;
-    int hp; //In the case of player, hp = life
+    protected static GameScreen g;
+    protected TankType type;
+    protected boolean player;
 
     // Variables for movement
     boolean moving;
@@ -25,70 +21,36 @@ public class Tank extends Rectangle{
     float distanceLeft = ONE_DISTANCE;
 
     // Constructors
-    public Tank(GameScreen screen) {
+    public Tank(GameScreen screen,float x, float y, TankType type, Direction direction, boolean isPlayer) {
+        super(x, y, SIZE, SIZE, 100f, direction);
         g = screen;
-        x = 0;
-        y = 0;
-        this.height = this.width = SIZE;
-        type = TankType.NORMAL;
-        direction = Direction.UP;
+        this.type = type;
         moving = false;
-        player=false;
-        hp = 1;
-    }
-
-    public Tank(GameScreen screen,float xd, float yd, TankType t, Direction d, boolean is) {
-        g = screen;
-        this.x = xd;
-        this.y = yd;
-        this.height = this.width = SIZE;
-        type = t;
-        direction = d;
-        moving = false;
-        player = is;
-        if(t == TankType.ARMORED)hp = 3;
-        else hp = 1;
+        player = isPlayer;
+        if(type == TankType.ARMORED){
+            hp = 3;
+        }
     }
 
     // Setters
-    public void setXY(float x, float y) {
-        this.x  = x;
-        this.y = y;
-    }
-
     public void setType(TankType t) {
         type = t;
-        if(t == TankType.ARMORED)hp = 3;
-        else hp = 1;
-    }
-
-    public void setDirection(Direction d) {
-        direction = d;
-    }
-
-    public void setVelocity(float s) {
-        velocity = s;
     }
 
     // Getters
     public TankType getType() {
         return type;
     }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public float getVelocity() {
-        return velocity;
-    }
-
     public boolean isPlayer(){
         return player;
     }
+    public boolean isMoving() {
+        return moving;
+    }
 
-    // Functions
-    // make bullet, takes into consideration the direction of tank
+    /**
+     * Makes a bullet based on the direction of the tank
+     */
     public void shoot() {
         Array<Bullet> array;
         if(player){
@@ -98,66 +60,83 @@ public class Tank extends Rectangle{
         }
         switch (direction) {
             case DOWN:
-                array.add(new Bullet(x+HALF_SIZE-Bullet.WIDTH/2f, y-Bullet.HEIGHT, direction, player));
+                array.add(new Bullet(body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y-Bullet.HEIGHT, direction, player));
                 break;
             case LEFT:
-                array.add(new Bullet(x-Bullet.HEIGHT, y+HALF_SIZE-Bullet.WIDTH+1, direction, player));
+                array.add(new Bullet(body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, player));
                 break;
             case RIGHT:
-                array.add(new Bullet(x+SIZE+Bullet.WIDTH, y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, player));
+                array.add(new Bullet(body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, player));
                 break;
             case UP:
-                array.add(new Bullet(x+HALF_SIZE-Bullet.WIDTH/2f, y+SIZE, direction, player));
+                array.add(new Bullet(body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, player));
                 break;
             default:
                 break;
         }
     }
 
-    // Tell the update method to start actually updating
-    // Also checks for collision with walls
+    /**
+     * Tell the update method to start actually updating
+     * Also checks for collision with walls
+     * @return
+     */
     public boolean move() {
         moving = true;
         // set a target value to avoid rounding errors
         switch (direction) {
             case DOWN:
-                target = y - ONE_DISTANCE;
-                moving = checkWall(x,target);
+                target = body.y - ONE_DISTANCE;
+                moving = !collideWithGameObjects(body.x,target);
                 break;
             case LEFT:
-                target = x - ONE_DISTANCE;
-                moving = checkWall(target,y);
+                target = body.x - ONE_DISTANCE;
+                moving = !collideWithGameObjects(target,body.y);
                 break;
             case RIGHT:
-                target = x + ONE_DISTANCE;
-                moving = checkWall(target,y);
+                target = body.x + ONE_DISTANCE;
+                moving = !collideWithGameObjects(target,body.y);
                 break;
             case UP:
-                target = y + ONE_DISTANCE;
-                moving = checkWall(x,target);
+                target = body.y + ONE_DISTANCE;
+                moving = !collideWithGameObjects(body.x,target);
                 break;
         }
         return moving;
     }
 
-    private boolean checkWall(float a, float b){
+    /**
+     * Checks collision with walls in the level. Also checks collision with enemy tanks
+     * if the player flag is true.
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean collideWithGameObjects(float x, float y){
         for(Wall w : g.walls){
-            if(w.contains(a+SIZE/2, b+SIZE/2))
-                return false;
+            if(w.collidePoint(x+HALF_SIZE, y+HALF_SIZE))
+                return true;
         }
         if(player){
             for(Tank t :g.enemies){
-                if(t.contains(a+SIZE/2, b+SIZE/2))
-                    return false;
+                if(t.collidePoint(x+HALF_SIZE, y+HALF_SIZE))
+                    return true;
             }
         }
-        return true;
+        else{
+            return g.player.collidePoint(x+HALF_SIZE, y+HALF_SIZE);
+        }
+        return false;
     }
 
-    // Updates the tanks position
-    public void update(float t) {
+    /**
+     * Updates the tanks position while preventing rounding error of final position
+     * @param deltaTime
+     */
+    @Override
+    public void update(float deltaTime) {
         if (moving) {
-            float curMove = t * velocity;
+            float curMove = deltaTime * velocity;
             distanceLeft -= curMove;
             if (distanceLeft < 0) {
                 distanceLeft = ONE_DISTANCE;// reset
@@ -166,16 +145,16 @@ public class Tank extends Rectangle{
                 // this prevents final coordinate rounding error
                 switch (direction) {
                     case DOWN:
-                        this.y = target;
+                        this.body.y = target;
                         break;
                     case LEFT:
-                        this.x = target;
+                        this.body.x = target;
                         break;
                     case RIGHT:
-                        this.x = target;
+                        this.body.x = target;
                         break;
                     case UP:
-                        this.y = target;
+                        this.body.y = target;
                         break;
                 }
                 return;
@@ -183,25 +162,25 @@ public class Tank extends Rectangle{
             // change the distance
             switch (direction) {
                 case DOWN:
-                    y -= curMove;
+                    body.y -= curMove;
                     break;
                 case LEFT:
-                    x -= curMove;
+                    body.x -= curMove;
                     break;
                 case RIGHT:
-                    x += curMove;
+                    body.x += curMove;
                     break;
                 case UP:
-                    y += curMove;
+                    body.y += curMove;
                     break;
             }
         }
     }
 
-    public void damage(){
-        hp--;
-    }
-    // Allowed Types
+    /**
+     * TODO: Use subclass instead of enum
+     * All type of tanks.
+     */
     protected enum TankType {
         NORMAL, BARRAGE, // Fast bullets
         DUAL, // Dual shot

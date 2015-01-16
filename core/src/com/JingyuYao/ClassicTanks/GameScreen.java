@@ -15,7 +15,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -77,21 +76,12 @@ public class GameScreen implements Screen {
 
         createSprites();
 
-        enemies.add(new Tank(this,32, 64, Tank.TankType.ARMORED, Direction.RIGHT, false));
+        enemies.add(new Tank(this,32, 128, Tank.TankType.ARMORED, Direction.RIGHT, false));
     }
 
-    public GameScreen(final ClassicTanks g, int l) {
-        game = g;
-        level = l;
-
-        // create camera
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-
-        createSprites();
-    }
-
-    // Constructor help methods
+    /**
+     * Loads up the sprites for tanks and bullets
+     */
     private void createSprites() {
         bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
         tankSprites.put(Tank.TankType.ARMORED,
@@ -108,8 +98,10 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
     }
 
+    /**
+     * Populates the walls array with every wall in wallLayer with the appropriate x,y,width,height
+     */
     private void makeWallFromTile() {
-        // walls.adddddd
         TiledMapTileLayer.Cell cell;
         int prop;
         for (int i = 0; i < wallLayer.getWidth(); i++) {
@@ -125,7 +117,219 @@ public class GameScreen implements Screen {
         }
     }
 
-    // TODO
+    // Player control helper methods
+
+    /**
+     * Move the player in the direction passed
+     * @param direction
+     */
+    private void playerMove(Direction direction) {
+        if (player.getDirection() == direction){
+            player.move();
+        }
+        else {
+            player.setDirection(direction);
+            lastDirectionTime = curTime;
+        }
+    }
+
+    /**
+     * Returns true if the current key is the only one being pressed
+     * @param key
+     * @return
+     */
+    private boolean isPressed(int key) {
+        switch (key) {
+            case Keys.UP:
+                return Gdx.input.isKeyPressed(Keys.UP)
+                        && !Gdx.input.isKeyPressed(Keys.DOWN)
+                        && !Gdx.input.isKeyPressed(Keys.LEFT)
+                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
+            case Keys.DOWN:
+                return Gdx.input.isKeyPressed(Keys.DOWN)
+                        && !Gdx.input.isKeyPressed(Keys.UP)
+                        && !Gdx.input.isKeyPressed(Keys.LEFT)
+                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
+            case Keys.LEFT:
+                return Gdx.input.isKeyPressed(Keys.LEFT)
+                        && !Gdx.input.isKeyPressed(Keys.DOWN)
+                        && !Gdx.input.isKeyPressed(Keys.UP)
+                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
+            case Keys.RIGHT:
+                return Gdx.input.isKeyPressed(Keys.RIGHT)
+                        && !Gdx.input.isKeyPressed(Keys.DOWN)
+                        && !Gdx.input.isKeyPressed(Keys.LEFT)
+                        && !Gdx.input.isKeyPressed(Keys.UP);
+            default:
+                return false;
+        }
+    }
+
+    // Drawing helper methods
+
+    /**
+     * Draw a tank
+     * @param tank
+     */
+    private void drawTank(Tank tank) {
+        Sprite s = tankSprites.get(tank.getType());
+        s.setX(tank.getX());
+        s.setY(tank.getY());
+        switch (tank.direction) {
+            case DOWN:
+                s.setRotation(180);
+                break;
+            case LEFT:
+                s.setRotation(90);
+                break;
+            case RIGHT:
+                s.setRotation(270);
+                break;
+            case UP:
+                s.setRotation(0);
+                break;
+        }
+        s.draw(game.batch);
+    }
+
+    /**
+     * Draw a bullet
+     * @param bullet
+     */
+    private void drawBullet(Bullet bullet) {
+        bulletSprite.setX(bullet.getX());
+        bulletSprite.setY(bullet.getY());
+        switch (bullet.direction) {
+            case DOWN:
+                bulletSprite.setRotation(180);
+                break;
+            case LEFT:
+                bulletSprite.setRotation(90);
+                break;
+            case RIGHT:
+                bulletSprite.setRotation(270);
+                break;
+            case UP:
+                bulletSprite.setRotation(0);
+                break;
+        }
+        bulletSprite.draw(game.batch);
+    }
+
+    // Collision!
+    /**
+     * TODO
+     * Bullet collision detection.
+     * @param bullet
+     */
+    private void collisionDetection(Bullet bullet) {
+        if (bullet.isPlayer()) {
+            // check enemies
+            for (Tank t : enemies) {
+                if (bullet.collideRect(t)) {
+                    game.font.draw(game.batch, "Enemy HIT", 0, yBound - 100);
+                    t.damage();
+                    if(t.hp == 0) enemies.removeValue(t, true);
+                    playerBullets.removeValue(bullet, true);
+                }
+            }
+            for(Bullet e : enemyBullets){
+                if (bullet.collideRect(e)) {
+                    playerBullets.removeValue(bullet, true);
+                    enemyBullets.removeValue(e, true);
+                }
+            }
+        } else {
+            // check player
+            if (bullet.collideRect(player)) {
+                game.font.draw(game.batch, "BOOM", 0, yBound - 50);
+                enemyBullets.removeValue(bullet, true);
+                player.damage();
+                if(player.hp == 0) gameOver();
+                else resetPlayer();
+            }
+            for(Bullet p : playerBullets){
+                if (bullet.collideRect(p)) {
+                    playerBullets.removeValue(bullet, true);
+                    enemyBullets.removeValue(p, true);
+                }
+            }
+        }
+
+        // check walls
+        for (Wall w : walls) {
+            if (w.hp != -2 && bullet.collideRect(w)) {
+                // only player bullets damage walls
+                if (bullet.isPlayer()) {
+                    playerBullets.removeValue(bullet, true);
+                    w.damage();
+                    if (w.hp == 0) {
+                        // if damage = 0 disappear
+                        wallLayer.getCell((int) (w.body.x / TILE_SIZE),
+                                (int) (w.body.y / TILE_SIZE)).setTile(backgroundTile);
+                        walls.removeValue(w, true);
+                    }
+                } else {
+                    System.out.println(bullet);
+                    enemyBullets.removeValue(bullet, true);
+                }
+            }
+        }
+    }
+
+    /**
+     * TODO
+     * Enemy tank movement AI.
+     * @param tank
+     */
+    private void moveEnemy(Tank tank){
+        if(tank.isMoving() == true || tank.move()) return;
+
+        int i;
+        Direction d;
+        i = random.nextInt(4);
+        //System.out.println("moveenemy " + i);
+        switch(i){
+            case 0:
+                d=Direction.UP;
+                break;
+            case 1:
+                d=Direction.LEFT;
+                break;
+            case 2:
+                d=Direction.RIGHT;
+                break;
+            case 3:
+                d=Direction.DOWN;
+                break;
+            default:
+                d=Direction.UP;
+                break;
+        }
+        tank.setDirection(d);
+        tank.move();
+        //System.out.println(tank.moving);
+    }
+
+    /**
+     * Reset the player's position
+     */
+    private void resetPlayer(){
+        player.setX(startX);
+        player.setY(startY);
+    }
+
+    /**
+     * TODO
+     */
+    private void gameOver(){
+    }
+
+    /**
+     * TODO
+     * The main game loop for this screen.
+     * @param delta
+     */
     @Override
     public void render(float delta) {
         curTime = TimeUtils.nanoTime();
@@ -212,185 +416,6 @@ public class GameScreen implements Screen {
         // System.out.println(player.x + " " + player.y);
         // System.out.println(bullets.size);
         // fps.log();
-    }
-
-    // Player control helper methods
-    private void playerMove(Direction d) {
-        if (player.direction == d)
-            player.move();
-        else {
-            player.setDirection(d);
-            lastDirectionTime = curTime;
-        }
-    }
-
-    private boolean isPressed(int k) {
-        switch (k) {
-            case Keys.UP:
-                return Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.DOWN:
-                return Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.LEFT:
-                return Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.RIGHT:
-                return Gdx.input.isKeyPressed(Keys.RIGHT)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.UP);
-            default:
-                return false;
-        }
-    }
-
-    // Drawing helper methods
-    private void drawTank(Tank t) {
-        Sprite s = tankSprites.get(t.type);
-        s.setX(t.x);
-        s.setY(t.y);
-        switch (t.direction) {
-            case DOWN:
-                s.setRotation(180);
-                break;
-            case LEFT:
-                s.setRotation(90);
-                break;
-            case RIGHT:
-                s.setRotation(270);
-                break;
-            case UP:
-                s.setRotation(0);
-                break;
-        }
-        s.draw(game.batch);
-    }
-
-    private void drawBullet(Bullet b) {
-        bulletSprite.setX(b.x);
-        bulletSprite.setY(b.y);
-        switch (b.direction) {
-            case DOWN:
-                bulletSprite.setRotation(180);
-                break;
-            case LEFT:
-                bulletSprite.setRotation(90);
-                break;
-            case RIGHT:
-                bulletSprite.setRotation(270);
-                break;
-            case UP:
-                bulletSprite.setRotation(0);
-                break;
-        }
-        bulletSprite.draw(game.batch);
-    }
-
-    // TODO
-    // Collision!
-    // i values: 0=enemy bullet, 1=player bullet
-    private void collisionDetection(Bullet b) {
-        if (b.player) {
-            // check enemies
-            for (Tank t : enemies) {
-                if (b.overlaps(t)) {
-                    game.font.draw(game.batch, "Enemy HIT", 0, yBound - 100);
-                    t.damage();
-                    if(t.hp == 0) enemies.removeValue(t, true);
-                    playerBullets.removeValue(b, true);
-                }
-            }
-            for(Bullet e : enemyBullets){
-                if (b.overlaps(e)) {
-                    playerBullets.removeValue(b, true);
-                    enemyBullets.removeValue(e, true);
-                }
-            }
-        } else {
-            // check player
-            if (b.overlaps(player)) {
-                game.font.draw(game.batch, "BOOM", 0, yBound - 50);
-                enemyBullets.removeValue(b, true);
-                player.damage();
-                if(player.hp == 0) gameOver();
-                else resetPlayer();
-            }
-            for(Bullet p : playerBullets){
-                if (b.overlaps(p)) {
-                    playerBullets.removeValue(b, true);
-                    enemyBullets.removeValue(p, true);
-                }
-            }
-        }
-
-        // check walls
-        for (Wall w : walls) {
-            if (w.hp != -2 && b.overlaps(w)) {
-                // only player bullets damage walls
-                if (b.player) {
-                    playerBullets.removeValue(b, true);
-                    w.damage();
-                    if (w.hp == 0) {
-                        // if damage = 0 disappear
-                        wallLayer.getCell((int) (w.x / TILE_SIZE),
-                                (int) (w.y / TILE_SIZE)).setTile(backgroundTile);
-                        walls.removeValue(w, true);
-                    }
-                } else {
-                    System.out.println(b);
-                    enemyBullets.removeValue(b, true);
-                }
-            }
-        }
-    }
-
-    private void moveEnemy(Tank t){
-        if(t.moving == true || t.move()) return;
-
-        int i;
-        Direction d;
-        //check for valid directions
-//		while(!t.moving){
-        i = random.nextInt(4);
-        System.out.println("moveenemy " + i);
-        switch(i){
-            case 0:
-                d=Direction.UP;
-                break;
-            case 1:
-                d=Direction.LEFT;
-                break;
-            case 2:
-                d=Direction.RIGHT;
-                break;
-            case 3:
-                d=Direction.DOWN;
-                break;
-            default:
-                d=Direction.UP;
-                break;
-        }
-        t.setDirection(d);
-        t.move();
-        System.out.println(t.moving);
-//		}
-
-    }
-
-    private void resetPlayer(){
-        player.x = startX;
-        player.y = startY;
-    }
-
-    private void gameOver(){
-        //TODO
     }
 
     @Override
