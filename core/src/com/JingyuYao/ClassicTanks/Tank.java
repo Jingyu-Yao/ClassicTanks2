@@ -1,7 +1,5 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.utils.Array;
-
 @SuppressWarnings("serial")
 public class Tank extends GameObj{
 
@@ -11,22 +9,18 @@ public class Tank extends GameObj{
     static final float HALF_SIZE = SIZE / 2f;
 
     // Tank properties
-    protected static GameScreen g;
     protected TankType type;
-    protected boolean player;
 
     // Variables for movement
-    boolean moving;
-    float target;
-    float distanceLeft = ONE_DISTANCE;
+    protected boolean moving;
+    private float target;
+    private float distanceLeft = ONE_DISTANCE;
 
     // Constructors
-    public Tank(GameScreen screen,float x, float y, TankType type, Direction direction, boolean isPlayer) {
-        super(x, y, SIZE, SIZE, 100f, direction);
-        g = screen;
+    public Tank(GameScreen gameScreen,float x, float y, TankType type, Direction direction) {
+        super(gameScreen, x, y, SIZE, SIZE, 100f, direction);
         this.type = type;
         moving = false;
-        player = isPlayer;
         if(type == TankType.ARMORED){
             hp = 3;
         }
@@ -41,9 +35,6 @@ public class Tank extends GameObj{
     public TankType getType() {
         return type;
     }
-    public boolean isPlayer(){
-        return player;
-    }
     public boolean isMoving() {
         return moving;
     }
@@ -52,27 +43,27 @@ public class Tank extends GameObj{
      * Makes a bullet based on the direction of the tank
      */
     public void shoot() {
-        Array<Bullet> array;
-        if(player){
-            array = g.playerBullets;
-        }else{
-            array = g.enemyBullets;
-        }
+        Bullet bullet;
         switch (direction) {
             case DOWN:
-                array.add(new Bullet(body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y-Bullet.HEIGHT, direction, player));
+                bullet = new Bullet(gameScreen, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
                 break;
             case LEFT:
-                array.add(new Bullet(body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, player));
+                bullet = new Bullet(gameScreen, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
                 break;
             case RIGHT:
-                array.add(new Bullet(body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, player));
+                bullet = new Bullet(gameScreen, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
                 break;
             case UP:
-                array.add(new Bullet(body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, player));
+                bullet = new Bullet(gameScreen, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
                 break;
+            case NONE:
             default:
+                bullet = null;
                 break;
+        }
+        if(bullet != null){
+            gameScreen.bullets.add(bullet);
         }
     }
 
@@ -82,51 +73,33 @@ public class Tank extends GameObj{
      * @return
      */
     public boolean move() {
-        moving = true;
+        GameObj result = null;
         // set a target value to avoid rounding errors
         switch (direction) {
             case DOWN:
                 target = body.y - ONE_DISTANCE;
-                moving = !collideWithGameObjects(body.x,target);
+                result = collideAll(0.0f, -ONE_DISTANCE);
                 break;
             case LEFT:
                 target = body.x - ONE_DISTANCE;
-                moving = !collideWithGameObjects(target,body.y);
+                result = collideAll(-ONE_DISTANCE, 0.0f);
                 break;
             case RIGHT:
                 target = body.x + ONE_DISTANCE;
-                moving = !collideWithGameObjects(target,body.y);
+                result = collideAll(ONE_DISTANCE, 0.0f);
                 break;
             case UP:
                 target = body.y + ONE_DISTANCE;
-                moving = !collideWithGameObjects(body.x,target);
+                result = collideAll(0.0f, ONE_DISTANCE);
                 break;
         }
+        // This prevents tanks dodging bullets
+        if(result == null || result instanceof Bullet){
+            moving = true;
+        }else{
+            moving = false;
+        }
         return moving;
-    }
-
-    /**
-     * Checks collision with walls in the level. Also checks collision with enemy tanks
-     * if the player flag is true.
-     * @param x
-     * @param y
-     * @return
-     */
-    private boolean collideWithGameObjects(float x, float y){
-        for(Wall w : g.walls){
-            if(w.collidePoint(x+HALF_SIZE, y+HALF_SIZE))
-                return true;
-        }
-        if(player){
-            for(Tank t :g.enemies){
-                if(t.collidePoint(x+HALF_SIZE, y+HALF_SIZE))
-                    return true;
-            }
-        }
-        else{
-            return g.player.collidePoint(x+HALF_SIZE, y+HALF_SIZE);
-        }
-        return false;
     }
 
     /**

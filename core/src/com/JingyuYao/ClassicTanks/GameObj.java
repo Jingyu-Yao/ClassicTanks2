@@ -2,6 +2,8 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.Iterator;
+
 /**
  * Base class for all objects in the game.
  * Created by Jingyu_Yao on 1/15/2015.
@@ -11,22 +13,24 @@ public class GameObj {
     protected Direction direction;
     protected float velocity;
     protected int hp;
+    protected static GameScreen gameScreen;
 
-    public GameObj(float x, float y, float width, float height){
+    public GameObj(GameScreen gameScreen, float x, float y, float width, float height){
+        this.gameScreen = gameScreen;
         body = new Rectangle(x, y, width, height);
         direction = Direction.NONE;
         velocity = 0.0f;
         hp = 1;
     }
 
-    public GameObj(float x, float y, float width, float height, float velocity){
+    public GameObj(GameScreen gameScreen,float x, float y, float width, float height, float velocity){
         body = new Rectangle(x, y, width, height);
         direction = Direction.NONE;
         this.velocity = velocity;
         hp = 1;
     }
 
-    public GameObj(float x, float y, float width, float height, float velocity, Direction direction){
+    public GameObj(GameScreen gameScreen,float x, float y, float width, float height, float velocity, Direction direction){
         body = new Rectangle(x, y, width, height);
         this.direction = direction;
         this.velocity = velocity;
@@ -52,22 +56,57 @@ public class GameObj {
     public int getHp() { return hp; }
 
     /**
-     * Check collision with a point
-     * @param x
-     * @param y
-     * @return
+     * Check collision with another GameObj
+     * @param obj the other {@code GameObj} to test for collision
+     * @param dx the change in x position of this object
+     * @param dy the change in y position of this object
+     * @return the collided {@code GameObj} or {@code null} if no collision
      */
-    public boolean collidePoint(float x, float y){
-        return body.contains(x, y);
+    public GameObj collideObj(float dx, float dy, GameObj obj){
+        if(!this.equals(obj) && obj.body.overlaps(new Rectangle(body.x + dx, body.y + dy, body.width, body.height))){
+            return obj;
+        }
+        return null;
     }
 
     /**
-     * Check collision with another GameObj
-     * @param obj
-     * @return
+     * Checks collision all the walls, enemies, bullets and players in the level.
+     * @param dx the change in x position
+     * @param dy the change in y position
+     * @return the collided {@code GameObj} or {@code null} if no collision
      */
-    public boolean collideRect(GameObj obj){
-        return body.overlaps(obj.body);
+    public GameObj collideAll(float dx, float dy){
+        GameObj result = null;
+
+        // Check collision against walls
+        for(int i = 0; i < gameScreen.walls.size; i++){
+            Wall wall = gameScreen.walls.get(i);
+            result = this.collideObj(dx, dy, wall);
+            if(result != null){
+                return result;
+            }
+        }
+
+        // Check collision with other tanks
+        for(int i = 0; i < gameScreen.enemies.size; i++){
+            Enemy enemy = gameScreen.enemies.get(i);
+            result = this.collideObj(dx, dy, enemy);
+            if(result != null){
+                return result;
+            }
+        }
+
+        // Check collision with bullets
+        for(int i = 0; i < gameScreen.bullets.size; i++){
+            Bullet bullet = gameScreen.bullets.get(i);
+            result = this.collideObj(dx, dy, bullet);
+            if(result != null){
+                return result;
+            }
+        }
+
+        // Check collision with player
+        return this.collideObj(dx, dy, gameScreen.player);
     }
 
     /**
@@ -97,6 +136,6 @@ public class GameObj {
      * Reduce object's hp by one
      */
     public void damage(){
-        if(hp>0)hp--;
+        hp--;
     }
 }

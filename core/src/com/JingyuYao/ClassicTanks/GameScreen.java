@@ -29,11 +29,10 @@ public class GameScreen implements Screen {
     final static int TILE_SIZE = 32;
     static float startX = TILE_SIZE, startY = TILE_SIZE; //This need to change dynamically with map
 
-    Array<Tank> enemies = new Array<Tank>();
-    Array<Bullet> playerBullets = new Array<Bullet>();
-    Array<Bullet> enemyBullets = new Array<Bullet>();
+    Array<Enemy> enemies = new Array<Enemy>();
+    Array<Bullet> bullets = new Array<Bullet>();
     Array<Wall> walls = new Array<Wall>();
-    Tank player = new Tank(this,startX, startY, Tank.TankType.NORMAL, Direction.UP, true);
+    Player player = new Player(this,startX, startY, Tank.TankType.NORMAL, Direction.UP);
 
     long lastBulletTime = 0l;
     long fireRate = 1000000000l; // 1s
@@ -76,7 +75,7 @@ public class GameScreen implements Screen {
 
         createSprites();
 
-        enemies.add(new Tank(this,32, 128, Tank.TankType.ARMORED, Direction.RIGHT, false));
+        enemies.add(new Enemy(this,32, 128, Tank.TankType.ARMORED, Direction.RIGHT));
     }
 
     /**
@@ -111,7 +110,7 @@ public class GameScreen implements Screen {
                     prop = Integer.parseInt(cell.getTile().getProperties()
                             .get("hp", String.class));
                     // multiply by tile size to match pixel coordinates
-                    walls.add(new Wall(i * TILE_SIZE, j * TILE_SIZE, prop));
+                    walls.add(new Wall(this, i * TILE_SIZE, j * TILE_SIZE, prop));
                 }
             }
         }
@@ -216,99 +215,14 @@ public class GameScreen implements Screen {
         bulletSprite.draw(game.batch);
     }
 
-    // Collision!
     /**
-     * TODO
-     * Bullet collision detection.
-     * @param bullet
+     * Kill the cell at (x,y) position in world space
+     * @param x
+     * @param y
      */
-    private void collisionDetection(Bullet bullet) {
-        if (bullet.isPlayer()) {
-            // check enemies
-            for (Tank t : enemies) {
-                if (bullet.collideRect(t)) {
-                    game.font.draw(game.batch, "Enemy HIT", 0, yBound - 100);
-                    t.damage();
-                    if(t.hp == 0) enemies.removeValue(t, true);
-                    playerBullets.removeValue(bullet, true);
-                }
-            }
-            for(Bullet e : enemyBullets){
-                if (bullet.collideRect(e)) {
-                    playerBullets.removeValue(bullet, true);
-                    enemyBullets.removeValue(e, true);
-                }
-            }
-        } else {
-            // check player
-            if (bullet.collideRect(player)) {
-                game.font.draw(game.batch, "BOOM", 0, yBound - 50);
-                enemyBullets.removeValue(bullet, true);
-                player.damage();
-                if(player.hp == 0) gameOver();
-                else resetPlayer();
-            }
-            for(Bullet p : playerBullets){
-                if (bullet.collideRect(p)) {
-                    playerBullets.removeValue(bullet, true);
-                    enemyBullets.removeValue(p, true);
-                }
-            }
-        }
-
-        // check walls
-        for (Wall w : walls) {
-            if (w.hp != -2 && bullet.collideRect(w)) {
-                // only player bullets damage walls
-                if (bullet.isPlayer()) {
-                    playerBullets.removeValue(bullet, true);
-                    w.damage();
-                    if (w.hp == 0) {
-                        // if damage = 0 disappear
-                        wallLayer.getCell((int) (w.body.x / TILE_SIZE),
-                                (int) (w.body.y / TILE_SIZE)).setTile(backgroundTile);
-                        walls.removeValue(w, true);
-                    }
-                } else {
-                    System.out.println(bullet);
-                    enemyBullets.removeValue(bullet, true);
-                }
-            }
-        }
-    }
-
-    /**
-     * TODO
-     * Enemy tank movement AI.
-     * @param tank
-     */
-    private void moveEnemy(Tank tank){
-        if(tank.isMoving() == true || tank.move()) return;
-
-        int i;
-        Direction d;
-        i = random.nextInt(4);
-        //System.out.println("moveenemy " + i);
-        switch(i){
-            case 0:
-                d=Direction.UP;
-                break;
-            case 1:
-                d=Direction.LEFT;
-                break;
-            case 2:
-                d=Direction.RIGHT;
-                break;
-            case 3:
-                d=Direction.DOWN;
-                break;
-            default:
-                d=Direction.UP;
-                break;
-        }
-        tank.setDirection(d);
-        tank.move();
-        //System.out.println(tank.moving);
+    public void killCell(float x, float y){
+        wallLayer.getCell((int) (x / TILE_SIZE),
+                (int) (y / TILE_SIZE)).setTile(backgroundTile);
     }
 
     /**
@@ -363,23 +277,17 @@ public class GameScreen implements Screen {
         player.update(delta);
 
         // draw and update enemies
-        for (Tank t : enemies) {
-            drawTank(t);
-            t.update(delta);
-            moveEnemy(t);
+        for(int i = 0; i < enemies.size; i++) {
+            Enemy e = enemies.get(i);
+            drawTank(e);
+            e.update(delta);
         }
 
         // draw and update bullets
-        // also calls collision detection on bullets
-        for (Bullet b : playerBullets) {
+        for(int i = 0; i < bullets.size; i++) {
+            Bullet b = bullets.get(i);
             drawBullet(b);
             b.update(delta);
-            collisionDetection(b);
-        }
-        for (Bullet b : enemyBullets) {
-            drawBullet(b);
-            b.update(delta);
-            collisionDetection(b);
         }
 
         game.batch.end();
@@ -408,14 +316,8 @@ public class GameScreen implements Screen {
             if (curTime - lastBulletTime > fireRate) {
                 lastBulletTime = curTime;
                 player.shoot();
-//				enemies.first().shoot();
             }
         }
-
-        // *** Testers ***
-        // System.out.println(player.x + " " + player.y);
-        // System.out.println(bullets.size);
-        // fps.log();
     }
 
     @Override

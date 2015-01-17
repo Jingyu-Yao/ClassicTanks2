@@ -7,13 +7,19 @@ public class Bullet extends GameObj{
     static final float WIDTH = 4f;
 
     // Properties
-    private boolean player;
+    private Tank origin;
 
-    // Constructor
-    public Bullet(float x, float y, Direction d, boolean p) {
-        super(x,y,HEIGHT,WIDTH,200f);
-        direction = d;
-        player = p;
+    /**
+     *
+     * @param x
+     * @param y
+     * @param direction
+     * @param origin the source of the bullet
+     */
+    public Bullet(GameScreen gamescreen, float x, float y, Direction direction, Tank origin) {
+        super(gamescreen,x,y,HEIGHT,WIDTH,200f);
+        this.direction = direction;
+        this.origin = origin;
         setProperRecBound();
     }
 
@@ -38,11 +44,43 @@ public class Bullet extends GameObj{
     }
 
     // Getter / Setter
-    public void setPlayer(boolean b) {
-        player = b;
-    }
-    public boolean isPlayer() {
-        return player;
-    }
+    public Tank getOrigin() { return origin; }
 
+    /**
+     * Updates the bullet's location. Also handles collision
+     * @param deltaTime
+     */
+    @Override
+    public void update(float deltaTime){
+        super.update(deltaTime);
+        GameObj result = collideAll(0.0f, 0.0f);
+
+        if(result == null){
+            return;
+        }else{
+            // If both objects are bullets, they cancel each other out
+            if(result instanceof Bullet){
+                gameScreen.bullets.removeValue((Bullet)result, true);
+                gameScreen.bullets.removeValue(this, true);
+            }
+
+            // If bullet is fired by the player
+            if(this.getOrigin() instanceof Player){
+                // and it hits a wall
+                if(result instanceof Wall && result.getHp() != -2){
+                    result.damage();
+                    gameScreen.bullets.removeValue(this, true);
+                }else{
+                    result.damage();
+                    gameScreen.bullets.removeValue(this, true);
+                }
+            }else{
+                // Enemy tank only damages players
+                if(result instanceof Player){
+                    result.damage();
+                }
+                gameScreen.bullets.removeValue(this, true);
+            }
+        }
+    }
 }
