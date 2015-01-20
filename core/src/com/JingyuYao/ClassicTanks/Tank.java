@@ -68,8 +68,8 @@ public class Tank extends GameObj{
     }
 
     /**
-     * Tell the update method to start actually updating
-     * Also checks for collision with walls
+     * Set a target position for this unit to move towards.
+     * Also checks for collision with other objects before moving.
      * @return
      */
     public boolean move() {

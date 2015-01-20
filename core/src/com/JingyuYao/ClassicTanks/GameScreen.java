@@ -22,12 +22,14 @@ public class GameScreen implements Screen {
 
     final ClassicTanks game;
 
-    OrthographicCamera camera;
+    public OrthographicCamera camera;
 
     static int level;
     static int xBound = 960, yBound = 960;
     final static int TILE_SIZE = 32;
     static float startX = TILE_SIZE, startY = TILE_SIZE; //This need to change dynamically with map
+    static int cameraSize = 640;
+    static int cameraInnerBound = 80;
 
     Array<Enemy> enemies = new Array<Enemy>();
     Array<Bullet> bullets = new Array<Bullet>();
@@ -46,7 +48,6 @@ public class GameScreen implements Screen {
     Hashtable<Tank.TankType, Sprite> tankSprites = new Hashtable<Tank.TankType, Sprite>();
     TiledMapTileLayer wallLayer;
     TiledMapTile backgroundTile;
-    Random random = new Random();
 
     FPSLogger fps = new FPSLogger();
 
@@ -68,7 +69,7 @@ public class GameScreen implements Screen {
 
         // create camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, xBound, yBound);
+        camera.setToOrtho(false, cameraSize, cameraSize);
 
         // set up tiled map renderer
         tiledMapRenderer = new OrthogonalTiledMapRenderer(map, tiledScale);
@@ -255,8 +256,6 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0.2f, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update(); // re-compute the position of the camera
-
 		/*
 		 * Render tiled map
 		 */
@@ -272,7 +271,8 @@ public class GameScreen implements Screen {
 		 * ********************************************************
 		 */
         game.batch.begin();
-        // and update player
+
+        // Draw and update player
         drawTank(player);
         player.update(delta);
 

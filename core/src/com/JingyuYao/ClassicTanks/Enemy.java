@@ -6,7 +6,7 @@ import java.util.Random;
  * Created by Jingyu_Yao on 1/16/2015.
  */
 public class Enemy extends Tank {
-    Random random = new Random();
+    static final Random random = new Random();
 
     public Enemy(GameScreen gameScreen, float x, float y, TankType type, Direction direction) {
         super(gameScreen, x, y, type, direction);
@@ -20,6 +20,11 @@ public class Enemy extends Tank {
         }
     }
 
+    /**
+     * Updates this unit's position. If it is moving already, keep moving until collision occurs.
+     * Else decide a new direction to move towards.
+     * @param deltaTime
+     */
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
