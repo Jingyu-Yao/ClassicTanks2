@@ -15,6 +15,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -24,59 +25,38 @@ public class GameScreen implements Screen {
 
     public OrthographicCamera camera;
 
-    static int level;
-    static int xBound = 960, yBound = 960;
+    static Level level;
     final static int TILE_SIZE = 32;
-    static float startX = TILE_SIZE, startY = TILE_SIZE; //This need to change dynamically with map
     static int cameraSize = 640;
     static int cameraInnerBound = 80;
-
-    Array<Enemy> enemies = new Array<Enemy>();
-    Array<Bullet> bullets = new Array<Bullet>();
-    Array<Wall> walls = new Array<Wall>();
-    Player player = new Player(this,startX, startY, Tank.TankType.NORMAL, Direction.UP);
 
     long lastBulletTime = 0l;
     long fireRate = 1000000000l; // 1s
     long lastDirectionTime = 0l;
     long directionPauseTime = 100000000l;
     long curTime;
-    TiledMap map;
+
     float tiledScale = 1f;
     OrthogonalTiledMapRenderer tiledMapRenderer;
     Sprite bulletSprite;
-    Hashtable<Tank.TankType, Sprite> tankSprites = new Hashtable<Tank.TankType, Sprite>();
-    TiledMapTileLayer wallLayer;
-    TiledMapTile backgroundTile;
+    Hashtable<Tank.TankType, Sprite> tankSprites;
 
     FPSLogger fps = new FPSLogger();
 
     public GameScreen(final ClassicTanks g) {
         game = g;
-        level = 1;
-        String levelString = "level1.tmx";
-
-        // load tiled map
-        game.assetManager.load(levelString, TiledMap.class);
-        game.assetManager.finishLoading();
-        map = game.assetManager.get("level1.tmx");
-        // get a default background grass tile to replace the wallz
-        wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
-        TiledMapTileLayer tmp = (TiledMapTileLayer) (map.getLayers()
-                .get("Background"));
-        backgroundTile = tmp.getCell(0, 0).getTile();
-        makeWallFromTile();
 
         // create camera
         camera = new OrthographicCamera();
         camera.setToOrtho(false, cameraSize, cameraSize);
 
-        // set up tiled map renderer
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(map, tiledScale);
-
+        tankSprites = new Hashtable<Tank.TankType, Sprite>();
         createSprites();
 
-        enemies.add(new Enemy(this,32, 128, Tank.TankType.ARMORED, Direction.RIGHT));
+        level = new Level(1, TILE_SIZE, TILE_SIZE, this);
+
+        // set up tiled map renderer
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.map, tiledScale);
     }
 
     /**
@@ -98,37 +78,17 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
     }
 
-    /**
-     * Populates the walls array with every wall in wallLayer with the appropriate x,y,width,height
-     */
-    private void makeWallFromTile() {
-        TiledMapTileLayer.Cell cell;
-        int prop;
-        for (int i = 0; i < wallLayer.getWidth(); i++) {
-            for (int j = 0; j < wallLayer.getHeight(); j++) {
-                cell = wallLayer.getCell(i, j);
-                if (cell != null) {
-                    prop = Integer.parseInt(cell.getTile().getProperties()
-                            .get("hp", String.class));
-                    // multiply by tile size to match pixel coordinates
-                    walls.add(new Wall(this, i * TILE_SIZE, j * TILE_SIZE, prop));
-                }
-            }
-        }
-    }
-
     // Player control helper methods
-
     /**
      * Move the player in the direction passed
      * @param direction
      */
     private void playerMove(Direction direction) {
-        if (player.getDirection() == direction){
-            player.move();
+        if (level.player.getDirection() == direction){
+            level.player.move();
         }
         else {
-            player.setDirection(direction);
+            level.player.setDirection(direction);
             lastDirectionTime = curTime;
         }
     }
@@ -217,27 +177,47 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * Kill the cell at (x,y) position in world space
-     * @param x
-     * @param y
-     */
-    public void killCell(float x, float y){
-        wallLayer.getCell((int) (x / TILE_SIZE),
-                (int) (y / TILE_SIZE)).setTile(backgroundTile);
-    }
-
-    /**
      * Reset the player's position
      */
     private void resetPlayer(){
-        player.setX(startX);
-        player.setY(startY);
+        level.player.setX(level.startX);
+        level.player.setY(level.startY);
     }
 
     /**
      * TODO
      */
     private void gameOver(){
+    }
+
+    /**
+     * TODO: Bound distance changes with direction to allow larger view
+     * Changes the x and y position of the camera to follow the player.
+     * The movement allowance is set by {@code GameScreen.cameraInnerBound}
+     */
+    private void moveCamera(){
+        Vector3 cameraPosition = camera.position;
+        float cameraX = cameraPosition.x, cameraY = cameraPosition.y;
+        float playerX = level.player.body.x, playerY = level.player.body.y;
+        int innerBound = cameraInnerBound;
+
+        float dx = 0, dy = 0;
+        if(cameraX - playerX > innerBound){
+            dx = playerX - cameraX + innerBound;
+        }
+        else if(playerX - cameraX > innerBound){
+            dx = playerX - cameraX - innerBound;
+        }
+        if(cameraY - playerY > innerBound){
+            dy = playerY - cameraY + innerBound;
+        }
+        else if(playerY - cameraY > innerBound){
+            dy = playerY - cameraY - innerBound;
+        }
+        if(dx != 0 || dy != 0){
+            camera.translate(dx, dy);
+            camera.update();
+        }
     }
 
     /**
@@ -273,19 +253,20 @@ public class GameScreen implements Screen {
         game.batch.begin();
 
         // Draw and update player
-        drawTank(player);
-        player.update(delta);
+        drawTank(level.player);
+        level.player.update(delta);
+        moveCamera();
 
         // draw and update enemies
-        for(int i = 0; i < enemies.size; i++) {
-            Enemy e = enemies.get(i);
+        for(int i = 0; i < level.enemies.size; i++) {
+            Enemy e = level.enemies.get(i);
             drawTank(e);
             e.update(delta);
         }
 
         // draw and update bullets
-        for(int i = 0; i < bullets.size; i++) {
-            Bullet b = bullets.get(i);
+        for(int i = 0; i < level.bullets.size; i++) {
+            Bullet b = level.bullets.get(i);
             drawBullet(b);
             b.update(delta);
         }
@@ -296,7 +277,7 @@ public class GameScreen implements Screen {
 		 * Input handling
 		 * ********************************************************
 		 */
-        if (!player.moving && curTime - lastDirectionTime > directionPauseTime) {
+        if (!level.player.moving && curTime - lastDirectionTime > directionPauseTime) {
             if (isPressed(Keys.LEFT)) {
                 playerMove(Direction.LEFT);
             }
@@ -315,7 +296,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             if (curTime - lastBulletTime > fireRate) {
                 lastBulletTime = curTime;
-                player.shoot();
+                level.player.shoot();
             }
         }
     }

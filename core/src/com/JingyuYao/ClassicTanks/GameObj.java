@@ -2,8 +2,6 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Rectangle;
 
-import java.util.Iterator;
-
 /**
  * Base class for all objects in the game.
  * Created by Jingyu_Yao on 1/15/2015.
@@ -13,24 +11,26 @@ public class GameObj {
     protected Direction direction;
     protected float velocity;
     protected int hp;
-    protected static GameScreen gameScreen;
+    protected static Level level;
 
-    public GameObj(GameScreen gameScreen, float x, float y, float width, float height){
-        this.gameScreen = gameScreen;
+    public GameObj(Level level, float x, float y, float width, float height){
+        this.level = level;
         body = new Rectangle(x, y, width, height);
         direction = Direction.NONE;
         velocity = 0.0f;
         hp = 1;
     }
 
-    public GameObj(GameScreen gameScreen,float x, float y, float width, float height, float velocity){
+    public GameObj(Level level,float x, float y, float width, float height, float velocity){
+        this.level = level;
         body = new Rectangle(x, y, width, height);
         direction = Direction.NONE;
         this.velocity = velocity;
         hp = 1;
     }
 
-    public GameObj(GameScreen gameScreen,float x, float y, float width, float height, float velocity, Direction direction){
+    public GameObj(Level level,float x, float y, float width, float height, float velocity, Direction direction){
+        this.level = level;
         body = new Rectangle(x, y, width, height);
         this.direction = direction;
         this.velocity = velocity;
@@ -79,8 +79,8 @@ public class GameObj {
         GameObj result = null;
 
         // Check collision against walls
-        for(int i = 0; i < gameScreen.walls.size; i++){
-            Wall wall = gameScreen.walls.get(i);
+        for(int i = 0; i < level.walls.size; i++){
+            Wall wall = level.walls.get(i);
             result = this.collideObj(dx, dy, wall);
             if(result != null){
                 return result;
@@ -88,8 +88,8 @@ public class GameObj {
         }
 
         // Check collision with other tanks
-        for(int i = 0; i < gameScreen.enemies.size; i++){
-            Enemy enemy = gameScreen.enemies.get(i);
+        for(int i = 0; i < level.enemies.size; i++){
+            Enemy enemy = level.enemies.get(i);
             result = this.collideObj(dx, dy, enemy);
             if(result != null){
                 return result;
@@ -97,8 +97,8 @@ public class GameObj {
         }
 
         // Check collision with bullets
-        for(int i = 0; i < gameScreen.bullets.size; i++){
-            Bullet bullet = gameScreen.bullets.get(i);
+        for(int i = 0; i < level.bullets.size; i++){
+            Bullet bullet = level.bullets.get(i);
             result = this.collideObj(dx, dy, bullet);
             if(result != null){
                 return result;
@@ -106,7 +106,7 @@ public class GameObj {
         }
 
         // Check collision with player
-        return this.collideObj(dx, dy, gameScreen.player);
+        return this.collideObj(dx, dy, level.player);
     }
 
     /**

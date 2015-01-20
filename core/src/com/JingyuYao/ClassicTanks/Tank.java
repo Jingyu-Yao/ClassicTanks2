@@ -17,8 +17,8 @@ public class Tank extends GameObj{
     private float distanceLeft = ONE_DISTANCE;
 
     // Constructors
-    public Tank(GameScreen gameScreen,float x, float y, TankType type, Direction direction) {
-        super(gameScreen, x, y, SIZE, SIZE, 100f, direction);
+    public Tank(Level level,float x, float y, TankType type, Direction direction) {
+        super(level, x, y, SIZE, SIZE, 100f, direction);
         this.type = type;
         moving = false;
         if(type == TankType.ARMORED){
@@ -46,16 +46,16 @@ public class Tank extends GameObj{
         Bullet bullet;
         switch (direction) {
             case DOWN:
-                bullet = new Bullet(gameScreen, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
+                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
                 break;
             case LEFT:
-                bullet = new Bullet(gameScreen, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
+                bullet = new Bullet(level, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
                 break;
             case RIGHT:
-                bullet = new Bullet(gameScreen, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
+                bullet = new Bullet(level, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
                 break;
             case UP:
-                bullet = new Bullet(gameScreen, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
+                bullet = new Bullet(level, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
                 break;
             case NONE:
             default:
@@ -63,7 +63,7 @@ public class Tank extends GameObj{
                 break;
         }
         if(bullet != null){
-            gameScreen.bullets.add(bullet);
+            level.bullets.add(bullet);
         }
     }
 

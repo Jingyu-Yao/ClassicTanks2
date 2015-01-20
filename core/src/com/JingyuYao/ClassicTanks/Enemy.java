@@ -8,15 +8,15 @@ import java.util.Random;
 public class Enemy extends Tank {
     static final Random random = new Random();
 
-    public Enemy(GameScreen gameScreen, float x, float y, TankType type, Direction direction) {
-        super(gameScreen, x, y, type, direction);
+    public Enemy(Level level, float x, float y, TankType type, Direction direction) {
+        super(level, x, y, type, direction);
     }
 
     @Override
     public void damage(){
         super.damage();
         if(hp == 0){
-            gameScreen.enemies.removeValue(this, true);
+            level.enemies.removeValue(this, true);
         }
     }
 
