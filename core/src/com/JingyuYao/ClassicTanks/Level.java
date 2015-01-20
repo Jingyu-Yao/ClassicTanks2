@@ -81,4 +81,14 @@ public class Level {
         wallLayer.getCell((int) (x / gameScreen.TILE_SIZE),
                 (int) (y / gameScreen.TILE_SIZE)).setTile(backgroundTile);
     }
+
+    /**
+     * Reset the player's position
+     */
+    private void resetPlayer(){
+        player.setX(startX);
+        player.setY(startY);
+    }
+
+
 }

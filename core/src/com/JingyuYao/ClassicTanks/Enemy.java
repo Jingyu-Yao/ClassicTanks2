@@ -29,7 +29,7 @@ public class Enemy extends Tank {
     public void update(float deltaTime){
         super.update(deltaTime);
 
-        if(moving == true || move()) return;
+        if(moving == true || forward()) return;
 
         int i;
         Direction d;
@@ -53,6 +53,6 @@ public class Enemy extends Tank {
                 break;
         }
         direction = d;
-        move();
+        forward();
     }
 }

@@ -1,60 +1,56 @@
 package com.JingyuYao.ClassicTanks;
 
 import java.util.Hashtable;
-import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class GameScreen implements Screen {
 
     final ClassicTanks game;
-
-    public OrthographicCamera camera;
-
-    static Level level;
     final static int TILE_SIZE = 32;
-    static int cameraSize = 640;
-    static int cameraInnerBound = 80;
+    final int CAMERA_SIZE = 640;
+    final int CAMERA_INNER_BOUND = 80;
 
-    long lastBulletTime = 0l;
-    long fireRate = 1000000000l; // 1s
-    long lastDirectionTime = 0l;
-    long directionPauseTime = 100000000l;
-    long curTime;
+    OrthographicCamera camera;
 
-    float tiledScale = 1f;
+    float tiledScale;
     OrthogonalTiledMapRenderer tiledMapRenderer;
     Sprite bulletSprite;
     Hashtable<Tank.TankType, Sprite> tankSprites;
 
-    FPSLogger fps = new FPSLogger();
+    Level level;
+    //FPSLogger fps = new FPSLogger();
 
     public GameScreen(final ClassicTanks g) {
         game = g;
+        tiledScale = 1f;
 
         // create camera
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, cameraSize, cameraSize);
+        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
 
         tankSprites = new Hashtable<Tank.TankType, Sprite>();
         createSprites();
 
-        level = new Level(1, TILE_SIZE, TILE_SIZE, this);
+        changeLevel(1);
+    }
 
+    /**
+     * Create a new {@code Level} using the given {@code levelNumber}.
+     * Also set {@code tiledMapRenderer} to draw the current level
+     *
+     * @param levelNumber set the current level of the game
+     */
+    private void changeLevel(int levelNumber) {
+        System.out.println("Level changed to: " + levelNumber);
+        level = new Level(levelNumber, TILE_SIZE, TILE_SIZE, this);
         // set up tiled map renderer
         tiledMapRenderer = new OrthogonalTiledMapRenderer(level.map, tiledScale);
     }
@@ -78,57 +74,34 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
     }
 
-    // Player control helper methods
     /**
-     * Move the player in the direction passed
-     * @param direction
+     * Checks if any arrow keys are pressed and handle accordingly.
+     * Note: If multiple arrow keys are pressed at the same time,
+     * nothing happens.
      */
-    private void playerMove(Direction direction) {
-        if (level.player.getDirection() == direction){
-            level.player.move();
-        }
-        else {
-            level.player.setDirection(direction);
-            lastDirectionTime = curTime;
+    private void handleDirectionalInput() {
+        if (Gdx.input.isKeyPressed(Keys.UP)
+                && !Gdx.input.isKeyPressed(Keys.DOWN)
+                && !Gdx.input.isKeyPressed(Keys.LEFT)
+                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            level.player.moveTowards(Direction.UP);
+        } else if (Gdx.input.isKeyPressed(Keys.DOWN)
+                && !Gdx.input.isKeyPressed(Keys.LEFT)
+                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            level.player.moveTowards(Direction.DOWN);
+
+        } else if (Gdx.input.isKeyPressed(Keys.LEFT)
+                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            level.player.moveTowards(Direction.LEFT);
+
+        } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            level.player.moveTowards(Direction.RIGHT);
         }
     }
-
-    /**
-     * Returns true if the current key is the only one being pressed
-     * @param key
-     * @return
-     */
-    private boolean isPressed(int key) {
-        switch (key) {
-            case Keys.UP:
-                return Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.DOWN:
-                return Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.LEFT:
-                return Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.UP)
-                        && !Gdx.input.isKeyPressed(Keys.RIGHT);
-            case Keys.RIGHT:
-                return Gdx.input.isKeyPressed(Keys.RIGHT)
-                        && !Gdx.input.isKeyPressed(Keys.DOWN)
-                        && !Gdx.input.isKeyPressed(Keys.LEFT)
-                        && !Gdx.input.isKeyPressed(Keys.UP);
-            default:
-                return false;
-        }
-    }
-
-    // Drawing helper methods
 
     /**
      * Draw a tank
+     *
      * @param tank
      */
     private void drawTank(Tank tank) {
@@ -154,6 +127,7 @@ public class GameScreen implements Screen {
 
     /**
      * Draw a bullet
+     *
      * @param bullet
      */
     private void drawBullet(Bullet bullet) {
@@ -177,44 +151,26 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * Reset the player's position
-     */
-    private void resetPlayer(){
-        level.player.setX(level.startX);
-        level.player.setY(level.startY);
-    }
-
-    /**
-     * TODO
-     */
-    private void gameOver(){
-    }
-
-    /**
      * TODO: Bound distance changes with direction to allow larger view
      * Changes the x and y position of the camera to follow the player.
-     * The movement allowance is set by {@code GameScreen.cameraInnerBound}
+     * The movement allowance is set by {@code GameScreen.CAMERA_INNER_BOUND}
      */
-    private void moveCamera(){
-        Vector3 cameraPosition = camera.position;
-        float cameraX = cameraPosition.x, cameraY = cameraPosition.y;
+    private void moveCamera() {
+        float cameraX = camera.position.x, cameraY = camera.position.y;
         float playerX = level.player.body.x, playerY = level.player.body.y;
-        int innerBound = cameraInnerBound;
 
         float dx = 0, dy = 0;
-        if(cameraX - playerX > innerBound){
-            dx = playerX - cameraX + innerBound;
+        if (cameraX - playerX > CAMERA_INNER_BOUND) {
+            dx = playerX - cameraX + CAMERA_INNER_BOUND;
+        } else if (playerX - cameraX > CAMERA_INNER_BOUND) {
+            dx = playerX - cameraX - CAMERA_INNER_BOUND;
         }
-        else if(playerX - cameraX > innerBound){
-            dx = playerX - cameraX - innerBound;
+        if (cameraY - playerY > CAMERA_INNER_BOUND) {
+            dy = playerY - cameraY + CAMERA_INNER_BOUND;
+        } else if (playerY - cameraY > CAMERA_INNER_BOUND) {
+            dy = playerY - cameraY - CAMERA_INNER_BOUND;
         }
-        if(cameraY - playerY > innerBound){
-            dy = playerY - cameraY + innerBound;
-        }
-        else if(playerY - cameraY > innerBound){
-            dy = playerY - cameraY - innerBound;
-        }
-        if(dx != 0 || dy != 0){
+        if (dx != 0 || dy != 0) {
             camera.translate(dx, dy);
             camera.update();
         }
@@ -223,33 +179,32 @@ public class GameScreen implements Screen {
     /**
      * TODO
      * The main game loop for this screen.
+     *
      * @param delta
      */
     @Override
     public void render(float delta) {
-        curTime = TimeUtils.nanoTime();
 
 		/* *********************************************************
-		 * openGL stuff, should decide on using GL20 or not
+         * openGL stuff
 		 * ********************************************************
 		 */
         Gdx.gl.glClearColor(0, 0, 0.2f, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		/*
-		 * Render tiled map
+         * Render tiled map
 		 */
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
-
-        // note for matrices: projection=lense,view=camera,model=model(duh)
-        game.batch.setProjectionMatrix(camera.combined);
 
 		/* *********************************************************
 		 * Draw and then updates the position in one place saves the use of
 		 * another loop and easier to organize Also handles collisions
 		 * ********************************************************
 		 */
+        // note for matrices: projection=lense,view=camera,model=model(duh)
+        game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
         // Draw and update player
@@ -258,14 +213,14 @@ public class GameScreen implements Screen {
         moveCamera();
 
         // draw and update enemies
-        for(int i = 0; i < level.enemies.size; i++) {
+        for (int i = 0; i < level.enemies.size; i++) {
             Enemy e = level.enemies.get(i);
             drawTank(e);
             e.update(delta);
         }
 
         // draw and update bullets
-        for(int i = 0; i < level.bullets.size; i++) {
+        for (int i = 0; i < level.bullets.size; i++) {
             Bullet b = level.bullets.get(i);
             drawBullet(b);
             b.update(delta);
@@ -277,27 +232,14 @@ public class GameScreen implements Screen {
 		 * Input handling
 		 * ********************************************************
 		 */
-        if (!level.player.moving && curTime - lastDirectionTime > directionPauseTime) {
-            if (isPressed(Keys.LEFT)) {
-                playerMove(Direction.LEFT);
-            }
-            if (isPressed(Keys.RIGHT)) {
-                playerMove(Direction.RIGHT);
-            }
-            if (isPressed(Keys.UP)) {
-                playerMove(Direction.UP);
-            }
-            if (isPressed(Keys.DOWN)) {
-                playerMove(Direction.DOWN);
-            }
+        handleDirectionalInput();
+        if (Gdx.input.isKeyPressed(Keys.R)) {
+            changeLevel(1);
         }
 
         // controlled bullet fire rate
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-            if (curTime - lastBulletTime > fireRate) {
-                lastBulletTime = curTime;
-                level.player.shoot();
-            }
+            level.player.shoot();
         }
     }
 

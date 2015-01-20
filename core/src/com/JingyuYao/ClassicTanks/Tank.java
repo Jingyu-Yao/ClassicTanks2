@@ -1,5 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.utils.TimeUtils;
+
 @SuppressWarnings("serial")
 public class Tank extends GameObj{
 
@@ -10,6 +12,9 @@ public class Tank extends GameObj{
 
     // Tank properties
     protected TankType type;
+    long lastBulletTime;
+    long fireRate; // 1s
+    long curTime;
 
     // Variables for movement
     protected boolean moving;
@@ -19,16 +24,31 @@ public class Tank extends GameObj{
     // Constructors
     public Tank(Level level,float x, float y, TankType type, Direction direction) {
         super(level, x, y, SIZE, SIZE, 100f, direction);
-        this.type = type;
+        setType(type);
         moving = false;
-        if(type == TankType.ARMORED){
-            hp = 3;
-        }
+        lastBulletTime = 0l;
+        curTime = TimeUtils.nanoTime();
+        fireRate = 1000000000l;
     }
 
     // Setters
     public void setType(TankType t) {
         type = t;
+        switch(type){
+            case NORMAL:
+                break;
+            case BARRAGE:
+                break;
+            case DUAL:
+                break;
+            case FAST:
+                break;
+            case ARMORED:
+                hp = 3;
+                break;
+            case GM:
+                break;
+        }
     }
 
     // Getters
@@ -43,6 +63,12 @@ public class Tank extends GameObj{
      * Makes a bullet based on the direction of the tank
      */
     public void shoot() {
+        curTime = TimeUtils.nanoTime();
+        if (curTime - lastBulletTime < fireRate) {
+            return;
+        }
+        
+        lastBulletTime = curTime;
         Bullet bullet;
         switch (direction) {
             case DOWN:
@@ -72,7 +98,7 @@ public class Tank extends GameObj{
      * Also checks for collision with other objects before moving.
      * @return
      */
-    public boolean move() {
+    public boolean forward() {
         GameObj result = null;
         // set a target value to avoid rounding errors
         switch (direction) {

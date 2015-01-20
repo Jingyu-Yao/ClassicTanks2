@@ -67,9 +67,11 @@ public class Bullet extends GameObj{
             // If bullet is fired by the player
             if(this.getOrigin() instanceof Player){
                 // and it hits a wall
-                if(result instanceof Wall && result.getHp() != -2){
-                    result.damage();
-                    level.bullets.removeValue(this, true);
+                if(result instanceof Wall){
+                    if(result.getHp() != -2) {
+                        result.damage();
+                        level.bullets.removeValue(this, true);
+                    }
                 }else{
                     result.damage();
                     level.bullets.removeValue(this, true);
