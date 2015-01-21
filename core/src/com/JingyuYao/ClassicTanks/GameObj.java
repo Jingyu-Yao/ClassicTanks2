@@ -13,17 +13,25 @@ public class GameObj {
     protected int hp;
     protected static Level level;
 
+    public GameObj(){
+        this.level = null;
+        body = new Rectangle(0, 0, 0, 0);
+        direction = Direction.NONE;
+        velocity = 0.0f;
+        hp = 0;
+    }
+
     public GameObj(Level level, float x, float y, float width, float height){
         this.level = level;
-        body = new Rectangle(x, y, width, height);
+        body = new Rectangle(x*GameScreen.TILE_SIZE, y*GameScreen.TILE_SIZE, width, height);
         direction = Direction.NONE;
         velocity = 0.0f;
         hp = 1;
     }
 
-    public GameObj(Level level,float x, float y, float width, float height, float velocity){
+    public GameObj(Level level, float x, float y, float width, float height, float velocity){
         this.level = level;
-        body = new Rectangle(x, y, width, height);
+        body = new Rectangle(x*GameScreen.TILE_SIZE, y*GameScreen.TILE_SIZE, width, height);
         direction = Direction.NONE;
         this.velocity = velocity;
         hp = 1;
@@ -31,7 +39,7 @@ public class GameObj {
 
     public GameObj(Level level,float x, float y, float width, float height, float velocity, Direction direction){
         this.level = level;
-        body = new Rectangle(x, y, width, height);
+        body = new Rectangle(x*GameScreen.TILE_SIZE, y*GameScreen.TILE_SIZE, width, height);
         this.direction = direction;
         this.velocity = velocity;
         hp = 1;

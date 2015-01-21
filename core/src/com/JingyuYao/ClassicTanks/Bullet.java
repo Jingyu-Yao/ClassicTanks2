@@ -1,5 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.math.Rectangle;
+
 @SuppressWarnings("serial")
 public class Bullet extends GameObj{
 
@@ -17,8 +19,10 @@ public class Bullet extends GameObj{
      * @param origin the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
-        super(level,x,y,HEIGHT,WIDTH,300f);
+        this.level = level;
+        this.body = new Rectangle(x, y, HEIGHT, WIDTH);
         this.direction = direction;
+        this.velocity = 300f;
         this.origin = origin;
         setProperRecBound();
     }

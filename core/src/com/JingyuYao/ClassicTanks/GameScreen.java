@@ -54,7 +54,7 @@ public class GameScreen implements Screen {
         if(level != null){
             level.dispose();
         }
-        level = new Level(levelNumber, TILE_SIZE, TILE_SIZE, this);
+        level = new Level(levelNumber, 1, 1, this);
         // set up tiled map renderer
         tiledMapRenderer = new OrthogonalTiledMapRenderer(level.map, tiledScale);
     }

@@ -53,8 +53,9 @@ public class Level {
 
         makeWallFromTile();
 
-        enemies.add(new Enemy(this, gameScreen.TILE_SIZE, gameScreen.TILE_SIZE*5, Tank.TankType.FAST, Direction.RIGHT));
-        enemies.add(new Enemy(this, gameScreen.TILE_SIZE, gameScreen.TILE_SIZE*6, Tank.TankType.ARMORED, Direction.RIGHT));
+        enemies.add(new Enemy(this, 1, 5, Tank.TankType.FAST, Direction.RIGHT));
+        enemies.add(new Enemy(this, 1, 6, Tank.TankType.ARMORED, Direction.RIGHT));
+        enemies.add(new Enemy(this, 12, 3, Tank.TankType.NORMAL, Direction.RIGHT));
     }
 
     private void makeWallFromTile() {
@@ -67,7 +68,7 @@ public class Level {
                     prop = Integer.parseInt(cell.getTile().getProperties()
                             .get("hp", String.class));
                     // multiply by tile size to match pixel coordinates
-                    walls.add(new Wall(this, i * gameScreen.TILE_SIZE, j * gameScreen.TILE_SIZE, prop));
+                    walls.add(new Wall(this, i, j, prop));
                 }
             }
         }
