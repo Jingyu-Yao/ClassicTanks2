@@ -15,8 +15,8 @@ public class Enemy extends Tank {
     @Override
     public void damage() {
         super.damage();
-        if (hp == 0) {
-            level.enemies.removeValue(this, true);
+        if (getHp() == 0) {
+            getLevel().removeObject(this);
         }
     }
 
@@ -30,30 +30,28 @@ public class Enemy extends Tank {
     public void update(float deltaTime) {
         super.update(deltaTime);
         shoot();
-        if (moving == true || forward()) return;
+        if (getMoving() == true || forward()) return;
 
         int i;
-        Direction d;
         i = random.nextInt(4);
         //System.out.println("moveenemy " + i);
         switch (i) {
             case 0:
-                d = Direction.UP;
+                setDirection(Direction.UP);
                 break;
             case 1:
-                d = Direction.LEFT;
+                setDirection(Direction.LEFT);
                 break;
             case 2:
-                d = Direction.RIGHT;
+                setDirection(Direction.RIGHT);
                 break;
             case 3:
-                d = Direction.DOWN;
+                setDirection(Direction.DOWN);
                 break;
             default:
-                d = Direction.UP;
+                setDirection(Direction.UP);
                 break;
         }
-        direction = d;
         forward();
     }
 }

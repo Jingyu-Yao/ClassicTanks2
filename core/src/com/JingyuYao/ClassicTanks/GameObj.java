@@ -7,11 +7,11 @@ import com.badlogic.gdx.math.Rectangle;
  * Created by Jingyu_Yao on 1/15/2015.
  */
 public class GameObj {
-    protected Rectangle body;
-    protected Direction direction;
-    protected float velocity;
-    protected int hp;
-    protected static Level level;
+    private Rectangle body;
+    private Direction direction;
+    private float velocity;
+    private int hp;
+    private final Level level;
 
     public GameObj() {
         this.level = null;
@@ -103,6 +103,8 @@ public class GameObj {
         return hp;
     }
 
+    public Level getLevel() { return level; }
+
     /**
      * Check collision with another GameObj
      *
@@ -112,7 +114,7 @@ public class GameObj {
      * @return the collided {@code GameObj} or {@code null} if no collision
      */
     public GameObj collideObj(float dx, float dy, GameObj obj) {
-        if (!this.equals(obj) && obj.body.overlaps(new Rectangle(body.x + dx, body.y + dy, body.width, body.height))) {
+        if (!this.equals(obj) && obj.body.overlaps(new Rectangle(getX() + dx, getY() + dy, getWidth(), getHeight()))) {
             return obj;
         }
         return null;
@@ -165,20 +167,20 @@ public class GameObj {
      * @param deltaTime
      */
     public void update(float deltaTime) {
-        float curMove = deltaTime * velocity;
+        float curMove = deltaTime * getVelocity();
         //change the distance
-        switch (direction) {
+        switch (getDirection()) {
+            case UP:
+                setY(getY() + curMove);
+                break;
             case DOWN:
-                this.body.y -= curMove;
+                setY(getY() - curMove);
                 break;
             case LEFT:
-                this.body.x -= curMove;
+                setX(getX() - curMove);
                 break;
             case RIGHT:
-                this.body.x += curMove;
-                break;
-            case UP:
-                this.body.y += curMove;
+                setX(getX() + curMove);
                 break;
         }
     }
@@ -187,6 +189,6 @@ public class GameObj {
      * Reduce object's hp by one
      */
     public void damage() {
-        hp--;
+        setHp(getHp() - 1);
     }
 }

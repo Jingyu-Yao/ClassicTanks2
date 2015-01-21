@@ -17,10 +17,7 @@ public class Bullet extends GameObj {
      * @param origin    the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
-        this.level = level;
-        this.body = new Rectangle(x, y, HEIGHT, WIDTH);
-        this.direction = direction;
-        this.velocity = 300f;
+        super(level, x/GameScreen.TILE_SIZE, y/GameScreen.TILE_SIZE, HEIGHT, WIDTH, 300f, direction);
         this.origin = origin;
         setProperRecBound();
     }
@@ -29,18 +26,18 @@ public class Bullet extends GameObj {
      * Set the width and height of the bullet based on its direction.
      */
     private void setProperRecBound() {
-        switch (direction) {
+        switch (getDirection()) {
             case UP:
             case DOWN:
-                this.body.width = WIDTH;
-                this.body.height = HEIGHT;
+                setWidth(WIDTH);
+                setHeight(HEIGHT);
                 break;
             case LEFT:
             case RIGHT:
                 // Fall through
                 // Intentional
-                this.body.width = HEIGHT;
-                this.body.height = WIDTH;
+                setWidth(HEIGHT);
+                setHeight(WIDTH);
                 break;
         }
     }
@@ -96,7 +93,7 @@ public class Bullet extends GameObj {
      * count by one.
      */
     private void removeSelf() {
-        level.bullets.removeValue(this, true);
-        origin.numBullets--;
+        getLevel().removeObject(this);
+        origin.addBullet();
     }
 }

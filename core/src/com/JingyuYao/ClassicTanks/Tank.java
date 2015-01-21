@@ -6,20 +6,19 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Tank extends GameObj {
 
     // Constants
-    static final float ONE_DISTANCE = 16f; // pixels
-    static final float SIZE = 32f;
+    static final float SIZE = GameScreen.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
+    static final float ONE_DISTANCE = HALF_SIZE; // pixels
 
     // Tank properties
-    protected TankType type;
-    long lastBulletTime;
-    long fireRate; // 1s
-    long curTime;
-    int numBullets;
-    int maxBullets;
+    private TankType type;
+    private long lastBulletTime;
+    private long fireRate; // 1s
+    private int numBulletsLeft;
+    private int maxBullets;
 
     // Variables for movement
-    protected boolean moving;
+    private boolean moving;
     private float target;
     private float distanceLeft = ONE_DISTANCE;
 
@@ -29,9 +28,8 @@ public class Tank extends GameObj {
         setType(type);
         moving = false;
         lastBulletTime = 0l;
-        curTime = TimeUtils.nanoTime();
         fireRate = 1000000000l;
-        numBullets = 0;
+        numBulletsLeft = 1;
         maxBullets = 1;
     }
 
@@ -47,14 +45,18 @@ public class Tank extends GameObj {
             case DUAL:
                 break;
             case FAST:
-                velocity = 150f;
+                setVelocity(150f);
                 break;
             case ARMORED:
-                hp = 3;
+                setHp(3);
                 break;
             case GM:
                 break;
         }
+    }
+
+    public void addBullet(){
+        numBulletsLeft++;
     }
 
     // Getters
@@ -62,33 +64,38 @@ public class Tank extends GameObj {
         return type;
     }
 
-    public boolean isMoving() {
+    public boolean getMoving() {
         return moving;
     }
 
+    public void setMoving(boolean moving) { this.moving = moving; }
+
     /**
-     * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBullets >= maxBullets}
+     * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsLeft >= maxBullets}
      */
     public void shoot() {
-        curTime = TimeUtils.nanoTime();
-        if (curTime - lastBulletTime < fireRate || numBullets >= maxBullets) {
+        long curTime = TimeUtils.nanoTime();
+        if (curTime - lastBulletTime < fireRate || numBulletsLeft < maxBullets) {
             return;
         }
 
         lastBulletTime = curTime;
+
+        float bodyX = getX(), bodyY = getY();
+        Direction direction = getDirection();
         Bullet bullet;
         switch (direction) {
             case DOWN:
-                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
+                bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY - Bullet.HEIGHT, direction, this);
                 break;
             case LEFT:
-                bullet = new Bullet(level, body.x - Bullet.HEIGHT, body.y + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
+                bullet = new Bullet(getLevel(), bodyX - Bullet.HEIGHT, bodyY + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
                 break;
             case RIGHT:
-                bullet = new Bullet(level, body.x + SIZE + Bullet.WIDTH, body.y + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
+                bullet = new Bullet(getLevel(), bodyX + SIZE + Bullet.WIDTH, bodyY + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
                 break;
             case UP:
-                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y + SIZE, direction, this);
+                bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY + SIZE, direction, this);
                 break;
             case NONE:
             default:
@@ -96,44 +103,8 @@ public class Tank extends GameObj {
                 break;
         }
         if (bullet != null) {
-            level.bullets.add(bullet);
-            numBullets++;
-        }
-    }
-
-    /**
-     * Makes a bullet based on the direction of the tank
-     * OLD VERSION
-     */
-    public void shoot_old() {
-
-        curTime = TimeUtils.nanoTime();
-        if (curTime - lastBulletTime < fireRate) {
-            return;
-        }
-
-        lastBulletTime = curTime;
-        Bullet bullet;
-        switch (direction) {
-            case DOWN:
-                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
-                break;
-            case LEFT:
-                bullet = new Bullet(level, body.x - Bullet.HEIGHT, body.y + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
-                break;
-            case RIGHT:
-                bullet = new Bullet(level, body.x + SIZE + Bullet.WIDTH, body.y + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
-                break;
-            case UP:
-                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y + SIZE, direction, this);
-                break;
-            case NONE:
-            default:
-                bullet = null;
-                break;
-        }
-        if (bullet != null) {
-            level.bullets.add(bullet);
+            getLevel().bullets.add(bullet);
+            numBulletsLeft--;
         }
     }
 
@@ -145,32 +116,33 @@ public class Tank extends GameObj {
      */
     public boolean forward() {
         GameObj result = null;
+        float bodyX = getX(), bodyY = getY();
         // set a target value to avoid rounding errors
-        switch (direction) {
+        switch (getDirection()) {
             case DOWN:
-                target = body.y - ONE_DISTANCE;
+                target = bodyY - ONE_DISTANCE;
                 result = collideAll(0.0f, -ONE_DISTANCE);
                 break;
             case LEFT:
-                target = body.x - ONE_DISTANCE;
+                target = bodyX - ONE_DISTANCE;
                 result = collideAll(-ONE_DISTANCE, 0.0f);
                 break;
             case RIGHT:
-                target = body.x + ONE_DISTANCE;
+                target = bodyX + ONE_DISTANCE;
                 result = collideAll(ONE_DISTANCE, 0.0f);
                 break;
             case UP:
-                target = body.y + ONE_DISTANCE;
+                target = bodyY + ONE_DISTANCE;
                 result = collideAll(0.0f, ONE_DISTANCE);
                 break;
         }
         // This prevents tanks dodging bullets
         if (result == null || result instanceof Bullet) {
-            moving = true;
+            setMoving(true);
         } else {
-            moving = false;
+            setMoving(false);
         }
-        return moving;
+        return getMoving();
     }
 
     /**
@@ -180,43 +152,41 @@ public class Tank extends GameObj {
      */
     @Override
     public void update(float deltaTime) {
-        if (moving) {
-            float curMove = deltaTime * velocity;
+        if (getMoving()) {
+            float curMove = deltaTime * getVelocity();
             distanceLeft -= curMove;
             if (distanceLeft < 0) {
                 distanceLeft = ONE_DISTANCE;// reset
-                moving = false;// finished moving
+                setMoving(false);// finished moving
 
                 // this prevents final coordinate rounding error
-                switch (direction) {
+                switch (getDirection()) {
+                    case UP:
                     case DOWN:
-                        this.body.y = target;
+                        // Fall through
+                        setY(target);
                         break;
                     case LEFT:
-                        this.body.x = target;
-                        break;
                     case RIGHT:
-                        this.body.x = target;
-                        break;
-                    case UP:
-                        this.body.y = target;
+                        // Fall through
+                        setX(target);
                         break;
                 }
                 return;
             }
             // change the distance
-            switch (direction) {
+            switch (getDirection()) {
+                case UP:
+                    setY(getY() + curMove);
+                    break;
                 case DOWN:
-                    body.y -= curMove;
+                    setY(getY() - curMove);
                     break;
                 case LEFT:
-                    body.x -= curMove;
+                    setX(getX() - curMove);
                     break;
                 case RIGHT:
-                    body.x += curMove;
-                    break;
-                case UP:
-                    body.y += curMove;
+                    setX(getX() + curMove);
                     break;
             }
         }

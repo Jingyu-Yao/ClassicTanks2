@@ -18,14 +18,15 @@ public class GameScreen implements Screen {
     final int CAMERA_SIZE = 640;
     final int CAMERA_INNER_BOUND = 80;
 
-    OrthographicCamera camera;
+    private OrthographicCamera camera;
 
-    float tiledScale;
-    OrthogonalTiledMapRenderer tiledMapRenderer;
-    Sprite bulletSprite;
-    Hashtable<Tank.TankType, Sprite> tankSprites;
+    // Objects used for rendering
+    private float tiledScale;
+    private OrthogonalTiledMapRenderer tiledMapRenderer;
+    private Sprite bulletSprite;
+    private Hashtable<Tank.TankType, Sprite> tankSprites;
 
-    Level level;
+    private Level level;
     //FPSLogger fps = new FPSLogger();
 
     public GameScreen(final ClassicTanks g) {
@@ -55,7 +56,7 @@ public class GameScreen implements Screen {
         }
         level = new Level(levelNumber, 1, 1, this);
         // set up tiled map renderer
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.map, tiledScale);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), tiledScale);
     }
 
     /**
@@ -111,7 +112,7 @@ public class GameScreen implements Screen {
         Sprite s = tankSprites.get(tank.getType());
         s.setX(tank.getX());
         s.setY(tank.getY());
-        switch (tank.direction) {
+        switch (tank.getDirection()) {
             case DOWN:
                 s.setRotation(180);
                 break;
@@ -136,7 +137,7 @@ public class GameScreen implements Screen {
     private void drawBullet(Bullet bullet) {
         bulletSprite.setX(bullet.getX());
         bulletSprite.setY(bullet.getY());
-        switch (bullet.direction) {
+        switch (bullet.getDirection()) {
             case DOWN:
                 bulletSprite.setRotation(180);
                 break;
@@ -160,7 +161,7 @@ public class GameScreen implements Screen {
      */
     private void moveCamera() {
         float cameraX = camera.position.x, cameraY = camera.position.y;
-        float playerX = level.player.body.x, playerY = level.player.body.y;
+        float playerX = level.player.getX(), playerY = level.player.getY();
 
         float dx = 0, dy = 0;
         if (cameraX - playerX > CAMERA_INNER_BOUND) {

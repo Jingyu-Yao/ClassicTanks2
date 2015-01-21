@@ -21,10 +21,10 @@ public class Player extends Tank {
      * @param direction
      */
     public void moveTowards(Direction direction) {
-        curTime = TimeUtils.nanoTime();
+        long curTime = TimeUtils.nanoTime();
 
-        if (!moving && curTime - lastDirectionTime > directionPauseTime) {
-            if (this.direction == direction) {
+        if (!getMoving() && curTime - lastDirectionTime > directionPauseTime) {
+            if (getDirection() == direction) {
                 forward();
             } else {
                 setDirection(direction);
@@ -36,8 +36,8 @@ public class Player extends Tank {
     @Override
     public void damage() {
         super.damage();
-        if (hp == 0) {
-            level.gameOver();
+        if (getHp() == 0) {
+            getLevel().removeObject(this);
         }
     }
 }
