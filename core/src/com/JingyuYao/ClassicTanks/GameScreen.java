@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 public class GameScreen implements Screen {
@@ -50,6 +51,9 @@ public class GameScreen implements Screen {
      */
     public void changeLevel(int levelNumber) {
         System.out.println("Level changed to: " + levelNumber);
+        if(level != null){
+            level.dispose();
+        }
         level = new Level(levelNumber, TILE_SIZE, TILE_SIZE, this);
         // set up tiled map renderer
         tiledMapRenderer = new OrthogonalTiledMapRenderer(level.map, tiledScale);

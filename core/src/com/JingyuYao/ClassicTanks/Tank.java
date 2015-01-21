@@ -15,6 +15,8 @@ public class Tank extends GameObj{
     long lastBulletTime;
     long fireRate; // 1s
     long curTime;
+    int numBullets;
+    int maxBullets;
 
     // Variables for movement
     protected boolean moving;
@@ -29,6 +31,8 @@ public class Tank extends GameObj{
         lastBulletTime = 0l;
         curTime = TimeUtils.nanoTime();
         fireRate = 1000000000l;
+        numBullets = 0;
+        maxBullets = 1;
     }
 
     // Setters
@@ -62,9 +66,46 @@ public class Tank extends GameObj{
     }
 
     /**
-     * Makes a bullet based on the direction of the tank
+     * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBullets >= maxBullets}
      */
-    public void shoot() {
+    public void shoot(){
+        curTime = TimeUtils.nanoTime();
+        if (curTime - lastBulletTime < fireRate || numBullets >= maxBullets) {
+            return;
+        }
+
+        lastBulletTime = curTime;
+        Bullet bullet;
+        switch (direction) {
+            case DOWN:
+                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
+                break;
+            case LEFT:
+                bullet = new Bullet(level, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
+                break;
+            case RIGHT:
+                bullet = new Bullet(level, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
+                break;
+            case UP:
+                bullet = new Bullet(level, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
+                break;
+            case NONE:
+            default:
+                bullet = null;
+                break;
+        }
+        if(bullet != null){
+            level.bullets.add(bullet);
+            numBullets++;
+        }
+    }
+
+    /**
+     * Makes a bullet based on the direction of the tank
+     * OLD VERSION
+     */
+    public void shoot_old() {
+
         curTime = TimeUtils.nanoTime();
         if (curTime - lastBulletTime < fireRate) {
             return;

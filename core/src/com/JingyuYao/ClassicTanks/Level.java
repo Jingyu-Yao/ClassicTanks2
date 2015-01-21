@@ -90,5 +90,9 @@ public class Level {
         gameScreen.changeLevel(1);
     }
 
+    public void dispose(){
+        gameScreen.game.assetManager.clear();
+        map.dispose();
+    }
 
 }

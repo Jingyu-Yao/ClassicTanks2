@@ -17,7 +17,7 @@ public class Bullet extends GameObj{
      * @param origin the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
-        super(level,x,y,HEIGHT,WIDTH,200f);
+        super(level,x,y,HEIGHT,WIDTH,300f);
         this.direction = direction;
         this.origin = origin;
         setProperRecBound();
@@ -60,8 +60,8 @@ public class Bullet extends GameObj{
         }else{
             // If both objects are bullets, they cancel each other out
             if(result instanceof Bullet){
-                level.bullets.removeValue((Bullet)result, true);
-                level.bullets.removeValue(this, true);
+                ((Bullet) result).removeSelf();
+                removeSelf();
             }
 
             // If bullet is fired by the player
@@ -70,19 +70,28 @@ public class Bullet extends GameObj{
                 if(result instanceof Wall){
                     if(result.getHp() != -2) {
                         result.damage();
-                        level.bullets.removeValue(this, true);
+                        removeSelf();
                     }
                 }else{
                     result.damage();
-                    level.bullets.removeValue(this, true);
+                    removeSelf();
                 }
             }else{
                 // Enemy tank only damages players
                 if(result instanceof Player){
                     result.damage();
                 }
-                level.bullets.removeValue(this, true);
+                removeSelf();
             }
         }
+    }
+
+    /**
+     * Remove self from bullets array of level and reduce origin's bullet
+     * count by one.
+     */
+    private void removeSelf(){
+        level.bullets.removeValue(this, true);
+        origin.numBullets--;
     }
 }
