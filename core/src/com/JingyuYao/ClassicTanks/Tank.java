@@ -38,10 +38,12 @@ public class Tank extends GameObj{
             case NORMAL:
                 break;
             case BARRAGE:
+                fireRate = 500000000l;
                 break;
             case DUAL:
                 break;
             case FAST:
+                velocity = 150f;
                 break;
             case ARMORED:
                 hp = 3;

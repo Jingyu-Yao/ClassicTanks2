@@ -53,7 +53,8 @@ public class Level {
 
         makeWallFromTile();
 
-        enemies.add(new Enemy(this,32, 128, Tank.TankType.ARMORED, Direction.RIGHT));
+        enemies.add(new Enemy(this, gameScreen.TILE_SIZE, gameScreen.TILE_SIZE*5, Tank.TankType.FAST, Direction.RIGHT));
+        enemies.add(new Enemy(this, gameScreen.TILE_SIZE, gameScreen.TILE_SIZE*6, Tank.TankType.ARMORED, Direction.RIGHT));
     }
 
     private void makeWallFromTile() {
@@ -83,11 +84,10 @@ public class Level {
     }
 
     /**
-     * Reset the player's position
+     * GG, currently gg = reset level to 1
      */
-    private void resetPlayer(){
-        player.setX(startX);
-        player.setY(startY);
+    public void gameOver(){
+        gameScreen.changeLevel(1);
     }
 
 

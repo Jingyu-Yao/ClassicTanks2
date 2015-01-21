@@ -28,7 +28,7 @@ public class Enemy extends Tank {
     @Override
     public void update(float deltaTime){
         super.update(deltaTime);
-
+        shoot();
         if(moving == true || forward()) return;
 
         int i;

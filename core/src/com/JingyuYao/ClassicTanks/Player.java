@@ -13,7 +13,7 @@ public class Player extends Tank {
     public Player(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);
         lastDirectionTime = 0l;
-        directionPauseTime = 100000000l;
+        directionPauseTime = 50000000l;
     }
 
     /**
@@ -30,6 +30,14 @@ public class Player extends Tank {
                 setDirection(direction);
                 lastDirectionTime = curTime;
             }
+        }
+    }
+
+    @Override
+    public void damage(){
+        super.damage();
+        if(hp == 0){
+            level.gameOver();
         }
     }
 }

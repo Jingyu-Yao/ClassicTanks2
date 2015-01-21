@@ -48,7 +48,7 @@ public class GameScreen implements Screen {
      *
      * @param levelNumber set the current level of the game
      */
-    private void changeLevel(int levelNumber) {
+    public void changeLevel(int levelNumber) {
         System.out.println("Level changed to: " + levelNumber);
         level = new Level(levelNumber, TILE_SIZE, TILE_SIZE, this);
         // set up tiled map renderer
@@ -233,6 +233,7 @@ public class GameScreen implements Screen {
 		 * ********************************************************
 		 */
         handleDirectionalInput();
+
         if (Gdx.input.isKeyPressed(Keys.R)) {
             changeLevel(1);
         }
