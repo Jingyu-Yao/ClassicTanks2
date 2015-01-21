@@ -1,6 +1,5 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 
 /**
@@ -18,12 +17,13 @@ public class Player extends Tank {
 
     /**
      * Move the player in the direction passed
+     *
      * @param direction
      */
     public void moveTowards(Direction direction) {
         curTime = TimeUtils.nanoTime();
 
-        if(!moving && curTime - lastDirectionTime > directionPauseTime) {
+        if (!moving && curTime - lastDirectionTime > directionPauseTime) {
             if (this.direction == direction) {
                 forward();
             } else {
@@ -34,9 +34,9 @@ public class Player extends Tank {
     }
 
     @Override
-    public void damage(){
+    public void damage() {
         super.damage();
-        if(hp == 0){
+        if (hp == 0) {
             level.gameOver();
         }
     }

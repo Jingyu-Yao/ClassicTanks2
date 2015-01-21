@@ -2,8 +2,7 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Rectangle;
 
-@SuppressWarnings("serial")
-public class Bullet extends GameObj{
+public class Bullet extends GameObj {
 
     static final float HEIGHT = 8f;
     static final float WIDTH = 4f;
@@ -12,11 +11,10 @@ public class Bullet extends GameObj{
     private Tank origin;
 
     /**
-     *
      * @param x
      * @param y
      * @param direction
-     * @param origin the source of the bullet
+     * @param origin    the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
         this.level = level;
@@ -30,8 +28,8 @@ public class Bullet extends GameObj{
     /**
      * Set the width and height of the bullet based on its direction.
      */
-    private void setProperRecBound(){
-        switch(direction){
+    private void setProperRecBound() {
+        switch (direction) {
             case UP:
             case DOWN:
                 this.body.width = WIDTH;
@@ -48,41 +46,44 @@ public class Bullet extends GameObj{
     }
 
     // Getter / Setter
-    public Tank getOrigin() { return origin; }
+    public Tank getOrigin() {
+        return origin;
+    }
 
     /**
      * Updates the bullet's location. Also handles collision
+     *
      * @param deltaTime
      */
     @Override
-    public void update(float deltaTime){
+    public void update(float deltaTime) {
         super.update(deltaTime);
         GameObj result = collideAll(0.0f, 0.0f);
 
-        if(result == null){
+        if (result == null) {
             return;
-        }else{
+        } else {
             // If both objects are bullets, they cancel each other out
-            if(result instanceof Bullet){
+            if (result instanceof Bullet) {
                 ((Bullet) result).removeSelf();
                 removeSelf();
             }
 
             // If bullet is fired by the player
-            if(this.getOrigin() instanceof Player){
+            if (this.getOrigin() instanceof Player) {
                 // and it hits a wall
-                if(result instanceof Wall){
-                    if(result.getHp() != -2) {
+                if (result instanceof Wall) {
+                    if (result.getHp() != -2) {
                         result.damage();
                         removeSelf();
                     }
-                }else{
+                } else {
                     result.damage();
                     removeSelf();
                 }
-            }else{
+            } else {
                 // Enemy tank only damages players
-                if(result instanceof Player){
+                if (result instanceof Player) {
                     result.damage();
                 }
                 removeSelf();
@@ -94,7 +95,7 @@ public class Bullet extends GameObj{
      * Remove self from bullets array of level and reduce origin's bullet
      * count by one.
      */
-    private void removeSelf(){
+    private void removeSelf() {
         level.bullets.removeValue(this, true);
         origin.numBullets--;
     }

@@ -3,7 +3,7 @@ package com.JingyuYao.ClassicTanks;
 import com.badlogic.gdx.utils.TimeUtils;
 
 @SuppressWarnings("serial")
-public class Tank extends GameObj{
+public class Tank extends GameObj {
 
     // Constants
     static final float ONE_DISTANCE = 16f; // pixels
@@ -24,7 +24,7 @@ public class Tank extends GameObj{
     private float distanceLeft = ONE_DISTANCE;
 
     // Constructors
-    public Tank(Level level,float x, float y, TankType type, Direction direction) {
+    public Tank(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, SIZE, SIZE, 100f, direction);
         setType(type);
         moving = false;
@@ -38,7 +38,7 @@ public class Tank extends GameObj{
     // Setters
     public void setType(TankType t) {
         type = t;
-        switch(type){
+        switch (type) {
             case NORMAL:
                 break;
             case BARRAGE:
@@ -61,6 +61,7 @@ public class Tank extends GameObj{
     public TankType getType() {
         return type;
     }
+
     public boolean isMoving() {
         return moving;
     }
@@ -68,7 +69,7 @@ public class Tank extends GameObj{
     /**
      * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBullets >= maxBullets}
      */
-    public void shoot(){
+    public void shoot() {
         curTime = TimeUtils.nanoTime();
         if (curTime - lastBulletTime < fireRate || numBullets >= maxBullets) {
             return;
@@ -81,20 +82,20 @@ public class Tank extends GameObj{
                 bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
                 break;
             case LEFT:
-                bullet = new Bullet(level, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
+                bullet = new Bullet(level, body.x - Bullet.HEIGHT, body.y + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
                 break;
             case RIGHT:
-                bullet = new Bullet(level, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
+                bullet = new Bullet(level, body.x + SIZE + Bullet.WIDTH, body.y + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
                 break;
             case UP:
-                bullet = new Bullet(level, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
+                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y + SIZE, direction, this);
                 break;
             case NONE:
             default:
                 bullet = null;
                 break;
         }
-        if(bullet != null){
+        if (bullet != null) {
             level.bullets.add(bullet);
             numBullets++;
         }
@@ -110,7 +111,7 @@ public class Tank extends GameObj{
         if (curTime - lastBulletTime < fireRate) {
             return;
         }
-        
+
         lastBulletTime = curTime;
         Bullet bullet;
         switch (direction) {
@@ -118,20 +119,20 @@ public class Tank extends GameObj{
                 bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y - Bullet.HEIGHT, direction, this);
                 break;
             case LEFT:
-                bullet = new Bullet(level, body.x-Bullet.HEIGHT, body.y+HALF_SIZE-Bullet.WIDTH+1, direction, this);
+                bullet = new Bullet(level, body.x - Bullet.HEIGHT, body.y + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
                 break;
             case RIGHT:
-                bullet = new Bullet(level, body.x+SIZE+Bullet.WIDTH, body.y+HALF_SIZE-Bullet.HEIGHT/2f+1, direction, this);
+                bullet = new Bullet(level, body.x + SIZE + Bullet.WIDTH, body.y + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
                 break;
             case UP:
-                bullet = new Bullet(level, body.x+HALF_SIZE-Bullet.WIDTH/2f, body.y+SIZE, direction, this);
+                bullet = new Bullet(level, body.x + HALF_SIZE - Bullet.WIDTH / 2f, body.y + SIZE, direction, this);
                 break;
             case NONE:
             default:
                 bullet = null;
                 break;
         }
-        if(bullet != null){
+        if (bullet != null) {
             level.bullets.add(bullet);
         }
     }
@@ -139,6 +140,7 @@ public class Tank extends GameObj{
     /**
      * Set a target position for this unit to move towards.
      * Also checks for collision with other objects before moving.
+     *
      * @return
      */
     public boolean forward() {
@@ -163,9 +165,9 @@ public class Tank extends GameObj{
                 break;
         }
         // This prevents tanks dodging bullets
-        if(result == null || result instanceof Bullet){
+        if (result == null || result instanceof Bullet) {
             moving = true;
-        }else{
+        } else {
             moving = false;
         }
         return moving;
@@ -173,6 +175,7 @@ public class Tank extends GameObj{
 
     /**
      * Updates the tanks position while preventing rounding error of final position
+     *
      * @param deltaTime
      */
     @Override

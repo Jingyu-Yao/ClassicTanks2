@@ -1,13 +1,9 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Array;
-
-import java.util.Hashtable;
 
 /**
  * Data class that describes a level.
@@ -27,7 +23,7 @@ public class Level {
     TiledMapTileLayer wallLayer;
     TiledMapTile backgroundTile;
 
-    public Level(int levelNumber, int startX, int startY, GameScreen gameScreen){
+    public Level(int levelNumber, int startX, int startY, GameScreen gameScreen) {
         this.levelNumber = levelNumber;
         this.startX = startX;
         this.startY = startY;
@@ -36,9 +32,9 @@ public class Level {
         enemies = new Array<Enemy>();
         walls = new Array<Wall>();
         bullets = new Array<Bullet>();
-        player = new Player(this,startX, startY, Tank.TankType.NORMAL, Direction.UP);
+        player = new Player(this, startX, startY, Tank.TankType.NORMAL, Direction.UP);
 
-        String levelString = "level" + levelNumber +".tmx";
+        String levelString = "level" + levelNumber + ".tmx";
 
         // load tiled map
         gameScreen.game.assetManager.load(levelString, TiledMap.class);
@@ -58,6 +54,9 @@ public class Level {
         enemies.add(new Enemy(this, 12, 3, Tank.TankType.NORMAL, Direction.RIGHT));
     }
 
+    /**
+     * Creates {@code walls} from {@code wallLayer}
+     */
     private void makeWallFromTile() {
         TiledMapTileLayer.Cell cell;
         int prop;
@@ -76,10 +75,11 @@ public class Level {
 
     /**
      * Kill the cell at (x,y) position in world space
+     *
      * @param x
      * @param y
      */
-    public void killCell(float x, float y){
+    public void killCell(float x, float y) {
         wallLayer.getCell((int) (x / gameScreen.TILE_SIZE),
                 (int) (y / gameScreen.TILE_SIZE)).setTile(backgroundTile);
     }
@@ -87,11 +87,11 @@ public class Level {
     /**
      * GG, currently gg = reset level to 1
      */
-    public void gameOver(){
+    public void gameOver() {
         gameScreen.changeLevel(1);
     }
 
-    public void dispose(){
+    public void dispose() {
         gameScreen.game.assetManager.clear();
         map.dispose();
     }

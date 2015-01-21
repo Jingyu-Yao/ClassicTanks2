@@ -1,16 +1,15 @@
 package com.JingyuYao.ClassicTanks;
 
-import java.util.Hashtable;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+
+import java.util.Hashtable;
 
 public class GameScreen implements Screen {
 
@@ -51,7 +50,7 @@ public class GameScreen implements Screen {
      */
     public void changeLevel(int levelNumber) {
         System.out.println("Level changed to: " + levelNumber);
-        if(level != null){
+        if (level != null) {
             level.dispose();
         }
         level = new Level(levelNumber, 1, 1, this);
@@ -203,7 +202,7 @@ public class GameScreen implements Screen {
         tiledMapRenderer.render();
 
 		/* *********************************************************
-		 * Draw and then updates the position in one place saves the use of
+         * Draw and then updates the position in one place saves the use of
 		 * another loop and easier to organize Also handles collisions
 		 * ********************************************************
 		 */

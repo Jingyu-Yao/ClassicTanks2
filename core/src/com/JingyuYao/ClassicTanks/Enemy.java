@@ -13,9 +13,9 @@ public class Enemy extends Tank {
     }
 
     @Override
-    public void damage(){
+    public void damage() {
         super.damage();
-        if(hp == 0){
+        if (hp == 0) {
             level.enemies.removeValue(this, true);
         }
     }
@@ -23,33 +23,34 @@ public class Enemy extends Tank {
     /**
      * Updates this unit's position. If it is moving already, keep moving until collision occurs.
      * Else decide a new direction to move towards.
+     *
      * @param deltaTime
      */
     @Override
-    public void update(float deltaTime){
+    public void update(float deltaTime) {
         super.update(deltaTime);
         shoot();
-        if(moving == true || forward()) return;
+        if (moving == true || forward()) return;
 
         int i;
         Direction d;
         i = random.nextInt(4);
         //System.out.println("moveenemy " + i);
-        switch(i){
+        switch (i) {
             case 0:
-                d=Direction.UP;
+                d = Direction.UP;
                 break;
             case 1:
-                d=Direction.LEFT;
+                d = Direction.LEFT;
                 break;
             case 2:
-                d=Direction.RIGHT;
+                d = Direction.RIGHT;
                 break;
             case 3:
-                d=Direction.DOWN;
+                d = Direction.DOWN;
                 break;
             default:
-                d=Direction.UP;
+                d = Direction.UP;
                 break;
         }
         direction = d;
