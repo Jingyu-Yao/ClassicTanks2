@@ -5,8 +5,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.Array;
 
-import java.lang.reflect.Type;
-
 /**
  * Data class that describes a level.
  */
@@ -14,6 +12,7 @@ public class Level {
     final GameScreen gameScreen;
 
     private int levelNumber;
+    private String levelString;
     private int startX, startY;
 
     // TODO: Find ways to make these private
@@ -38,7 +37,7 @@ public class Level {
         walls = new Array<Wall>();
         bullets = new Array<Bullet>();
 
-        String levelString = "level" + levelNumber + ".tmx";
+        levelString = "level" + levelNumber + ".tmx";
 
         // load tiled map
         gameScreen.game.assetManager.load(levelString, TiledMap.class);
@@ -129,14 +128,14 @@ public class Level {
      * GG, currently gg = reset level to 1
      */
     public void gameOver() {
-        gameScreen.changeLevel(1);
+        gameScreen.loadLevel(1);
     }
 
     /**
-     * Clear assets and disposes map
+     * Unloads the level file from {@code assetManager} and disposes {@code map}
      */
     public void dispose() {
-        gameScreen.game.assetManager.clear();
+        gameScreen.game.assetManager.unload(levelString);
         map.dispose();
     }
 

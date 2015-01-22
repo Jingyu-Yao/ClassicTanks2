@@ -1,7 +1,5 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.math.Rectangle;
-
 public class Bullet extends GameObj {
 
     static final float HEIGHT = 8f;

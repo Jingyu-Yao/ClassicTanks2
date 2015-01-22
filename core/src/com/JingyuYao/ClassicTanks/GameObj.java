@@ -13,14 +13,6 @@ public class GameObj {
     private int hp;
     private final Level level;
 
-    public GameObj() {
-        this.level = null;
-        body = new Rectangle(0, 0, 0, 0);
-        direction = Direction.NONE;
-        velocity = 0.0f;
-        hp = 0;
-    }
-
     public GameObj(Level level, float x, float y, float width, float height) {
         this.level = level;
         body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);

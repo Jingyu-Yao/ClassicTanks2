@@ -40,7 +40,7 @@ public class GameScreen implements Screen {
         tankSprites = new Hashtable<Tank.TankType, Sprite>();
         createSprites();
 
-        changeLevel(1);
+        loadLevel(1);
     }
 
     /**
@@ -49,8 +49,8 @@ public class GameScreen implements Screen {
      *
      * @param levelNumber set the current level of the game
      */
-    public void changeLevel(int levelNumber) {
-        System.out.println("Level changed to: " + levelNumber);
+    public void loadLevel(int levelNumber) {
+        System.out.println("Level loaded: " + levelNumber);
         if (level != null) {
             level.dispose();
         }
@@ -239,7 +239,7 @@ public class GameScreen implements Screen {
         handleDirectionalInput();
 
         if (Gdx.input.isKeyPressed(Keys.R)) {
-            changeLevel(1);
+            loadLevel(1);
         }
 
         // controlled bullet fire rate
