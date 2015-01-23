@@ -1,5 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -27,6 +28,13 @@ public class Level {
 
     private TiledMapTile backgroundTile;
 
+    /**
+     * Also starts the {@code GameInputProcessor}
+     * @param levelNumber
+     * @param startX
+     * @param startY
+     * @param gameScreen
+     */
     public Level(int levelNumber, int startX, int startY, GameScreen gameScreen) {
         this.levelNumber = levelNumber;
         this.startX = startX;
@@ -57,6 +65,8 @@ public class Level {
         addObject(new Enemy(this, 1, 5, Tank.TankType.FAST, Direction.RIGHT));
         addObject(new Enemy(this, 1, 6, Tank.TankType.ARMORED, Direction.RIGHT));
         addObject(new Enemy(this, 12, 3, Tank.TankType.NORMAL, Direction.RIGHT));
+
+        Gdx.input.setInputProcessor(new GameInputProcessor(this));
     }
 
     /**
@@ -103,6 +113,8 @@ public class Level {
             */
         }else if(object instanceof Enemy){
             enemies.add((Enemy) object);
+        }else if(object instanceof Bullet){
+            bullets.add((Bullet) object);
         }
     }
 

@@ -15,24 +15,6 @@ public class Player extends Tank {
         directionPauseTime = 50000000l;
     }
 
-    /**
-     * Move the player in the direction passed
-     *
-     * @param direction
-     */
-    public void moveTowards(Direction direction) {
-        long curTime = TimeUtils.nanoTime();
-
-        if (!getMoving() && curTime - lastDirectionTime > directionPauseTime) {
-            if (getDirection() == direction) {
-                forward();
-            } else {
-                setDirection(direction);
-                lastDirectionTime = curTime;
-            }
-        }
-    }
-
     @Override
     public void damage() {
         super.damage();

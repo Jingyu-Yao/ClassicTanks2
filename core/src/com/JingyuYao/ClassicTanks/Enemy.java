@@ -10,6 +10,7 @@ public class Enemy extends Tank {
 
     public Enemy(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);
+        startShooting();
     }
 
     @Override
@@ -29,29 +30,28 @@ public class Enemy extends Tank {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        shoot();
-        if (getMoving() == true || forward()) return;
 
-        int i;
-        i = random.nextInt(4);
-        //System.out.println("moveenemy " + i);
-        switch (i) {
-            case 0:
-                setDirection(Direction.UP);
-                break;
-            case 1:
-                setDirection(Direction.LEFT);
-                break;
-            case 2:
-                setDirection(Direction.RIGHT);
-                break;
-            case 3:
-                setDirection(Direction.DOWN);
-                break;
-            default:
-                setDirection(Direction.UP);
-                break;
+        //Only find a new direction when this unit is not moving
+        //This unit will stop moving only when it hits a wall
+        if (!getMoving()) {
+            switch (random.nextInt(4)) {
+                case 0:
+                    moveTowards(Direction.UP);
+                    break;
+                case 1:
+                    moveTowards(Direction.LEFT);
+                    break;
+                case 2:
+                    moveTowards(Direction.RIGHT);
+                    break;
+                case 3:
+                    moveTowards(Direction.DOWN);
+                    break;
+                default:
+                    moveTowards(Direction.NONE);
+                    break;
+            }
+            forward();
         }
-        forward();
     }
 }

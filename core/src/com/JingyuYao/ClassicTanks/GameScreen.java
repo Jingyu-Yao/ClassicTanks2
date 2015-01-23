@@ -79,31 +79,6 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * Checks if any arrow keys are pressed and handle accordingly.
-     * Note: If multiple arrow keys are pressed at the same time,
-     * nothing happens.
-     */
-    private void handleDirectionalInput() {
-        if (Gdx.input.isKeyPressed(Keys.UP)
-                && !Gdx.input.isKeyPressed(Keys.DOWN)
-                && !Gdx.input.isKeyPressed(Keys.LEFT)
-                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            level.player.moveTowards(Direction.UP);
-        } else if (Gdx.input.isKeyPressed(Keys.DOWN)
-                && !Gdx.input.isKeyPressed(Keys.LEFT)
-                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            level.player.moveTowards(Direction.DOWN);
-
-        } else if (Gdx.input.isKeyPressed(Keys.LEFT)
-                && !Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            level.player.moveTowards(Direction.LEFT);
-
-        } else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            level.player.moveTowards(Direction.RIGHT);
-        }
-    }
-
-    /**
      * Draw a tank
      *
      * @param tank
@@ -233,19 +208,10 @@ public class GameScreen implements Screen {
         game.batch.end();
 
 		/* *********************************************************
-		 * Input handling
+		 * Input handling has been replaced by GameInputProcessor class
+		 * which is started when a level is created.
 		 * ********************************************************
 		 */
-        handleDirectionalInput();
-
-        if (Gdx.input.isKeyPressed(Keys.R)) {
-            loadLevel(1);
-        }
-
-        // controlled bullet fire rate
-        if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-            level.player.shoot();
-        }
     }
 
     @Override

@@ -16,8 +16,10 @@ public class Tank extends GameObj {
     private long fireRate; // 1s
     private int numBulletsLeft;
     private int maxBullets;
+    private boolean shooting;
 
     // Variables for movement
+    private Direction moveTowards;
     private boolean moving;
     private float target;
     private float distanceLeft = ONE_DISTANCE;
@@ -31,6 +33,8 @@ public class Tank extends GameObj {
         fireRate = 1000000000l;
         numBulletsLeft = 1;
         maxBullets = 1;
+        moveTowards = Direction.NONE;
+        shooting = false;
     }
 
     // Setters
@@ -70,6 +74,15 @@ public class Tank extends GameObj {
 
     public void setMoving(boolean moving) { this.moving = moving; }
 
+    public Direction getMoveTowards() { return moveTowards; }
+
+    public void moveTowards(Direction direction) {
+        moveTowards = direction;
+    }
+
+    public void startShooting() { shooting = true; }
+    public void stopShooting() { shooting = false; }
+
     /**
      * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsLeft >= maxBullets}
      */
@@ -103,7 +116,7 @@ public class Tank extends GameObj {
                 break;
         }
         if (bullet != null) {
-            getLevel().bullets.add(bullet);
+            getLevel().addObject(bullet);
             numBulletsLeft--;
         }
     }
@@ -146,13 +159,14 @@ public class Tank extends GameObj {
     }
 
     /**
-     * Updates the tanks position while preventing rounding error of final position
+     * Updates the tanks position while preventing rounding error of final position.
+     * Forward the tank if {@code moveTowards} has been set to anything besides {@code NONE}
      *
      * @param deltaTime
      */
     @Override
     public void update(float deltaTime) {
-        if (getMoving()) {
+        if (moving) {
             float curMove = deltaTime * getVelocity();
             distanceLeft -= curMove;
             if (distanceLeft < 0) {
@@ -189,6 +203,16 @@ public class Tank extends GameObj {
                     setX(getX() + curMove);
                     break;
             }
+        }
+        else if(moveTowards != Direction.NONE){
+            if(moveTowards != getDirection()){
+                setDirection(moveTowards);
+            }else{
+                forward();
+            }
+        }
+        if(shooting){
+            shoot();
         }
     }
 
