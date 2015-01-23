@@ -15,7 +15,7 @@ public class Bullet extends GameObj {
      * @param origin    the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
-        super(level, x/GameScreen.TILE_SIZE, y/GameScreen.TILE_SIZE, HEIGHT, WIDTH, 300f, direction);
+        super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, 300f, direction);
         this.origin = origin;
         setProperRecBound();
     }
@@ -68,6 +68,7 @@ public class Bullet extends GameObj {
             if (this.getOrigin() instanceof Player) {
                 // and it hits a wall
                 if (result instanceof Wall) {
+                    // If wall is not water
                     if (result.getHp() != -2) {
                         result.damage();
                         removeSelf();
@@ -77,11 +78,18 @@ public class Bullet extends GameObj {
                     removeSelf();
                 }
             } else {
-                // Enemy tank only damages players
-                if (result instanceof Player) {
+                // Enemy tank damages everything except other enemies
+                if (result instanceof Enemy) {
+                    removeSelf();
+                } else if (result instanceof Wall) {
+                    if (result.getHp() != -2) {
+                        result.damage();
+                        removeSelf();
+                    }
+                } else {
                     result.damage();
+                    removeSelf();
                 }
-                removeSelf();
             }
         }
     }

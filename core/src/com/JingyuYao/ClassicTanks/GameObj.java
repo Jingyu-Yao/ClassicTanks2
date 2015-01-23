@@ -1,6 +1,9 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+
+import java.lang.reflect.Type;
 
 /**
  * Base class for all objects in the game.
@@ -145,6 +148,15 @@ public class GameObj {
             Bullet bullet = level.bullets.get(i);
             result = this.collideObj(dx, dy, bullet);
             if (result != null) {
+                return result;
+            }
+        }
+
+        // Check collision with bases
+        for(int i = 0; i < level.bases.size; i++){
+            GameObj base = level.bases.get(i);
+            result = this.collideObj(dx,dy, base);
+            if(result != null){
                 return result;
             }
         }

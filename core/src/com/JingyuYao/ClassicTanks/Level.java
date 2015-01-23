@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -12,19 +13,26 @@ import com.badlogic.gdx.utils.Array;
 public class Level {
     final GameScreen gameScreen;
 
+    public static final int TILE_SIZE = 32;
+
     private int levelNumber;
     private String levelString;
     private int startX, startY;
+    private boolean gameOver;
 
     // TODO: Find ways to make these private
     public Array<Enemy> enemies;
     public Array<Bullet> bullets;
     public Array<Wall> walls;
+    public Array<Base> bases;
     public Player player;
 
     private TiledMap map;
     private TiledMapTileLayer backgroundLayer;
     private TiledMapTileLayer wallLayer;
+    private TiledMapTileLayer baseLayer;
+    private TiledMapTileLayer spawnLayer;
+    private Array<Vector2> spawnPoints;
 
     private TiledMapTile backgroundTile;
 
@@ -40,10 +48,13 @@ public class Level {
         this.startX = startX;
         this.startY = startY;
         this.gameScreen = gameScreen;
+        gameOver = false;
 
         enemies = new Array<Enemy>();
         walls = new Array<Wall>();
         bullets = new Array<Bullet>();
+        bases = new Array<Base>();
+        spawnPoints = new Array<Vector2>();
 
         levelString = "level" + levelNumber + ".tmx";
 
@@ -56,9 +67,14 @@ public class Level {
         // get a default background grass tile to replace the wallz
         wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
         backgroundLayer = (TiledMapTileLayer) (map.getLayers().get("Background"));
+        baseLayer = (TiledMapTileLayer) map.getLayers().get("Base");
+        spawnLayer = (TiledMapTileLayer) map.getLayers().get("Base");
+
         backgroundTile = backgroundLayer.getCell(0, 0).getTile();
 
-        makeWallFromTile();
+        makeWallFromTileLayer(wallLayer);
+        makeBaseFromTileLayer(baseLayer);
+        makeSpawnPointsFromTileLayer(spawnLayer);
 
         addObject(new Player(this, startX, startY, Tank.TankType.NORMAL, Direction.UP));
 
@@ -70,19 +86,43 @@ public class Level {
     }
 
     /**
-     * Creates {@code walls} from {@code wallLayer}
+     * Populates {@code walls} from given layer.
+     * @param layer the layer used to populate {@code walls} with
      */
-    private void makeWallFromTile() {
+    private void makeWallFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
         int prop;
-        for (int i = 0; i < wallLayer.getWidth(); i++) {
-            for (int j = 0; j < wallLayer.getHeight(); j++) {
-                cell = wallLayer.getCell(i, j);
+        for (int i = 0; i < layer.getWidth(); i++) {
+            for (int j = 0; j < layer.getHeight(); j++) {
+                cell = layer.getCell(i, j);
                 if (cell != null) {
                     prop = Integer.parseInt(cell.getTile().getProperties()
                             .get("hp", String.class));
-                    // multiply by tile size to match pixel coordinates
                     addObject(new Wall(this, i, j, prop));
+                }
+            }
+        }
+    }
+
+    private void makeBaseFromTileLayer(TiledMapTileLayer layer){
+        TiledMapTileLayer.Cell cell;
+        for (int i = 0; i < layer.getWidth(); i++) {
+            for (int j = 0; j < layer.getHeight(); j++) {
+                cell = layer.getCell(i, j);
+                if (cell != null) {
+                    bases.add(new Base(this, i, j, TILE_SIZE, TILE_SIZE));
+                }
+            }
+        }
+    }
+
+    private void makeSpawnPointsFromTileLayer(TiledMapTileLayer layer){
+        TiledMapTileLayer.Cell cell;
+        for (int i = 0; i < layer.getWidth(); i++) {
+            for (int j = 0; j < layer.getHeight(); j++) {
+                cell = layer.getCell(i, j);
+                if (cell != null) {
+                    spawnPoints.add(new Vector2(i,j));
                 }
             }
         }
@@ -94,10 +134,12 @@ public class Level {
      * Add an object to the level
      * @param object the object to add
      */
-    public void addObject(GameObj object){
-        if(object instanceof Player){
+    public void addObject(GameObj object) {
+        if (object instanceof Bullet) {
+            bullets.add((Bullet) object);
+        } else if (object instanceof Player) {
             player = (Player) object;
-        }else if(object instanceof Wall){
+        } else if (object instanceof Wall) {
             walls.add((Wall) object);
             // TODO: Add a cell to the wall layer
             /*
@@ -111,13 +153,10 @@ public class Level {
                         (int) (object.getY() / gameScreen.TILE_SIZE), cell);
             }
             */
-        }else if(object instanceof Enemy){
+        } else if (object instanceof Enemy) {
             enemies.add((Enemy) object);
-        }else if(object instanceof Bullet){
-            bullets.add((Bullet) object);
         }
     }
-
     /**
      * Removes the given object from this level.
      * @param object the object to remove
