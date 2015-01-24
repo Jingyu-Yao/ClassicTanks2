@@ -4,6 +4,7 @@ public class Bullet extends GameObj {
 
     static final float HEIGHT = 8f;
     static final float WIDTH = 4f;
+    static final float BULLET_SPEED = 300f;
 
     // Properties
     private Tank origin;
@@ -15,7 +16,7 @@ public class Bullet extends GameObj {
      * @param origin    the source of the bullet
      */
     public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
-        super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, 300f, direction);
+        super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
         this.origin = origin;
         setProperRecBound();
     }

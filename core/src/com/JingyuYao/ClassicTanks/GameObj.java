@@ -4,12 +4,14 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 import java.lang.reflect.Type;
+import java.util.Random;
 
 /**
  * Base class for all objects in the game.
  * Created by Jingyu_Yao on 1/15/2015.
  */
 public class GameObj {
+
     private Rectangle body;
     private Direction direction;
     private float velocity;
@@ -82,9 +84,13 @@ public class GameObj {
         return body.x;
     }
 
+    public int getGridX() { return (int) body.x / level.TILE_SIZE;}
+
     public float getY() {
         return body.y;
     }
+
+    public int getGridY() { return  (int) body.y / level.TILE_SIZE; }
 
     public float getWidth() {
         return body.width;
@@ -194,5 +200,20 @@ public class GameObj {
      */
     public void damage() {
         setHp(getHp() - 1);
+    }
+
+    public static Direction getRandomDirection(){
+        switch (Level.random.nextInt(4)) {
+            case 0:
+                return Direction.UP;
+            case 1:
+                return Direction.LEFT;
+            case 2:
+                return Direction.RIGHT;
+            case 3:
+                return Direction.DOWN;
+            default:
+                return Direction.UP;
+        }
     }
 }

@@ -6,38 +6,43 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Data class that describes a level.
  */
 public class Level {
-    final GameScreen gameScreen;
-
+    public static final Random random = new Random();
     public static final int TILE_SIZE = 32;
-
-    private int levelNumber;
-    private String levelString;
-    private int startX, startY;
-    private boolean gameOver;
-
+    final GameScreen gameScreen;
     // TODO: Find ways to make these private
     public Array<Enemy> enemies;
     public Array<Bullet> bullets;
     public Array<Wall> walls;
     public Array<Base> bases;
+    public Array<GameObj> spawns;
     public Player player;
-
+    private int levelNumber;
+    private String levelString;
+    private int startX, startY;
+    private boolean gameOver;
+    private long spawnInterval;
+    private long lastSpawn;
     private TiledMap map;
     private TiledMapTileLayer backgroundLayer;
     private TiledMapTileLayer wallLayer;
     private TiledMapTileLayer baseLayer;
     private TiledMapTileLayer spawnLayer;
-    private Array<Vector2> spawnPoints;
+
 
     private TiledMapTile backgroundTile;
 
     /**
      * Also starts the {@code GameInputProcessor}
+     *
      * @param levelNumber
      * @param startX
      * @param startY
@@ -49,12 +54,14 @@ public class Level {
         this.startY = startY;
         this.gameScreen = gameScreen;
         gameOver = false;
+        spawnInterval = 7000000000l; //7s
+        lastSpawn = 0l;
 
         enemies = new Array<Enemy>();
         walls = new Array<Wall>();
         bullets = new Array<Bullet>();
         bases = new Array<Base>();
-        spawnPoints = new Array<Vector2>();
+        spawns = new Array<GameObj>();
 
         levelString = "level" + levelNumber + ".tmx";
 
@@ -68,7 +75,7 @@ public class Level {
         wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
         backgroundLayer = (TiledMapTileLayer) (map.getLayers().get("Background"));
         baseLayer = (TiledMapTileLayer) map.getLayers().get("Base");
-        spawnLayer = (TiledMapTileLayer) map.getLayers().get("Base");
+        spawnLayer = (TiledMapTileLayer) map.getLayers().get("Spawns");
 
         backgroundTile = backgroundLayer.getCell(0, 0).getTile();
 
@@ -78,15 +85,12 @@ public class Level {
 
         addObject(new Player(this, startX, startY, Tank.TankType.NORMAL, Direction.UP));
 
-        addObject(new Enemy(this, 1, 5, Tank.TankType.FAST, Direction.RIGHT));
-        addObject(new Enemy(this, 1, 6, Tank.TankType.ARMORED, Direction.RIGHT));
-        addObject(new Enemy(this, 12, 3, Tank.TankType.NORMAL, Direction.RIGHT));
-
         Gdx.input.setInputProcessor(new GameInputProcessor(this));
     }
 
     /**
      * Populates {@code walls} from given layer.
+     *
      * @param layer the layer used to populate {@code walls} with
      */
     private void makeWallFromTileLayer(TiledMapTileLayer layer) {
@@ -104,7 +108,7 @@ public class Level {
         }
     }
 
-    private void makeBaseFromTileLayer(TiledMapTileLayer layer){
+    private void makeBaseFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < layer.getWidth(); i++) {
             for (int j = 0; j < layer.getHeight(); j++) {
@@ -116,22 +120,41 @@ public class Level {
         }
     }
 
-    private void makeSpawnPointsFromTileLayer(TiledMapTileLayer layer){
+    private void makeSpawnPointsFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < layer.getWidth(); i++) {
             for (int j = 0; j < layer.getHeight(); j++) {
                 cell = layer.getCell(i, j);
                 if (cell != null) {
-                    spawnPoints.add(new Vector2(i,j));
+                    spawns.add(new GameObj(this, i, j, TILE_SIZE, TILE_SIZE));
                 }
             }
         }
     }
 
-    public TiledMap getMap() { return map; }
+    /**
+     * Tries to spawn a {@code Enemy} at a random spawn location if {@code spawnInterval} nanoseconds
+     * has passed.
+     */
+    public void spawn() {
+        long curTime = TimeUtils.nanoTime();
+        if (curTime - lastSpawn > spawnInterval) {
+            GameObj spawnPoint = spawns.get(random.nextInt(spawns.size));
+            if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
+                addObject(new Enemy(this, spawnPoint.getGridX(), spawnPoint.getGridY(),
+                        Tank.getRandomTankType(), GameObj.getRandomDirection()));
+                lastSpawn = curTime;
+            }
+        }
+    }
+
+    public TiledMap getMap() {
+        return map;
+    }
 
     /**
      * Add an object to the level
+     *
      * @param object the object to add
      */
     public void addObject(GameObj object) {
@@ -157,20 +180,22 @@ public class Level {
             enemies.add((Enemy) object);
         }
     }
+
     /**
      * Removes the given object from this level.
+     *
      * @param object the object to remove
      */
-    public void removeObject(GameObj object){
-        if(object instanceof Player){
+    public void removeObject(GameObj object) {
+        if (object instanceof Player) {
             gameOver();
-        }else if(object instanceof Wall){
+        } else if (object instanceof Wall) {
             walls.removeValue((Wall) object, true);
             wallLayer.getCell((int) (object.getX() / gameScreen.TILE_SIZE),
                     (int) (object.getY() / gameScreen.TILE_SIZE)).setTile(backgroundTile);
-        }else if(object instanceof Enemy){
+        } else if (object instanceof Enemy) {
             enemies.removeValue((Enemy) object, true);
-        }else if(object instanceof Bullet){
+        } else if (object instanceof Bullet) {
             bullets.removeValue((Bullet) object, true);
         }
     }

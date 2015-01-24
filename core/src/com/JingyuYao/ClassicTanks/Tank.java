@@ -9,6 +9,7 @@ public class Tank extends GameObj {
     static final float SIZE = GameScreen.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
+    static final float DEFAULT_SPEED = 100f;
 
     // Tank properties
     private TankType type;
@@ -26,7 +27,7 @@ public class Tank extends GameObj {
 
     // Constructors
     public Tank(Level level, float x, float y, TankType type, Direction direction) {
-        super(level, x, y, SIZE, SIZE, 100f, direction);
+        super(level, x, y, SIZE, SIZE, DEFAULT_SPEED, direction);
         setType(type);
         moving = false;
         lastBulletTime = 0l;
@@ -228,4 +229,20 @@ public class Tank extends GameObj {
         GM, // 'God mode'
     }
 
+    public static TankType getRandomTankType(){
+        switch(Level.random.nextInt(5)){
+            case 0:
+                return TankType.NORMAL;
+            case 1:
+                return TankType.BARRAGE;
+            case 2:
+                return TankType.DUAL;
+            case 3:
+                return TankType.FAST;
+            case 4:
+                return TankType.ARMORED;
+            default:
+                return TankType.NORMAL;
+        }
+    }
 }

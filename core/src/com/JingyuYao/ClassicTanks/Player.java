@@ -6,13 +6,10 @@ import com.badlogic.gdx.utils.TimeUtils;
  * Created by Jingyu_Yao on 1/16/2015.
  */
 public class Player extends Tank {
-    long lastDirectionTime;
-    long directionPauseTime;
-
+    static final float PLAYER_SPEED = 125f;
     public Player(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);
-        lastDirectionTime = 0l;
-        directionPauseTime = 50000000l;
+        setVelocity(PLAYER_SPEED);
     }
 
     @Override
