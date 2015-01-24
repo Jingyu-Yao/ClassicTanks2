@@ -9,8 +9,8 @@ public class Tank extends GameObj {
     static final float SIZE = GameScreen.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
+    private float distanceLeft = ONE_DISTANCE;
     static final float DEFAULT_SPEED = 100f;
-
     // Tank properties
     private TankType type;
     private long lastBulletTime;
@@ -18,12 +18,10 @@ public class Tank extends GameObj {
     private int numBulletsLeft;
     private int maxBullets;
     private boolean shooting;
-
     // Variables for movement
     private Direction moveTowards;
     private boolean moving;
     private float target;
-    private float distanceLeft = ONE_DISTANCE;
 
     // Constructors
     public Tank(Level level, float x, float y, TankType type, Direction direction) {
@@ -38,6 +36,35 @@ public class Tank extends GameObj {
         shooting = false;
     }
 
+    public void addBullet() {
+        numBulletsLeft++;
+    }
+
+    // Getters
+    public TankType getType() {
+        return type;
+    }
+
+    /**
+     * @return a evenly distributed TankType (except GM)
+     */
+    public static TankType getRandomTankType() {
+        switch (Level.random.nextInt(5)) {
+            case 0:
+                return TankType.NORMAL;
+            case 1:
+                return TankType.BARRAGE;
+            case 2:
+                return TankType.DUAL;
+            case 3:
+                return TankType.FAST;
+            case 4:
+                return TankType.ARMORED;
+            default:
+                return TankType.NORMAL;
+        }
+    }
+
     // Setters
     public void setType(TankType t) {
         type = t;
@@ -48,41 +75,43 @@ public class Tank extends GameObj {
                 fireRate = 500000000l;
                 break;
             case DUAL:
+                maxBullets = 2;
                 break;
             case FAST:
-                setVelocity(150f);
+                setVelocity(175f);
                 break;
             case ARMORED:
                 setHp(3);
                 break;
             case GM:
+                setHp(1000); //Basically God mode...
                 break;
         }
-    }
-
-    public void addBullet(){
-        numBulletsLeft++;
-    }
-
-    // Getters
-    public TankType getType() {
-        return type;
     }
 
     public boolean getMoving() {
         return moving;
     }
 
-    public void setMoving(boolean moving) { this.moving = moving; }
+    public void setMoving(boolean moving) {
+        this.moving = moving;
+    }
 
-    public Direction getMoveTowards() { return moveTowards; }
+    public Direction getMoveTowards() {
+        return moveTowards;
+    }
 
     public void moveTowards(Direction direction) {
         moveTowards = direction;
     }
 
-    public void startShooting() { shooting = true; }
-    public void stopShooting() { shooting = false; }
+    public void startShooting() {
+        shooting = true;
+    }
+
+    public void stopShooting() {
+        shooting = false;
+    }
 
     /**
      * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsLeft >= maxBullets}
@@ -204,15 +233,14 @@ public class Tank extends GameObj {
                     setX(getX() + curMove);
                     break;
             }
-        }
-        else if(moveTowards != Direction.NONE){
-            if(moveTowards != getDirection()){
+        } else if (moveTowards != Direction.NONE) {
+            if (moveTowards != getDirection()) {
                 setDirection(moveTowards);
-            }else{
+            } else {
                 forward();
             }
         }
-        if(shooting){
+        if (shooting) {
             shoot();
         }
     }
@@ -227,22 +255,5 @@ public class Tank extends GameObj {
         FAST, // Fast movement
         ARMORED, // Extra health
         GM, // 'God mode'
-    }
-
-    public static TankType getRandomTankType(){
-        switch(Level.random.nextInt(5)){
-            case 0:
-                return TankType.NORMAL;
-            case 1:
-                return TankType.BARRAGE;
-            case 2:
-                return TankType.DUAL;
-            case 3:
-                return TankType.FAST;
-            case 4:
-                return TankType.ARMORED;
-            default:
-                return TankType.NORMAL;
-        }
     }
 }

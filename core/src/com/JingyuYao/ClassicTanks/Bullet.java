@@ -56,9 +56,7 @@ public class Bullet extends GameObj {
         super.update(deltaTime);
         GameObj result = collideAll(0.0f, 0.0f);
 
-        if (result == null) {
-            return;
-        } else {
+        if (result != null) {
             // If both objects are bullets, they cancel each other out
             if (result instanceof Bullet) {
                 ((Bullet) result).removeSelf();

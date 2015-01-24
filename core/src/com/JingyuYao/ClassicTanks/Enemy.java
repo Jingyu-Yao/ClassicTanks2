@@ -1,7 +1,5 @@
 package com.JingyuYao.ClassicTanks;
 
-import java.util.Random;
-
 /**
  * Created by Jingyu_Yao on 1/16/2015.
  */

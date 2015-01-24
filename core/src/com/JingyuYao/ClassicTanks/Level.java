@@ -4,12 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Data class that describes a level.
@@ -28,7 +26,6 @@ public class Level {
     private int levelNumber;
     private String levelString;
     private int startX, startY;
-    private boolean gameOver;
     private long spawnInterval;
     private long lastSpawn;
     private TiledMap map;
@@ -36,8 +33,6 @@ public class Level {
     private TiledMapTileLayer wallLayer;
     private TiledMapTileLayer baseLayer;
     private TiledMapTileLayer spawnLayer;
-
-
     private TiledMapTile backgroundTile;
 
     /**
@@ -53,7 +48,6 @@ public class Level {
         this.startX = startX;
         this.startY = startY;
         this.gameScreen = gameScreen;
-        gameOver = false;
         spawnInterval = 7000000000l; //7s
         lastSpawn = 0l;
 
@@ -108,6 +102,11 @@ public class Level {
         }
     }
 
+    /**
+     * Populates {@code bases} from given layer.
+     *
+     * @param layer the layer used to populate {@code bases} with
+     */
     private void makeBaseFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < layer.getWidth(); i++) {
@@ -120,6 +119,11 @@ public class Level {
         }
     }
 
+    /**
+     * Populates {@code spawns} from given layer.
+     *
+     * @param layer the layer used to populate {@code spawns} with
+     */
     private void makeSpawnPointsFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < layer.getWidth(); i++) {
@@ -187,16 +191,18 @@ public class Level {
      * @param object the object to remove
      */
     public void removeObject(GameObj object) {
-        if (object instanceof Player) {
-            gameOver();
+        if (object instanceof Bullet) {
+            bullets.removeValue((Bullet) object, true);
         } else if (object instanceof Wall) {
             walls.removeValue((Wall) object, true);
-            wallLayer.getCell((int) (object.getX() / gameScreen.TILE_SIZE),
-                    (int) (object.getY() / gameScreen.TILE_SIZE)).setTile(backgroundTile);
+            wallLayer.getCell((int) (object.getX() / GameScreen.TILE_SIZE),
+                    (int) (object.getY() / GameScreen.TILE_SIZE)).setTile(backgroundTile);
         } else if (object instanceof Enemy) {
             enemies.removeValue((Enemy) object, true);
-        } else if (object instanceof Bullet) {
-            bullets.removeValue((Bullet) object, true);
+        } else if (object instanceof Player) {
+            gameOver();
+        } else if (object instanceof Base) {
+            gameOver();
         }
     }
 
@@ -214,5 +220,4 @@ public class Level {
         gameScreen.game.assetManager.unload(levelString);
         map.dispose();
     }
-
 }

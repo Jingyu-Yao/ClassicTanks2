@@ -10,13 +10,13 @@ public class GameInputProcessor implements InputProcessor {
 
     private final Level level;
 
-    public GameInputProcessor(Level level){
+    public GameInputProcessor(Level level) {
         this.level = level;
     }
 
     @Override
     public boolean keyDown(int keycode) {
-        switch (keycode){
+        switch (keycode) {
             case Keys.LEFT:
                 level.player.moveTowards(Direction.LEFT);
                 return true;
@@ -38,24 +38,24 @@ public class GameInputProcessor implements InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        switch (keycode){
+        switch (keycode) {
             case Keys.LEFT:
-                if(level.player.getMoveTowards() == Direction.LEFT){
+                if (level.player.getMoveTowards() == Direction.LEFT) {
                     level.player.moveTowards(Direction.NONE);
                 }
                 return true;
             case Keys.RIGHT:
-                if(level.player.getMoveTowards() == Direction.RIGHT){
+                if (level.player.getMoveTowards() == Direction.RIGHT) {
                     level.player.moveTowards(Direction.NONE);
                 }
                 return true;
             case Keys.UP:
-                if(level.player.getMoveTowards() == Direction.UP){
+                if (level.player.getMoveTowards() == Direction.UP) {
                     level.player.moveTowards(Direction.NONE);
                 }
                 return true;
             case Keys.DOWN:
-                if(level.player.getMoveTowards() == Direction.DOWN){
+                if (level.player.getMoveTowards() == Direction.DOWN) {
                     level.player.moveTowards(Direction.NONE);
                 }
                 return true;

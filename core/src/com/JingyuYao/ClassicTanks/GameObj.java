@@ -1,10 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
-
-import java.lang.reflect.Type;
-import java.util.Random;
 
 /**
  * Base class for all objects in the game.
@@ -12,11 +8,11 @@ import java.util.Random;
  */
 public class GameObj {
 
+    private final Level level;
     private Rectangle body;
     private Direction direction;
     private float velocity;
     private int hp;
-    private final Level level;
 
     public GameObj(Level level, float x, float y, float width, float height) {
         this.level = level;
@@ -42,69 +38,93 @@ public class GameObj {
         hp = 1;
     }
 
-    //Setters
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
-    public void setVelocity(float velocity) {
-        this.velocity = velocity;
-    }
-
-    public void setX(float x) {
-        body.x = x;
-    }
-
-    public void setY(float y) {
-        body.y = y;
-    }
-
-    public void setWidth(float width) {
-        body.width = width;
-    }
-
-    public void setHeight(float height) {
-        body.height = height;
-    }
-
-    public void setHp(int hp) {
-        this.hp = hp;
-    }
-
     //Getters
     public Direction getDirection() {
         return direction;
+    }
+
+    /**
+     * @return a evenly distributed random direction
+     */
+    public static Direction getRandomDirection() {
+        switch (Level.random.nextInt(4)) {
+            case 0:
+                return Direction.UP;
+            case 1:
+                return Direction.LEFT;
+            case 2:
+                return Direction.RIGHT;
+            case 3:
+                return Direction.DOWN;
+            default:
+                return Direction.UP;
+        }
+    }
+
+    //Setters
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 
     public float getVelocity() {
         return velocity;
     }
 
+    public void setVelocity(float velocity) {
+        this.velocity = velocity;
+    }
+
     public float getX() {
         return body.x;
     }
 
-    public int getGridX() { return (int) body.x / level.TILE_SIZE;}
+    public void setX(float x) {
+        body.x = x;
+    }
+
+    public int getGridX() {
+        return (int) body.x / Level.TILE_SIZE;
+    }
 
     public float getY() {
         return body.y;
     }
 
-    public int getGridY() { return  (int) body.y / level.TILE_SIZE; }
+    public void setY(float y) {
+        body.y = y;
+    }
+
+    public int getGridY() {
+        return (int) body.y / Level.TILE_SIZE;
+    }
 
     public float getWidth() {
         return body.width;
+    }
+
+    public void setWidth(float width) {
+        body.width = width;
     }
 
     public float getHeight() {
         return body.height;
     }
 
+    public void setHeight(float height) {
+        body.height = height;
+    }
+
     public int getHp() {
         return hp;
     }
 
-    public Level getLevel() { return level; }
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
 
     /**
      * Check collision with another GameObj
@@ -159,10 +179,10 @@ public class GameObj {
         }
 
         // Check collision with bases
-        for(int i = 0; i < level.bases.size; i++){
+        for (int i = 0; i < level.bases.size; i++) {
             GameObj base = level.bases.get(i);
-            result = this.collideObj(dx,dy, base);
-            if(result != null){
+            result = this.collideObj(dx, dy, base);
+            if (result != null) {
                 return result;
             }
         }
@@ -200,20 +220,5 @@ public class GameObj {
      */
     public void damage() {
         setHp(getHp() - 1);
-    }
-
-    public static Direction getRandomDirection(){
-        switch (Level.random.nextInt(4)) {
-            case 0:
-                return Direction.UP;
-            case 1:
-                return Direction.LEFT;
-            case 2:
-                return Direction.RIGHT;
-            case 3:
-                return Direction.DOWN;
-            default:
-                return Direction.UP;
-        }
     }
 }

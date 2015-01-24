@@ -1,7 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,8 +12,8 @@ import java.util.Hashtable;
 
 public class GameScreen implements Screen {
 
-    final ClassicTanks game;
     final static int TILE_SIZE = 32;
+    final ClassicTanks game;
     final int CAMERA_SIZE = 640;
     final int CAMERA_INNER_BOUND = 80;
 
@@ -50,7 +49,6 @@ public class GameScreen implements Screen {
      * @param levelNumber set the current level of the game
      */
     public void loadLevel(int levelNumber) {
-        System.out.println("Level loaded: " + levelNumber);
         if (level != null) {
             level.dispose();
         }
@@ -172,7 +170,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		/*
-         * Render tiled map
+         * Render tiled map including background and walls
 		 */
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
@@ -214,7 +212,7 @@ public class GameScreen implements Screen {
         level.spawn();
 
 		/* *********************************************************
-		 * Input handling has been replaced by GameInputProcessor class
+         * Input handling has been replaced by GameInputProcessor class
 		 * which is started when a level is created.
 		 * ********************************************************
 		 */
