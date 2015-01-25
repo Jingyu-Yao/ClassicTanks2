@@ -32,6 +32,22 @@ public class GameInputProcessor implements InputProcessor {
             case Keys.SPACE:
                 level.player.startShooting();
                 return true;
+            // for testing
+            case Keys.B:
+                level.player.setType(Tank.TankType.BARRAGE);
+                return true;
+            case Keys.A:
+                level.player.setType(Tank.TankType.ARMORED);
+                return true;
+            case Keys.G:
+                level.player.setType(Tank.TankType.GM);
+                return true;
+            case Keys.F:
+                level.player.setType(Tank.TankType.FAST);
+                return true;
+            case Keys.D:
+                level.player.setType(Tank.TankType.DUAL);
+                return true;
         }
         return false;
     }

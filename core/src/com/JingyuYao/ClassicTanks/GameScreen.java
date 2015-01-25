@@ -8,7 +8,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameScreen implements Screen {
 
@@ -23,7 +24,7 @@ public class GameScreen implements Screen {
     private float tiledScale;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     private Sprite bulletSprite;
-    private Hashtable<Tank.TankType, Sprite> tankSprites;
+    private Map<Tank.TankType, Sprite> tankSprites;
 
     private Level level;
     //FPSLogger fps = new FPSLogger();
@@ -36,7 +37,7 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
 
-        tankSprites = new Hashtable<Tank.TankType, Sprite>();
+        tankSprites = new HashMap<Tank.TankType, Sprite>();
         createSprites();
 
         loadLevel(1);
@@ -205,10 +206,6 @@ public class GameScreen implements Screen {
 
         game.batch.end();
 
-        /*
-        TODO: consider moving all updates to level
-         Spawn
-         */
         level.spawn();
 
 		/* *********************************************************

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -154,6 +155,14 @@ public class Level {
 
     public TiledMap getMap() {
         return map;
+    }
+
+    public float getBaseX(){
+        return spawns.first().getX();
+    }
+
+    public float getBaseY(){
+        return spawns.first().getY();
     }
 
     /**

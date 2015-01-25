@@ -10,7 +10,9 @@ public class Tank extends GameObj {
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
     private float distanceLeft = ONE_DISTANCE;
-    static final float DEFAULT_SPEED = 100f;
+    // Tank type defaults
+    static final float DEFAULT_VELOCITY = 100f;
+    static final long DEFAULT_FIRE_RATE = 1000000000l;
     // Tank properties
     private TankType type;
     private long lastBulletTime;
@@ -25,11 +27,11 @@ public class Tank extends GameObj {
 
     // Constructors
     public Tank(Level level, float x, float y, TankType type, Direction direction) {
-        super(level, x, y, SIZE, SIZE, DEFAULT_SPEED, direction);
+        super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
         setType(type);
         moving = false;
         lastBulletTime = 0l;
-        fireRate = 1000000000l;
+        fireRate = DEFAULT_FIRE_RATE;
         numBulletsLeft = 1;
         maxBullets = 1;
         moveTowards = Direction.NONE;
@@ -67,15 +69,17 @@ public class Tank extends GameObj {
 
     // Setters
     public void setType(TankType t) {
+        resetType();
         type = t;
         switch (type) {
             case NORMAL:
                 break;
             case BARRAGE:
-                fireRate = 500000000l;
+                fireRate = DEFAULT_FIRE_RATE / 3;
                 break;
             case DUAL:
-                maxBullets = 2;
+                fireRate = DEFAULT_FIRE_RATE / 5;
+                maxBullets = numBulletsLeft = 2;
                 break;
             case FAST:
                 setVelocity(175f);
@@ -87,6 +91,13 @@ public class Tank extends GameObj {
                 setHp(1000); //Basically God mode...
                 break;
         }
+    }
+
+    private void resetType(){
+        setHp(1);
+        fireRate = DEFAULT_FIRE_RATE;
+        setVelocity(DEFAULT_VELOCITY);
+        maxBullets = numBulletsLeft = 1;
     }
 
     public boolean getMoving() {
