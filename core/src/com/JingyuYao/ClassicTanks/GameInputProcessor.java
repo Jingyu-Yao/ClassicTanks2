@@ -48,8 +48,14 @@ public class GameInputProcessor implements InputProcessor {
             case Keys.D:
                 level.player.setType(Tank.TankType.DUAL);
                 return true;
+            case Keys.N:
+                level.player.setType(Tank.TankType.NORMAL);
+                return true;
             case Keys.L:
                 System.out.println(level.toString());
+                return true;
+            case Keys.P:
+                System.out.println(level.player.toString());
                 return true;
         }
         return false;

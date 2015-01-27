@@ -162,6 +162,10 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
+        // Delay guard
+        if(delta > 0.1f){
+            return;
+        }
 
 		/* *********************************************************
          * openGL stuff

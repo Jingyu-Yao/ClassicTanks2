@@ -17,7 +17,7 @@ public class Tank extends GameObj {
     private TankType type;
     private long lastBulletTime;
     private long fireRate; // 1s
-    private int numBulletsLeft;
+    private int numBulletsOut;
     private int maxBullets;
     private boolean shooting;
     // Variables for movement
@@ -32,14 +32,14 @@ public class Tank extends GameObj {
         moving = false;
         lastBulletTime = 0l;
         fireRate = DEFAULT_FIRE_RATE;
-        numBulletsLeft = 1;
+        numBulletsOut = 0;
         maxBullets = 1;
         moveTowards = Direction.NONE;
         shooting = false;
     }
 
     public void addBullet() {
-        numBulletsLeft++;
+        numBulletsOut--;
     }
 
     // Getters
@@ -79,7 +79,7 @@ public class Tank extends GameObj {
                 break;
             case DUAL:
                 fireRate = DEFAULT_FIRE_RATE / 5;
-                maxBullets = numBulletsLeft = 2;
+                maxBullets = 2;
                 break;
             case FAST:
                 setVelocity(175f);
@@ -97,7 +97,7 @@ public class Tank extends GameObj {
         setHp(1);
         fireRate = DEFAULT_FIRE_RATE;
         setVelocity(DEFAULT_VELOCITY);
-        maxBullets = numBulletsLeft = 1;
+        maxBullets = 1;
     }
 
     public boolean getMoving() {
@@ -125,11 +125,11 @@ public class Tank extends GameObj {
     }
 
     /**
-     * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsLeft >= maxBullets}
+     * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsOut >= maxBullets}
      */
     public void shoot() {
         long curTime = TimeUtils.nanoTime();
-        if (curTime - lastBulletTime < fireRate || numBulletsLeft < maxBullets) {
+        if (curTime - lastBulletTime < fireRate || numBulletsOut >= maxBullets) {
             return;
         }
 
@@ -158,7 +158,7 @@ public class Tank extends GameObj {
         }
         if (bullet != null) {
             getLevel().addObject(bullet);
-            numBulletsLeft--;
+            numBulletsOut++;
         }
     }
 
@@ -266,5 +266,17 @@ public class Tank extends GameObj {
         FAST, // Fast movement
         ARMORED, // Extra health
         GM, // 'God mode'
+    }
+
+    @Override
+    public String toString() {
+        return "Tank{" +
+                "moving=" + moving +
+                ", moveTowards=" + moveTowards +
+                ", shooting=" + shooting +
+                ", numBulletsOut=" + numBulletsOut +
+                ", maxBullets=" + maxBullets +
+                ", fireRate=" + fireRate +
+                '}';
     }
 }
