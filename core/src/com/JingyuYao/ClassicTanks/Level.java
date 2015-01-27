@@ -1,6 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -24,30 +25,39 @@ public class Level {
     public Array<Base> bases;
     public Array<GameObj> spawns;
     public Player player;
+    private Vector2 start;
     private int levelNumber;
     private String levelString;
-    private int startX, startY;
     private long spawnInterval;
     private long lastSpawn;
+    /*
+    A map have the following layers:
+    Walls, Background, Base, Spawns, Start, Enemies
+     */
     private TiledMap map;
     private TiledMapTileLayer backgroundLayer;
     private TiledMapTileLayer wallLayer;
     private TiledMapTileLayer baseLayer;
     private TiledMapTileLayer spawnLayer;
+    private TiledMapTileLayer startLayer;
+    private TiledMapTileLayer enemiesLayer;
     private TiledMapTile backgroundTile;
+
+    //Number of enemies of each type remain to spawn
+    int numNormal;
+    int numBarrage;
+    int numDual;
+    int numArmored;
+    int numFast;
 
     /**
      * Also starts the {@code GameInputProcessor}
      *
      * @param levelNumber
-     * @param startX
-     * @param startY
      * @param gameScreen
      */
-    public Level(int levelNumber, int startX, int startY, GameScreen gameScreen) {
+    public Level(int levelNumber, GameScreen gameScreen) {
         this.levelNumber = levelNumber;
-        this.startX = startX;
-        this.startY = startY;
         this.gameScreen = gameScreen;
         spawnInterval = 7000000000l; //7s
         lastSpawn = 0l;
@@ -71,14 +81,18 @@ public class Level {
         backgroundLayer = (TiledMapTileLayer) (map.getLayers().get("Background"));
         baseLayer = (TiledMapTileLayer) map.getLayers().get("Base");
         spawnLayer = (TiledMapTileLayer) map.getLayers().get("Spawns");
+        startLayer = (TiledMapTileLayer) map.getLayers().get("Start");
+        enemiesLayer = (TiledMapTileLayer) map.getLayers().get("Enemies");
 
         backgroundTile = backgroundLayer.getCell(0, 0).getTile();
 
         makeWallFromTileLayer(wallLayer);
         makeBaseFromTileLayer(baseLayer);
         makeSpawnPointsFromTileLayer(spawnLayer);
+        getStartPoint(startLayer);
+        populateEnemiesList(enemiesLayer);
 
-        addObject(new Player(this, startX, startY, Tank.TankType.NORMAL, Direction.UP));
+        addObject(new Player(this, start.x, start.y, Tank.TankType.NORMAL, Direction.UP));
 
         Gdx.input.setInputProcessor(new GameInputProcessor(this));
     }
@@ -137,17 +151,91 @@ public class Level {
         }
     }
 
+    private void getStartPoint(TiledMapTileLayer layer) {
+        TiledMapTileLayer.Cell cell;
+        for (int i = 0; i < layer.getWidth(); i++) {
+            for (int j = 0; j < layer.getHeight(); j++) {
+                cell = layer.getCell(i, j);
+                if (cell != null) {
+                    start = new Vector2(i, j);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void populateEnemiesList(TiledMapTileLayer layer) {
+        MapProperties properties = layer.getProperties();
+        numNormal = Integer.parseInt(properties.get("Normal", String.class));
+        numBarrage = Integer.parseInt(properties.get("Barrage", String.class));
+        numDual = Integer.parseInt(properties.get("Dual", String.class));
+        numArmored = Integer.parseInt(properties.get("Armored", String.class));
+        numFast = Integer.parseInt(properties.get("Fast", String.class));
+    }
+
     /**
-     * Tries to spawn a {@code Enemy} at a random spawn location if {@code spawnInterval} nanoseconds
-     * has passed.
+     * Tries to spawn a {@code Enemy} from the to-spawn list at a random spawn location
+     * if {@code spawnInterval} nanoseconds has passed.
      */
     public void spawn() {
         long curTime = TimeUtils.nanoTime();
-        if (curTime - lastSpawn > spawnInterval) {
+        if (curTime - lastSpawn > spawnInterval &&
+                numArmored + numBarrage + numDual + numFast + numNormal > 0) {
             GameObj spawnPoint = spawns.get(random.nextInt(spawns.size));
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
-                addObject(new Enemy(this, spawnPoint.getGridX(), spawnPoint.getGridY(),
-                        Tank.getRandomTankType(), GameObj.getRandomDirection()));
+                Enemy toAdd = new Enemy(this, spawnPoint.getGridX(), spawnPoint.getGridY(),
+                        Tank.getRandomTankType(), GameObj.getRandomDirection());
+                boolean pass = false;
+                // Make sure it spawns a tank
+                //TODO: this is a dumb way to solve the spawning issue
+                while (!pass) {
+                    pass = true;
+                    switch (toAdd.getType()) {
+                        case NORMAL:
+                            if (numNormal > 0) {
+                                numNormal--;
+                            } else {
+                                toAdd.setType(Tank.getRandomTankType());
+                                pass = false;
+                            }
+                            break;
+                        case BARRAGE:
+                            if(numBarrage > 0){
+                                numBarrage--;
+                            }else{
+                                toAdd.setType(Tank.getRandomTankType());
+                                pass = false;
+                            }
+                            break;
+                        case DUAL:
+                            if(numDual > 0){
+                                numDual--;
+                            }else{
+                                toAdd.setType(Tank.getRandomTankType());
+                                pass = false;
+                            }
+                            break;
+                        case FAST:
+                            if(numFast > 0){
+                                numFast--;
+                            }else{
+                                toAdd.setType(Tank.getRandomTankType());
+                                pass = false;
+                            }
+                            break;
+                        case ARMORED:
+                            if(numArmored > 0){
+                                numArmored--;
+                            }else{
+                                toAdd.setType(Tank.getRandomTankType());
+                                pass = false;
+                            }
+                            break;
+                        case GM:
+                            break;
+                    }
+                }
+                addObject(toAdd);
                 lastSpawn = curTime;
             }
         }
@@ -157,11 +245,11 @@ public class Level {
         return map;
     }
 
-    public float getBaseX(){
+    public float getBaseX() {
         return spawns.first().getX();
     }
 
-    public float getBaseY(){
+    public float getBaseY() {
         return spawns.first().getY();
     }
 
@@ -228,5 +316,16 @@ public class Level {
     public void dispose() {
         gameScreen.game.assetManager.unload(levelString);
         map.dispose();
+    }
+
+    @Override
+    public String toString() {
+        return "Level{" +
+                "numFast=" + numFast +
+                ", numArmored=" + numArmored +
+                ", numDual=" + numDual +
+                ", numBarrage=" + numBarrage +
+                ", numNormal=" + numNormal +
+                '}';
     }
 }
