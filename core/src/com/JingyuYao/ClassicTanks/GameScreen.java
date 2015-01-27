@@ -207,6 +207,7 @@ public class GameScreen implements Screen {
         game.batch.end();
 
         level.spawn();
+        level.checkLevelCompletion();
 
 		/* *********************************************************
          * Input handling has been replaced by GameInputProcessor class

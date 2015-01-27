@@ -297,16 +297,16 @@ public class Level {
         } else if (object instanceof Enemy) {
             enemies.removeValue((Enemy) object, true);
         } else if (object instanceof Player) {
-            gameOver();
+            levelComplete();
         } else if (object instanceof Base) {
-            gameOver();
+            levelComplete();
         }
     }
 
     /**
      * GG, currently gg = reset level to 1
      */
-    public void gameOver() {
+    public void levelComplete() {
         gameScreen.loadLevel(1);
     }
 
@@ -316,6 +316,17 @@ public class Level {
     public void dispose() {
         gameScreen.game.assetManager.unload(levelString);
         map.dispose();
+    }
+
+    /**
+     * Check whether the level is complete or not. If conditions are met, call
+     * {@code levelComplete()}
+     */
+    public void checkLevelCompletion(){
+        if(numArmored + numDual + numNormal + numBarrage + numFast == 0
+                && enemies.size == 0){
+            levelComplete();
+        }
     }
 
     @Override
