@@ -13,6 +13,8 @@ public class Tank extends GameObj {
     // Tank type defaults
     static final float DEFAULT_VELOCITY = 100f;
     static final long DEFAULT_FIRE_RATE = 1000000000l;
+    static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
+    static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
     // Tank properties
     private TankType type;
     private long lastBulletTime;
@@ -75,10 +77,9 @@ public class Tank extends GameObj {
             case NORMAL:
                 break;
             case BARRAGE:
-                fireRate = DEFAULT_FIRE_RATE / 3;
+                fireRate = BARRAGE_FIRE_RATE;
                 break;
             case DUAL:
-                fireRate = DEFAULT_FIRE_RATE / 5;
                 maxBullets = 2;
                 break;
             case FAST:
@@ -129,36 +130,44 @@ public class Tank extends GameObj {
      */
     public void shoot() {
         long curTime = TimeUtils.nanoTime();
-        if (curTime - lastBulletTime < fireRate || numBulletsOut >= maxBullets) {
-            return;
-        }
+        if (curTime - lastBulletTime > fireRate && numBulletsOut < maxBullets) {
+            lastBulletTime = curTime;
 
-        lastBulletTime = curTime;
+            float bodyX = getX(), bodyY = getY();
+            Direction direction = getDirection();
+            Bullet bullet;
+            switch (direction) {
+                case DOWN:
+                    bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY - Bullet.HEIGHT, direction, this);
+                    break;
+                case LEFT:
+                    bullet = new Bullet(getLevel(), bodyX - Bullet.HEIGHT, bodyY + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
+                    break;
+                case RIGHT:
+                    bullet = new Bullet(getLevel(), bodyX + SIZE + Bullet.WIDTH, bodyY + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
+                    break;
+                case UP:
+                    bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY + SIZE, direction, this);
+                    break;
+                case NONE:
+                default:
+                    bullet = null;
+                    break;
+            }
+            if (bullet != null) {
+                getLevel().addObject(bullet);
+                numBulletsOut++;
 
-        float bodyX = getX(), bodyY = getY();
-        Direction direction = getDirection();
-        Bullet bullet;
-        switch (direction) {
-            case DOWN:
-                bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY - Bullet.HEIGHT, direction, this);
-                break;
-            case LEFT:
-                bullet = new Bullet(getLevel(), bodyX - Bullet.HEIGHT, bodyY + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
-                break;
-            case RIGHT:
-                bullet = new Bullet(getLevel(), bodyX + SIZE + Bullet.WIDTH, bodyY + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
-                break;
-            case UP:
-                bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY + SIZE, direction, this);
-                break;
-            case NONE:
-            default:
-                bullet = null;
-                break;
-        }
-        if (bullet != null) {
-            getLevel().addObject(bullet);
-            numBulletsOut++;
+                //special conditions for DUAL type
+                //flips fire rate every bullet
+                if(getType() == TankType.DUAL){
+                    if(fireRate == DEFAULT_FIRE_RATE){
+                        fireRate = DUAL_FIRE_RATE;
+                    }else{
+                        fireRate = DEFAULT_FIRE_RATE;
+                    }
+                }
+            }
         }
     }
 
