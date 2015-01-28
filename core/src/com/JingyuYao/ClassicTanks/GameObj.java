@@ -14,6 +14,14 @@ public class GameObj {
     private float velocity;
     private int hp;
 
+    /**
+     * Create a GameObj in a {@code Level}.
+     * @param level the {@code Level} this object belongs in
+     * @param x the x coordinate of the object in grid location
+     * @param y the y coordinate of the object in grid location
+     * @param width the width of the object
+     * @param height the height of the object
+     */
     public GameObj(Level level, float x, float y, float width, float height) {
         this.level = level;
         body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);
@@ -22,14 +30,16 @@ public class GameObj {
         hp = 1;
     }
 
-    public GameObj(Level level, float x, float y, float width, float height, float velocity) {
-        this.level = level;
-        body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);
-        direction = Direction.NONE;
-        this.velocity = velocity;
-        hp = 1;
-    }
-
+    /**
+     * Create a GameObj in a {@code Level}.
+     * @param level the {@code Level} this object belongs in
+     * @param x the x coordinate of the object in grid location
+     * @param y the y coordinate of the object in grid location
+     * @param width the width of the object
+     * @param height the height of the object
+     * @param velocity the velocity of the object
+     * @param direction the direction of the object
+     */
     public GameObj(Level level, float x, float y, float width, float height, float velocity, Direction direction) {
         this.level = level;
         body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);
@@ -220,5 +230,15 @@ public class GameObj {
      */
     public void damage() {
         setHp(getHp() - 1);
+    }
+
+    @Override
+    public String toString() {
+        return "GameObj{" +
+                ", body=" + body +
+                ", direction=" + direction +
+                ", velocity=" + velocity +
+                ", hp=" + hp +
+                '}';
     }
 }

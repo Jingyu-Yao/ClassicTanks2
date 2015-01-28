@@ -5,9 +5,33 @@ package com.JingyuYao.ClassicTanks;
  */
 public class Wall extends GameObj {
 
-    public Wall(Level level, float x, float y, int hp) {
+    private WallType type;
+
+    public Wall(Level level, float x, float y, WallType type) {
         super(level, x, y, GameScreen.TILE_SIZE, GameScreen.TILE_SIZE);
-        setHp(hp);
+        setType(type);
+    }
+
+    public void setType(WallType type){
+        this.type = type;
+        switch(type){
+            case NORMAL:
+                setHp(2);
+                break;
+            case WATER:
+                setHp(-1);
+                break;
+            case CONCRETE:
+                setHp(2);
+                break;
+            case INDESTRUCTIBLE:
+                setHp(-1);
+                break;
+        }
+    }
+
+    public WallType getType(){
+        return type;
     }
 
     @Override
@@ -19,5 +43,12 @@ public class Wall extends GameObj {
             // Hp = 0 = wall disappears
             getLevel().removeObject(this);
         }
+    }
+
+    public enum WallType{
+        NORMAL,
+        WATER,
+        CONCRETE,
+        INDESTRUCTIBLE
     }
 }

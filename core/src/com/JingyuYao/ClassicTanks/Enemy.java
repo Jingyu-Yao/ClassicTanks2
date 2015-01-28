@@ -5,7 +5,12 @@ package com.JingyuYao.ClassicTanks;
  */
 public class Enemy extends Tank {
 
-    private final static float BIASED_CHANCE = 0.3f;
+    private final static float BIASED_CHANCE = 0.6f;
+
+    public Enemy(Level level, float x, float y, TankType type){
+        super(level, x, y, type);
+        startShooting();
+    }
 
     public Enemy(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);

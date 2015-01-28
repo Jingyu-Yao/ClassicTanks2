@@ -8,6 +8,7 @@ public class Bullet extends GameObj {
 
     // Properties
     private Tank origin;
+    private BulletType type;
 
     /**
      * @param x
@@ -15,9 +16,10 @@ public class Bullet extends GameObj {
      * @param direction
      * @param origin    the source of the bullet
      */
-    public Bullet(Level level, float x, float y, Direction direction, Tank origin) {
+    public Bullet(Level level, float x, float y, Direction direction, Tank origin, BulletType type) {
         super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
         this.origin = origin;
+        setType(type);
         setProperRecBound();
     }
 
@@ -46,6 +48,14 @@ public class Bullet extends GameObj {
         return origin;
     }
 
+    public void setType(BulletType type){
+        this.type = type;
+    }
+
+    public BulletType getType(){
+        return type;
+    }
+
     /**
      * Updates the bullet's location. Also handles collision
      *
@@ -67,10 +77,22 @@ public class Bullet extends GameObj {
             if (this.getOrigin() instanceof Player) {
                 // and it hits a wall
                 if (result instanceof Wall) {
-                    // If wall is not water
-                    if (result.getHp() != -2) {
-                        result.damage();
-                        removeSelf();
+                    switch (((Wall) result).getType()){
+                        case NORMAL:
+                            result.damage();
+                            removeSelf();
+                            break;
+                        case WATER:
+                            break;
+                        case CONCRETE:
+                            if(getType() == BulletType.SUPER) {
+                                result.damage();
+                            }
+                            removeSelf();
+                            break;
+                        case INDESTRUCTIBLE:
+                            removeSelf();
+                            break;
                     }
                 } else {
                     result.damage();
@@ -81,9 +103,22 @@ public class Bullet extends GameObj {
                 if (result instanceof Enemy) {
                     removeSelf();
                 } else if (result instanceof Wall) {
-                    if (result.getHp() != -2) {
-                        result.damage();
-                        removeSelf();
+                    switch (((Wall) result).getType()){
+                        case NORMAL:
+                            result.damage();
+                            removeSelf();
+                            break;
+                        case WATER:
+                            break;
+                        case CONCRETE:
+                            if(getType() == BulletType.SUPER) {
+                                result.damage();
+                            }
+                            removeSelf();
+                            break;
+                        case INDESTRUCTIBLE:
+                            removeSelf();
+                            break;
                     }
                 } else {
                     result.damage();
@@ -100,5 +135,10 @@ public class Bullet extends GameObj {
     private void removeSelf() {
         getLevel().removeObject(this);
         origin.addBullet();
+    }
+
+    public enum BulletType{
+        NORMAL,
+        SUPER
     }
 }

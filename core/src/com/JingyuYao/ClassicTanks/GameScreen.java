@@ -73,6 +73,8 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("DUAL.png"))));
         tankSprites.put(Tank.TankType.FAST,
                 new Sprite(new Texture(Gdx.files.internal("FAST.png"))));
+        tankSprites.put(Tank.TankType.SUPER,
+                new Sprite(new Texture(Gdx.files.internal("SUPER.png"))));
         tankSprites.put(Tank.TankType.GM,
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
     }

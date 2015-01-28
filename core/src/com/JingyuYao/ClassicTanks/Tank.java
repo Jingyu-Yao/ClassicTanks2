@@ -15,8 +15,10 @@ public class Tank extends GameObj {
     static final long DEFAULT_FIRE_RATE = 1000000000l;
     static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
     static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
+    static final float SUPER_VELOCITY = 175.0f;
     // Tank properties
     private TankType type;
+    private Bullet.BulletType bulletType;
     private long lastBulletTime;
     private long fireRate; // 1s
     private int numBulletsOut;
@@ -28,6 +30,19 @@ public class Tank extends GameObj {
     private float target;
 
     // Constructors
+    public Tank(Level level, float x, float y, TankType type) {
+        super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, getRandomDirection());
+        setType(type);
+        moving = false;
+        lastBulletTime = 0l;
+        fireRate = DEFAULT_FIRE_RATE;
+        numBulletsOut = 0;
+        maxBullets = 1;
+        moveTowards = Direction.NONE;
+        shooting = false;
+        bulletType = Bullet.BulletType.NORMAL;
+    }
+
     public Tank(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
         setType(type);
@@ -38,6 +53,7 @@ public class Tank extends GameObj {
         maxBullets = 1;
         moveTowards = Direction.NONE;
         shooting = false;
+        bulletType = Bullet.BulletType.NORMAL;
     }
 
     public void addBullet() {
@@ -53,7 +69,7 @@ public class Tank extends GameObj {
      * @return a evenly distributed TankType (except GM)
      */
     public static TankType getRandomTankType() {
-        switch (Level.random.nextInt(5)) {
+        switch (Level.random.nextInt(6)) {
             case 0:
                 return TankType.NORMAL;
             case 1:
@@ -64,6 +80,8 @@ public class Tank extends GameObj {
                 return TankType.FAST;
             case 4:
                 return TankType.ARMORED;
+            case 5:
+                return TankType.SUPER;
             default:
                 return TankType.NORMAL;
         }
@@ -83,12 +101,21 @@ public class Tank extends GameObj {
                 maxBullets = 2;
                 break;
             case FAST:
-                setVelocity(175f);
+                setVelocity(SUPER_VELOCITY);
                 break;
             case ARMORED:
                 setHp(3);
                 break;
+            case SUPER:
+                fireRate = BARRAGE_FIRE_RATE;
+                setHp(2);
+                bulletType = Bullet.BulletType.SUPER;
+                setVelocity(SUPER_VELOCITY);
+                break;
             case GM:
+                fireRate = DUAL_FIRE_RATE;
+                bulletType = Bullet.BulletType.SUPER;
+                setVelocity(SUPER_VELOCITY);
                 setHp(1000); //Basically God mode...
                 break;
         }
@@ -96,6 +123,7 @@ public class Tank extends GameObj {
 
     private void resetType(){
         setHp(1);
+        bulletType = Bullet.BulletType.NORMAL;
         fireRate = DEFAULT_FIRE_RATE;
         setVelocity(DEFAULT_VELOCITY);
         maxBullets = 1;
@@ -135,19 +163,23 @@ public class Tank extends GameObj {
 
             float bodyX = getX(), bodyY = getY();
             Direction direction = getDirection();
-            Bullet bullet;
+            Bullet bullet = new Bullet(getLevel(), -1, -1, direction, this, bulletType);
             switch (direction) {
                 case DOWN:
-                    bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY - Bullet.HEIGHT, direction, this);
+                    bullet.setX(bodyX + HALF_SIZE - Bullet.WIDTH / 2f);
+                    bullet.setY(bodyY - Bullet.HEIGHT);
                     break;
                 case LEFT:
-                    bullet = new Bullet(getLevel(), bodyX - Bullet.HEIGHT, bodyY + HALF_SIZE - Bullet.WIDTH + 1, direction, this);
+                    bullet.setX(bodyX - Bullet.HEIGHT);
+                    bullet.setY(bodyY + HALF_SIZE - Bullet.WIDTH + 1);
                     break;
                 case RIGHT:
-                    bullet = new Bullet(getLevel(), bodyX + SIZE + Bullet.WIDTH, bodyY + HALF_SIZE - Bullet.HEIGHT / 2f + 1, direction, this);
+                    bullet.setX(bodyX + SIZE + Bullet.WIDTH);
+                    bullet.setY(bodyY + HALF_SIZE - Bullet.HEIGHT / 2f + 1);
                     break;
                 case UP:
-                    bullet = new Bullet(getLevel(), bodyX + HALF_SIZE - Bullet.WIDTH / 2f, bodyY + SIZE, direction, this);
+                    bullet.setX(bodyX + HALF_SIZE - Bullet.WIDTH / 2f);
+                    bullet.setY(bodyY + SIZE);
                     break;
                 case NONE:
                 default:
@@ -269,23 +301,26 @@ public class Tank extends GameObj {
      * TODO: Use subclass instead of enum
      * All type of tanks.
      */
-    protected enum TankType {
+    public enum TankType {
         NORMAL, BARRAGE, // Fast bullets
         DUAL, // Dual shot
         FAST, // Fast movement
         ARMORED, // Extra health
+        SUPER,
         GM, // 'God mode'
     }
 
     @Override
     public String toString() {
         return "Tank{" +
-                "moving=" + moving +
-                ", moveTowards=" + moveTowards +
-                ", shooting=" + shooting +
+                ", type=" + type +
+                ", lastBulletTime=" + lastBulletTime +
+                ", fireRate=" + fireRate +
                 ", numBulletsOut=" + numBulletsOut +
                 ", maxBullets=" + maxBullets +
-                ", fireRate=" + fireRate +
-                '}';
+                ", shooting=" + shooting +
+                ", moveTowards=" + moveTowards +
+                ", moving=" + moving +
+                "} ";
     }
 }

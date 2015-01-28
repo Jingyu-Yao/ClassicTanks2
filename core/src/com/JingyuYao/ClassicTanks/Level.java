@@ -23,7 +23,8 @@ public class Level {
     public Array<Bullet> bullets;
     public Array<Wall> walls;
     public Array<Base> bases;
-    public Array<GameObj> spawns;
+    public Array<GameObj> spawnPoints;
+    public Array<Enemy> remainingEnemies;
     public Player player;
     private Vector2 start;
     private int levelNumber;
@@ -44,11 +45,6 @@ public class Level {
     private TiledMapTile backgroundTile;
 
     //Number of enemies of each type remain to spawn
-    int numNormal;
-    int numBarrage;
-    int numDual;
-    int numArmored;
-    int numFast;
 
     /**
      * Also starts the {@code GameInputProcessor}
@@ -66,7 +62,8 @@ public class Level {
         walls = new Array<Wall>();
         bullets = new Array<Bullet>();
         bases = new Array<Base>();
-        spawns = new Array<GameObj>();
+        spawnPoints = new Array<GameObj>();
+        remainingEnemies = new Array<Enemy>();
 
         levelString = "level" + levelNumber + ".tmx";
 
@@ -104,14 +101,28 @@ public class Level {
      */
     private void makeWallFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
-        int prop;
+        String type;
         for (int i = 0; i < layer.getWidth(); i++) {
             for (int j = 0; j < layer.getHeight(); j++) {
                 cell = layer.getCell(i, j);
                 if (cell != null) {
-                    prop = Integer.parseInt(cell.getTile().getProperties()
-                            .get("hp", String.class));
-                    addObject(new Wall(this, i, j, prop));
+                    type = cell.getTile().getProperties().get("type", String.class);
+                    if(type != null) {
+                        switch (type) {
+                            case "NORMAL":
+                                addObject(new Wall(this, i, j, Wall.WallType.NORMAL));
+                                break;
+                            case "WATER":
+                                addObject(new Wall(this, i, j, Wall.WallType.WATER));
+                                break;
+                            case "CONCRETE":
+                                addObject(new Wall(this, i, j, Wall.WallType.CONCRETE));
+                                break;
+                            case "INDESTRUCTIBLE":
+                                addObject(new Wall(this, i, j, Wall.WallType.INDESTRUCTIBLE));
+                                break;
+                        }
+                    }
                 }
             }
         }
@@ -135,9 +146,9 @@ public class Level {
     }
 
     /**
-     * Populates {@code spawns} from given layer.
+     * Populates {@code spawnPoints} from given layer.
      *
-     * @param layer the layer used to populate {@code spawns} with
+     * @param layer the layer used to populate {@code spawnPoints} with
      */
     private void makeSpawnPointsFromTileLayer(TiledMapTileLayer layer) {
         TiledMapTileLayer.Cell cell;
@@ -145,7 +156,7 @@ public class Level {
             for (int j = 0; j < layer.getHeight(); j++) {
                 cell = layer.getCell(i, j);
                 if (cell != null) {
-                    spawns.add(new GameObj(this, i, j, TILE_SIZE, TILE_SIZE));
+                    spawnPoints.add(new GameObj(this, i, j, TILE_SIZE, TILE_SIZE));
                 }
             }
         }
@@ -166,11 +177,27 @@ public class Level {
 
     private void populateEnemiesList(TiledMapTileLayer layer) {
         MapProperties properties = layer.getProperties();
-        numNormal = Integer.parseInt(properties.get("Normal", String.class));
-        numBarrage = Integer.parseInt(properties.get("Barrage", String.class));
-        numDual = Integer.parseInt(properties.get("Dual", String.class));
-        numArmored = Integer.parseInt(properties.get("Armored", String.class));
-        numFast = Integer.parseInt(properties.get("Fast", String.class));
+        int numNormal = Integer.parseInt(properties.get("Normal", String.class));
+        int numBarrage = Integer.parseInt(properties.get("Barrage", String.class));
+        int numDual = Integer.parseInt(properties.get("Dual", String.class));
+        int numArmored = Integer.parseInt(properties.get("Armored", String.class));
+        int numFast = Integer.parseInt(properties.get("Fast", String.class));
+
+        for(int i = 0; i < numNormal; i++){
+            remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.NORMAL));
+        }
+        for(int i = 0; i < numBarrage; i++){
+            remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.BARRAGE));
+        }
+        for(int i = 0; i < numDual; i++){
+            remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.DUAL));
+        }
+        for(int i = 0; i < numArmored; i++){
+            remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.ARMORED));
+        }
+        for(int i = 0; i < numFast; i++){
+            remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.FAST));
+        }
     }
 
     /**
@@ -180,61 +207,14 @@ public class Level {
     public void spawn() {
         long curTime = TimeUtils.nanoTime();
         if (curTime - lastSpawn > spawnInterval &&
-                numArmored + numBarrage + numDual + numFast + numNormal > 0) {
-            GameObj spawnPoint = spawns.get(random.nextInt(spawns.size));
+                remainingEnemies.size > 0) {
+            GameObj spawnPoint = spawnPoints.get(random.nextInt(spawnPoints.size));
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
-                Enemy toAdd = new Enemy(this, spawnPoint.getGridX(), spawnPoint.getGridY(),
-                        Tank.getRandomTankType(), GameObj.getRandomDirection());
-                boolean pass = false;
-                // Make sure it spawns a tank
-                //TODO: this is a dumb way to solve the spawning issue
-                while (!pass) {
-                    pass = true;
-                    switch (toAdd.getType()) {
-                        case NORMAL:
-                            if (numNormal > 0) {
-                                numNormal--;
-                            } else {
-                                toAdd.setType(Tank.getRandomTankType());
-                                pass = false;
-                            }
-                            break;
-                        case BARRAGE:
-                            if(numBarrage > 0){
-                                numBarrage--;
-                            }else{
-                                toAdd.setType(Tank.getRandomTankType());
-                                pass = false;
-                            }
-                            break;
-                        case DUAL:
-                            if(numDual > 0){
-                                numDual--;
-                            }else{
-                                toAdd.setType(Tank.getRandomTankType());
-                                pass = false;
-                            }
-                            break;
-                        case FAST:
-                            if(numFast > 0){
-                                numFast--;
-                            }else{
-                                toAdd.setType(Tank.getRandomTankType());
-                                pass = false;
-                            }
-                            break;
-                        case ARMORED:
-                            if(numArmored > 0){
-                                numArmored--;
-                            }else{
-                                toAdd.setType(Tank.getRandomTankType());
-                                pass = false;
-                            }
-                            break;
-                        case GM:
-                            break;
-                    }
-                }
+                Enemy toAdd = remainingEnemies.random();
+                remainingEnemies.removeValue(toAdd, true);
+
+                toAdd.setX(spawnPoint.getX());
+                toAdd.setY(spawnPoint.getY());
                 addObject(toAdd);
                 lastSpawn = curTime;
             }
@@ -246,11 +226,11 @@ public class Level {
     }
 
     public float getBaseX() {
-        return spawns.first().getX();
+        return bases.first().getX();
     }
 
     public float getBaseY() {
-        return spawns.first().getY();
+        return bases.first().getY();
     }
 
     /**
@@ -323,20 +303,22 @@ public class Level {
      * {@code levelComplete()}
      */
     public void checkLevelCompletion(){
-        if(numArmored + numDual + numNormal + numBarrage + numFast == 0
-                && enemies.size == 0){
+        if(remainingEnemies.size == 0 && enemies.size == 0){
             levelComplete();
         }
     }
 
     @Override
     public String toString() {
-        return "Level{" +
-                "numFast=" + numFast +
-                ", numArmored=" + numArmored +
-                ", numDual=" + numDual +
-                ", numBarrage=" + numBarrage +
-                ", numNormal=" + numNormal +
+        return "Level{" + "enemies.size=" + enemies.size +
+                ", bullets.size=" + bullets.size +
+                ", walls.size=" + walls.size +
+                ", remainingEnemies.size=" + remainingEnemies.size +
+                ", player info=" + player.toString() +
+                ", start=" + start +
+                ", levelNumber=" + levelNumber +
+                ", spawnInterval=" + spawnInterval +
+                ", lastSpawn=" + lastSpawn +
                 '}';
     }
 }
