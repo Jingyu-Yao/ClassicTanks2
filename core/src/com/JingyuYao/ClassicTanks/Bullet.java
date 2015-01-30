@@ -1,5 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
 public class Bullet extends GameObj {
 
     static final float HEIGHT = 8f;
@@ -16,8 +18,8 @@ public class Bullet extends GameObj {
      * @param direction
      * @param origin    the source of the bullet
      */
-    public Bullet(Level level, float x, float y, Direction direction, Tank origin, BulletType bulletType) {
-        super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
+    public Bullet(Level level, Sprite sprite, float x, float y, Direction direction, Tank origin, BulletType bulletType) {
+        super(level, sprite, x / Level.TILE_SIZE, y / Level.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
         this.origin = origin;
         this.bulletType = bulletType;
         setProperRecBound();
@@ -59,8 +61,8 @@ public class Bullet extends GameObj {
      * @param deltaTime
      */
     @Override
-    public void update(float deltaTime) {
-        super.update(deltaTime);
+    public void act(float deltaTime) {
+        super.act(deltaTime);
         GameObj result = collideAll(0.0f, 0.0f);
 
         if (result != null) {
@@ -131,7 +133,8 @@ public class Bullet extends GameObj {
      */
     private void removeSelf() {
         //same as super.damage()
-        getLevel().removeObject(this);
+        //getLevel().removeObject(this);
+        remove();
         origin.addBullet();
     }
 

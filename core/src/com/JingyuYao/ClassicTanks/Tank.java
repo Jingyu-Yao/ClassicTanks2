@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class Tank extends GameObj {
 
     // Constants
-    static final float SIZE = GameScreen.TILE_SIZE;
+    static final float SIZE = Level.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
     // Tank tankType defaults
@@ -14,7 +14,7 @@ public class Tank extends GameObj {
     static final long DEFAULT_FIRE_RATE = 1000000000l;
     static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
     static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
-    static final float SUPER_VELOCITY = 175.0f;
+    static final float SUPER_VELOCITY = 150.0f;
     // Tank properties
     private TankType tankType;
     private Bullet.BulletType bulletType;
@@ -31,7 +31,7 @@ public class Tank extends GameObj {
 
     // Constructors
     public Tank(Level level, float x, float y, TankType tankType) {
-        super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, getRandomDirection());
+        super(level, null, x, y, SIZE, SIZE, DEFAULT_VELOCITY, getRandomDirection());
         setTankType(tankType);
         moving = false;
         lastBulletTime = 0l;
@@ -45,7 +45,7 @@ public class Tank extends GameObj {
     }
 
     public Tank(Level level, float x, float y, TankType tankType, Direction direction) {
-        super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
+        super(level, null, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
         setTankType(tankType);
         moving = false;
         lastBulletTime = 0l;
@@ -96,6 +96,7 @@ public class Tank extends GameObj {
     public void setTankType(TankType t) {
         resetType();
         tankType = t;
+        sprite = getLevel().gameScreen.tankSprites.get(getTankType());
         switch (tankType) {
             case NORMAL:
                 break;
@@ -168,7 +169,7 @@ public class Tank extends GameObj {
 
             float bodyX = getX(), bodyY = getY();
             Direction direction = getDirection();
-            Bullet bullet = new Bullet(getLevel(), -1, -1, direction, this, bulletType);
+            Bullet bullet = new Bullet(getLevel(), getLevel().gameScreen.bulletSprite, -1, -1, direction, this, bulletType);
             switch (direction) {
                 case DOWN:
                     bullet.setX(bodyX + HALF_SIZE - Bullet.WIDTH / 2f);
@@ -191,8 +192,8 @@ public class Tank extends GameObj {
                     bullet = null;
                     break;
             }
-            if (bullet != null) {
-                getLevel().addObject(bullet);
+            if (bullet != null && getStage() != null) {
+                getStage().addActor(bullet);
                 numBulletsOut++;
 
                 //special conditions for DUAL tankType
@@ -252,7 +253,7 @@ public class Tank extends GameObj {
      * @param deltaTime
      */
     @Override
-    public void update(float deltaTime) {
+    public void act(float deltaTime) {
         if (moving) {
             float curMove = deltaTime * getVelocity();
             distanceLeft -= curMove;

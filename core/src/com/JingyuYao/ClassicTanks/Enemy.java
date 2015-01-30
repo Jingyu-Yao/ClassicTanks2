@@ -1,5 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
 /**
  * Created by Jingyu_Yao on 1/16/2015.
  */
@@ -20,8 +22,8 @@ public class Enemy extends Tank {
      * @param deltaTime
      */
     @Override
-    public void update(float deltaTime) {
-        super.update(deltaTime);
+    public void act(float deltaTime) {
+        super.act(deltaTime);
 
         //Only find a new direction when this unit is not moving
         //This unit will stop moving only when it hits a wall

@@ -1,43 +1,47 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Base class for all objects in the game.
  * Created by Jingyu_Yao on 1/15/2015.
  */
-public class GameObj {
+public class GameObj extends Actor {
 
     private final Level level;
-    private Rectangle body;
     private Direction direction;
     private float velocity;
     private int hp;
+    protected Sprite sprite;
 
     protected GameObjType gameObjType;
 
     /**
      * Create a GameObj in a {@code Level}.
-     *
-     * @param level  the {@code Level} this object belongs in
+     *  @param level  the {@code Level} this object belongs in
      * @param x      the x coordinate of the object in grid location
      * @param y      the y coordinate of the object in grid location
      * @param width  the width of the object
      * @param height the height of the object
      */
-    public GameObj(Level level, float x, float y, float width, float height) {
+    public GameObj(Level level, Sprite sprite, float x, float y, float width, float height) {
         this.level = level;
-        body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);
+        setBounds(x * Level.TILE_SIZE, y * Level.TILE_SIZE, width, height);
         direction = Direction.NONE;
         velocity = 0.0f;
         hp = 1;
         gameObjType = GameObjType.GAMEOBJ;
+        this.sprite = sprite;
     }
 
     /**
      * Create a GameObj in a {@code Level}.
-     *
-     * @param level     the {@code Level} this object belongs in
+     *  @param level     the {@code Level} this object belongs in
      * @param x         the x coordinate of the object in grid location
      * @param y         the y coordinate of the object in grid location
      * @param width     the width of the object
@@ -45,13 +49,14 @@ public class GameObj {
      * @param velocity  the velocity of the object
      * @param direction the direction of the object
      */
-    public GameObj(Level level, float x, float y, float width, float height, float velocity, Direction direction) {
+    public GameObj(Level level, Sprite sprite, float x, float y, float width, float height, float velocity, Direction direction) {
         this.level = level;
-        body = new Rectangle(x * GameScreen.TILE_SIZE, y * GameScreen.TILE_SIZE, width, height);
+        setBounds(x * Level.TILE_SIZE, y * Level.TILE_SIZE, width, height);
         this.direction = direction;
         this.velocity = velocity;
         hp = 1;
         gameObjType = GameObjType.GAMEOBJ;
+        this.sprite = sprite;
     }
 
     //Getters
@@ -90,44 +95,12 @@ public class GameObj {
         this.velocity = velocity;
     }
 
-    public float getX() {
-        return body.x;
-    }
-
-    public void setX(float x) {
-        body.x = x;
-    }
-
     public int getGridX() {
-        return (int) body.x / Level.TILE_SIZE;
-    }
-
-    public float getY() {
-        return body.y;
-    }
-
-    public void setY(float y) {
-        body.y = y;
+        return (int) getX() / Level.TILE_SIZE;
     }
 
     public int getGridY() {
-        return (int) body.y / Level.TILE_SIZE;
-    }
-
-    public float getWidth() {
-        return body.width;
-    }
-
-    public void setWidth(float width) {
-        body.width = width;
-    }
-
-    public float getHeight() {
-        return body.height;
-    }
-
-    public void setHeight(float height) {
-        body.height = height;
+        return (int) getY() / Level.TILE_SIZE;
     }
 
     public int getHp() {
@@ -155,60 +128,44 @@ public class GameObj {
      * @return the collided {@code GameObj} or {@code null} if no collision
      */
     public GameObj collideObj(float dx, float dy, GameObj obj) {
-        if (!this.equals(obj) && obj.body.overlaps(new Rectangle(getX() + dx, getY() + dy, getWidth(), getHeight()))) {
+        if (!this.equals(obj)
+                && Intersector.overlaps(new Rectangle(obj.getX(),
+                        obj.getY(),
+                        obj.getWidth(),
+                        obj.getHeight()),
+                new Rectangle(getX() + dx,
+                        getY() + dy,
+                        getWidth(),
+                        getHeight()))) {
             return obj;
         }
         return null;
     }
 
     /**
-     * Checks collision all the walls, enemies, bullets and players in the level.
+     * Checks collision with all actors in this object's stage.
      *
      * @param dx the change in x position
      * @param dy the change in y position
      * @return the collided {@code GameObj} or {@code null} if no collision
      */
-    public GameObj collideAll(float dx, float dy) {
+    public GameObj collideAll(float dx, float dy){
+        if(getStage() == null){
+            return null;
+        }
+
         GameObj result = null;
+        Array<Actor> actors = getStage().getActors();
 
-        // Check collision against walls
-        for (int i = 0; i < level.walls.size; i++) {
-            Wall wall = level.walls.get(i);
-            result = this.collideObj(dx, dy, wall);
+        for(int i = 0; i < actors.size; i++){
+            GameObj obj = (GameObj) actors.get(i);
+            result = this.collideObj(dx, dy, obj);
             if (result != null) {
                 return result;
             }
         }
 
-        // Check collision with other tanks
-        for (int i = 0; i < level.enemies.size; i++) {
-            Enemy enemy = level.enemies.get(i);
-            result = this.collideObj(dx, dy, enemy);
-            if (result != null) {
-                return result;
-            }
-        }
-
-        // Check collision with bullets
-        for (int i = 0; i < level.bullets.size; i++) {
-            Bullet bullet = level.bullets.get(i);
-            result = this.collideObj(dx, dy, bullet);
-            if (result != null) {
-                return result;
-            }
-        }
-
-        // Check collision with bases
-        for (int i = 0; i < level.bases.size; i++) {
-            GameObj base = level.bases.get(i);
-            result = this.collideObj(dx, dy, base);
-            if (result != null) {
-                return result;
-            }
-        }
-
-        // Check collision with player
-        return this.collideObj(dx, dy, level.player);
+        return result;
     }
 
     /**
@@ -216,7 +173,8 @@ public class GameObj {
      *
      * @param deltaTime
      */
-    public void update(float deltaTime) {
+    @Override
+    public void act(float deltaTime) {
         float curMove = deltaTime * getVelocity();
         //change the distance
         switch (getDirection()) {
@@ -247,10 +205,37 @@ public class GameObj {
         }
     }
 
+    /**
+     * Draw this object using its sprite in the correct orientation
+     * @param batch
+     * @param parentAlpha
+     */
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        if(sprite != null){
+            sprite.setX(getX());
+            sprite.setY(getY());
+            switch (getDirection()) {
+                case DOWN:
+                    sprite.setRotation(180);
+                    break;
+                case LEFT:
+                    sprite.setRotation(90);
+                    break;
+                case RIGHT:
+                    sprite.setRotation(270);
+                    break;
+                case UP:
+                    sprite.setRotation(0);
+                    break;
+            }
+            sprite.draw(batch);
+        }
+    }
+
     @Override
     public String toString() {
         return "GameObj{" +
-                ", body=" + body +
                 ", direction=" + direction +
                 ", velocity=" + velocity +
                 ", hp=" + hp +

@@ -8,7 +8,7 @@ public class Wall extends GameObj {
     private final WallType wallType;
 
     public Wall(Level level, float x, float y, WallType wallType) {
-        super(level, x, y, GameScreen.TILE_SIZE, GameScreen.TILE_SIZE);
+        super(level, null, x, y, Level.TILE_SIZE, Level.TILE_SIZE);
         this.wallType = wallType;
         switch (wallType) {
             case NORMAL:

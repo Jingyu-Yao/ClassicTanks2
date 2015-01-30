@@ -6,8 +6,7 @@ package com.JingyuYao.ClassicTanks;
 public class Base extends GameObj {
 
     public Base(Level level, float x, float y, float width, float height) {
-        super(level, x, y, width, height);
+        super(level, null, x, y, width, height);
         gameObjType = GameObjType.BASE;
     }
-
 }
