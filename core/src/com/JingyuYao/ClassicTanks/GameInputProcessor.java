@@ -1,7 +1,11 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+
+import com.JingyuYao.ClassicTanks.GameObj.Direction;
+import com.JingyuYao.ClassicTanks.Tank.TankType;
 
 /**
  * Created by Jingyu on 1/22/2015.
@@ -34,31 +38,34 @@ public class GameInputProcessor implements InputProcessor {
                 return true;
             // for testing
             case Keys.B:
-                level.player.setType(Tank.TankType.BARRAGE);
+                level.player.setTankType(TankType.BARRAGE);
                 return true;
             case Keys.A:
-                level.player.setType(Tank.TankType.ARMORED);
+                level.player.setTankType(TankType.ARMORED);
                 return true;
             case Keys.G:
-                level.player.setType(Tank.TankType.GM);
+                level.player.setTankType(TankType.GM);
                 return true;
             case Keys.F:
-                level.player.setType(Tank.TankType.FAST);
+                level.player.setTankType(TankType.FAST);
                 return true;
             case Keys.D:
-                level.player.setType(Tank.TankType.DUAL);
+                level.player.setTankType(TankType.DUAL);
                 return true;
             case Keys.N:
-                level.player.setType(Tank.TankType.NORMAL);
+                level.player.setTankType(TankType.NORMAL);
                 return true;
             case Keys.S:
-                level.player.setType(Tank.TankType.SUPER);
+                level.player.setTankType(TankType.SUPER);
                 return true;
             case Keys.L:
                 System.out.println(level.toString());
                 return true;
             case Keys.P:
                 System.out.println(level.player.toString());
+                return true;
+            case Keys.Q:
+                Gdx.app.exit();
                 return true;
         }
         return false;

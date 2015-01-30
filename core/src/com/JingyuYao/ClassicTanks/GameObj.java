@@ -14,12 +14,15 @@ public class GameObj {
     private float velocity;
     private int hp;
 
+    protected GameObjType gameObjType;
+
     /**
      * Create a GameObj in a {@code Level}.
-     * @param level the {@code Level} this object belongs in
-     * @param x the x coordinate of the object in grid location
-     * @param y the y coordinate of the object in grid location
-     * @param width the width of the object
+     *
+     * @param level  the {@code Level} this object belongs in
+     * @param x      the x coordinate of the object in grid location
+     * @param y      the y coordinate of the object in grid location
+     * @param width  the width of the object
      * @param height the height of the object
      */
     public GameObj(Level level, float x, float y, float width, float height) {
@@ -28,16 +31,18 @@ public class GameObj {
         direction = Direction.NONE;
         velocity = 0.0f;
         hp = 1;
+        gameObjType = GameObjType.GAMEOBJ;
     }
 
     /**
      * Create a GameObj in a {@code Level}.
-     * @param level the {@code Level} this object belongs in
-     * @param x the x coordinate of the object in grid location
-     * @param y the y coordinate of the object in grid location
-     * @param width the width of the object
-     * @param height the height of the object
-     * @param velocity the velocity of the object
+     *
+     * @param level     the {@code Level} this object belongs in
+     * @param x         the x coordinate of the object in grid location
+     * @param y         the y coordinate of the object in grid location
+     * @param width     the width of the object
+     * @param height    the height of the object
+     * @param velocity  the velocity of the object
      * @param direction the direction of the object
      */
     public GameObj(Level level, float x, float y, float width, float height, float velocity, Direction direction) {
@@ -46,6 +51,7 @@ public class GameObj {
         this.direction = direction;
         this.velocity = velocity;
         hp = 1;
+        gameObjType = GameObjType.GAMEOBJ;
     }
 
     //Getters
@@ -134,6 +140,10 @@ public class GameObj {
 
     public Level getLevel() {
         return level;
+    }
+
+    public GameObjType getGameObjType() {
+        return gameObjType;
     }
 
     /**
@@ -229,7 +239,12 @@ public class GameObj {
      * Reduce object's hp by one
      */
     public void damage() {
-        setHp(getHp() - 1);
+        if(hp > 0){
+            hp--;
+        }
+        if(hp == 0){
+            level.removeObject(this);
+        }
     }
 
     @Override
@@ -240,5 +255,23 @@ public class GameObj {
                 ", velocity=" + velocity +
                 ", hp=" + hp +
                 '}';
+    }
+
+    public static enum GameObjType {
+        GAMEOBJ,
+        ENEMY,
+        PLAYER,
+        TANK,
+        BULLET,
+        WALL,
+        BASE,
+    }
+
+    public static enum Direction {
+        NONE,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
     }
 }

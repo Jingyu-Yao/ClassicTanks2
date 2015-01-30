@@ -13,15 +13,15 @@ import java.util.Map;
 
 public class GameScreen implements Screen {
 
-    final static int TILE_SIZE = 32;
-    final ClassicTanks game;
-    final int CAMERA_SIZE = 640;
-    final int CAMERA_INNER_BOUND = 80;
+    static final int TILE_SIZE = 32;
+    private final ClassicTanks game;
+    static final int CAMERA_SIZE = TILE_SIZE * 20;
+    static final int CAMERA_INNER_BOUND = CAMERA_SIZE / 8;
+    static final float TILED_SCALE = 1f;
 
     private OrthographicCamera camera;
 
     // Objects used for rendering
-    private float tiledScale;
     private OrthogonalTiledMapRenderer tiledMapRenderer;
     private Sprite bulletSprite;
     private Map<Tank.TankType, Sprite> tankSprites;
@@ -31,7 +31,6 @@ public class GameScreen implements Screen {
 
     public GameScreen(final ClassicTanks g) {
         game = g;
-        tiledScale = 1f;
 
         // create camera
         camera = new OrthographicCamera();
@@ -55,7 +54,7 @@ public class GameScreen implements Screen {
         }
         level = new Level(levelNumber, this);
         // set up tiled map renderer
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), tiledScale);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), TILED_SCALE);
     }
 
     /**
@@ -85,7 +84,7 @@ public class GameScreen implements Screen {
      * @param tank
      */
     private void drawTank(Tank tank) {
-        Sprite s = tankSprites.get(tank.getType());
+        Sprite s = tankSprites.get(tank.getTankType());
         s.setX(tank.getX());
         s.setY(tank.getY());
         switch (tank.getDirection()) {
@@ -156,6 +155,19 @@ public class GameScreen implements Screen {
         }
     }
 
+    public void loadAsset(String fileName, Class type) {
+        game.assetManager.load(fileName, type);
+        game.assetManager.finishLoading();
+    }
+
+    public <T> T getAsset(String assetName) {
+        return game.assetManager.get(assetName);
+    }
+
+    public void unloadAsset(String assetName) {
+        game.assetManager.unload(assetName);
+    }
+
     /**
      * TODO
      * The main game loop for this screen.
@@ -165,7 +177,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         // Delay guard
-        if(delta > 0.1f){
+        if (delta > 0.1f) {
             return;
         }
 

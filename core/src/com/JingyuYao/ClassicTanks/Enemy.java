@@ -7,22 +7,10 @@ public class Enemy extends Tank {
 
     private final static float BIASED_CHANCE = 0.6f;
 
-    public Enemy(Level level, float x, float y, TankType type){
+    public Enemy(Level level, float x, float y, TankType type) {
         super(level, x, y, type);
         startShooting();
-    }
-
-    public Enemy(Level level, float x, float y, TankType type, Direction direction) {
-        super(level, x, y, type, direction);
-        startShooting();
-    }
-
-    @Override
-    public void damage() {
-        super.damage();
-        if (getHp() == 0) {
-            getLevel().removeObject(this);
-        }
+        gameObjType = GameObjType.ENEMY;
     }
 
     /**
@@ -45,25 +33,26 @@ public class Enemy extends Tank {
 
     /**
      * Return a new random direction that is biased towards the base
+     *
      * @return a new biased random direction
      */
-    public Direction getBiasedDirection(){
-        if(Level.random.nextFloat() < BIASED_CHANCE){
+    public Direction getBiasedDirection() {
+        if (Level.random.nextFloat() < BIASED_CHANCE) {
             // Half chance to adjust X or Y position
-            if(Level.random.nextBoolean()){
-                if(this.getX() < getLevel().getBaseX()){
+            if (Level.random.nextBoolean()) {
+                if (this.getX() < getLevel().getBaseX()) {
                     return Direction.RIGHT;
-                }else{
+                } else {
                     return Direction.LEFT;
                 }
-            }else{
-                if(this.getY() < getLevel().getBaseY()){
+            } else {
+                if (this.getY() < getLevel().getBaseY()) {
                     return Direction.UP;
-                }else{
+                } else {
                     return Direction.DOWN;
                 }
             }
-        }else {
+        } else {
             // Evenly distribute chance if no bias
             switch (Level.random.nextInt(4)) {
                 case 0:

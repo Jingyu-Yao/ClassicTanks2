@@ -7,13 +7,7 @@ public class Base extends GameObj {
 
     public Base(Level level, float x, float y, float width, float height) {
         super(level, x, y, width, height);
+        gameObjType = GameObjType.BASE;
     }
 
-    @Override
-    public void damage() {
-        super.damage();
-        if (getHp() == 0) {
-            getLevel().removeObject(this);
-        }
-    }
 }

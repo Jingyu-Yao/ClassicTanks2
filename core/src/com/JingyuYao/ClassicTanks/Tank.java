@@ -9,15 +9,14 @@ public class Tank extends GameObj {
     static final float SIZE = GameScreen.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
-    private float distanceLeft = ONE_DISTANCE;
-    // Tank type defaults
+    // Tank tankType defaults
     static final float DEFAULT_VELOCITY = 100f;
     static final long DEFAULT_FIRE_RATE = 1000000000l;
     static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
     static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
     static final float SUPER_VELOCITY = 175.0f;
     // Tank properties
-    private TankType type;
+    private TankType tankType;
     private Bullet.BulletType bulletType;
     private long lastBulletTime;
     private long fireRate; // 1s
@@ -28,11 +27,12 @@ public class Tank extends GameObj {
     private Direction moveTowards;
     private boolean moving;
     private float target;
+    private float distanceLeft = ONE_DISTANCE;
 
     // Constructors
-    public Tank(Level level, float x, float y, TankType type) {
+    public Tank(Level level, float x, float y, TankType tankType) {
         super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, getRandomDirection());
-        setType(type);
+        setTankType(tankType);
         moving = false;
         lastBulletTime = 0l;
         fireRate = DEFAULT_FIRE_RATE;
@@ -41,11 +41,12 @@ public class Tank extends GameObj {
         moveTowards = Direction.NONE;
         shooting = false;
         bulletType = Bullet.BulletType.NORMAL;
+        gameObjType = GameObjType.TANK;
     }
 
-    public Tank(Level level, float x, float y, TankType type, Direction direction) {
+    public Tank(Level level, float x, float y, TankType tankType, Direction direction) {
         super(level, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
-        setType(type);
+        setTankType(tankType);
         moving = false;
         lastBulletTime = 0l;
         fireRate = DEFAULT_FIRE_RATE;
@@ -54,15 +55,19 @@ public class Tank extends GameObj {
         moveTowards = Direction.NONE;
         shooting = false;
         bulletType = Bullet.BulletType.NORMAL;
+        gameObjType = GameObjType.TANK;
     }
 
     public void addBullet() {
-        numBulletsOut--;
+        //How can this break....
+        if(numBulletsOut > 0){
+            numBulletsOut--;
+        }
     }
 
     // Getters
-    public TankType getType() {
-        return type;
+    public TankType getTankType() {
+        return tankType;
     }
 
     /**
@@ -88,10 +93,10 @@ public class Tank extends GameObj {
     }
 
     // Setters
-    public void setType(TankType t) {
+    public void setTankType(TankType t) {
         resetType();
-        type = t;
-        switch (type) {
+        tankType = t;
+        switch (tankType) {
             case NORMAL:
                 break;
             case BARRAGE:
@@ -121,7 +126,7 @@ public class Tank extends GameObj {
         }
     }
 
-    private void resetType(){
+    private void resetType() {
         setHp(1);
         bulletType = Bullet.BulletType.NORMAL;
         fireRate = DEFAULT_FIRE_RATE;
@@ -190,12 +195,12 @@ public class Tank extends GameObj {
                 getLevel().addObject(bullet);
                 numBulletsOut++;
 
-                //special conditions for DUAL type
+                //special conditions for DUAL tankType
                 //flips fire rate every bullet
-                if(getType() == TankType.DUAL){
-                    if(fireRate == DEFAULT_FIRE_RATE){
+                if (tankType == TankType.DUAL) {
+                    if (fireRate == DEFAULT_FIRE_RATE) {
                         fireRate = DUAL_FIRE_RATE;
-                    }else{
+                    } else {
                         fireRate = DEFAULT_FIRE_RATE;
                     }
                 }
@@ -299,9 +304,9 @@ public class Tank extends GameObj {
 
     /**
      * TODO: Use subclass instead of enum
-     * All type of tanks.
+     * All tankType of tanks.
      */
-    public enum TankType {
+    public static enum TankType {
         NORMAL, BARRAGE, // Fast bullets
         DUAL, // Dual shot
         FAST, // Fast movement
@@ -313,7 +318,7 @@ public class Tank extends GameObj {
     @Override
     public String toString() {
         return "Tank{" +
-                ", type=" + type +
+                ", tankType=" + tankType +
                 ", lastBulletTime=" + lastBulletTime +
                 ", fireRate=" + fireRate +
                 ", numBulletsOut=" + numBulletsOut +

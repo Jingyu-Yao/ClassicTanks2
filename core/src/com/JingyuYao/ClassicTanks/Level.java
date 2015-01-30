@@ -3,7 +3,6 @@ package com.JingyuYao.ClassicTanks;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -17,7 +16,7 @@ import java.util.Random;
 public class Level {
     public static final Random random = new Random();
     public static final int TILE_SIZE = 32;
-    final GameScreen gameScreen;
+    private final GameScreen gameScreen;
     // TODO: Find ways to make these private
     public Array<Enemy> enemies;
     public Array<Bullet> bullets;
@@ -27,7 +26,7 @@ public class Level {
     public Array<Enemy> remainingEnemies;
     public Player player;
     private Vector2 start;
-    private int levelNumber;
+    private final int levelNumber;
     private String levelString;
     private long spawnInterval;
     private long lastSpawn;
@@ -42,7 +41,6 @@ public class Level {
     private TiledMapTileLayer spawnLayer;
     private TiledMapTileLayer startLayer;
     private TiledMapTileLayer enemiesLayer;
-    private TiledMapTile backgroundTile;
 
     //Number of enemies of each type remain to spawn
 
@@ -68,10 +66,9 @@ public class Level {
         levelString = "level" + levelNumber + ".tmx";
 
         // load tiled map
-        gameScreen.game.assetManager.load(levelString, TiledMap.class);
-        gameScreen.game.assetManager.finishLoading();
+        gameScreen.loadAsset(levelString, TiledMap.class);
 
-        map = gameScreen.game.assetManager.get(levelString);
+        map = gameScreen.getAsset(levelString);
 
         // get a default background grass tile to replace the wallz
         wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
@@ -81,15 +78,13 @@ public class Level {
         startLayer = (TiledMapTileLayer) map.getLayers().get("Start");
         enemiesLayer = (TiledMapTileLayer) map.getLayers().get("Enemies");
 
-        backgroundTile = backgroundLayer.getCell(0, 0).getTile();
-
         makeWallFromTileLayer(wallLayer);
         makeBaseFromTileLayer(baseLayer);
         makeSpawnPointsFromTileLayer(spawnLayer);
         getStartPoint(startLayer);
         populateEnemiesList(enemiesLayer);
 
-        addObject(new Player(this, start.x, start.y, Tank.TankType.NORMAL, Direction.UP));
+        addObject(new Player(this, start.x, start.y, Tank.TankType.NORMAL, GameObj.Direction.UP));
 
         Gdx.input.setInputProcessor(new GameInputProcessor(this));
     }
@@ -107,20 +102,16 @@ public class Level {
                 cell = layer.getCell(i, j);
                 if (cell != null) {
                     type = cell.getTile().getProperties().get("type", String.class);
-                    if(type != null) {
-                        switch (type) {
-                            case "NORMAL":
-                                addObject(new Wall(this, i, j, Wall.WallType.NORMAL));
-                                break;
-                            case "WATER":
-                                addObject(new Wall(this, i, j, Wall.WallType.WATER));
-                                break;
-                            case "CONCRETE":
-                                addObject(new Wall(this, i, j, Wall.WallType.CONCRETE));
-                                break;
-                            case "INDESTRUCTIBLE":
-                                addObject(new Wall(this, i, j, Wall.WallType.INDESTRUCTIBLE));
-                                break;
+                    if (type != null) {
+                        // switch avoided here because libGdx wants java 6 compatibility
+                        if (type.equals("NORMAL")) {
+                            addObject(new Wall(this, i, j, Wall.WallType.NORMAL));
+                        } else if (type.equals("WATER")) {
+                            addObject(new Wall(this, i, j, Wall.WallType.WATER));
+                        } else if (type.equals("CONCRETE")) {
+                            addObject(new Wall(this, i, j, Wall.WallType.CONCRETE));
+                        } else if (type.equals("INDESTRUCTIBLE")) {
+                            addObject(new Wall(this, i, j, Wall.WallType.INDESTRUCTIBLE));
                         }
                     }
                 }
@@ -139,7 +130,7 @@ public class Level {
             for (int j = 0; j < layer.getHeight(); j++) {
                 cell = layer.getCell(i, j);
                 if (cell != null) {
-                    bases.add(new Base(this, i, j, TILE_SIZE, TILE_SIZE));
+                    addObject(new Base(this, i, j, TILE_SIZE, TILE_SIZE));
                 }
             }
         }
@@ -183,19 +174,19 @@ public class Level {
         int numArmored = Integer.parseInt(properties.get("Armored", String.class));
         int numFast = Integer.parseInt(properties.get("Fast", String.class));
 
-        for(int i = 0; i < numNormal; i++){
+        for (int i = 0; i < numNormal; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.NORMAL));
         }
-        for(int i = 0; i < numBarrage; i++){
+        for (int i = 0; i < numBarrage; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.BARRAGE));
         }
-        for(int i = 0; i < numDual; i++){
+        for (int i = 0; i < numDual; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.DUAL));
         }
-        for(int i = 0; i < numArmored; i++){
+        for (int i = 0; i < numArmored; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.ARMORED));
         }
-        for(int i = 0; i < numFast; i++){
+        for (int i = 0; i < numFast; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.FAST));
         }
     }
@@ -239,13 +230,29 @@ public class Level {
      * @param object the object to add
      */
     public void addObject(GameObj object) {
-        if (object instanceof Bullet) {
-            bullets.add((Bullet) object);
-        } else if (object instanceof Player) {
-            player = (Player) object;
-        } else if (object instanceof Wall) {
-            walls.add((Wall) object);
-            // TODO: Add a cell to the wall layer
+        GameObj.GameObjType objType = object.getGameObjType();
+        switch (objType) {
+            case GAMEOBJ:
+                break;
+            case ENEMY:
+                enemies.add((Enemy) object);
+                break;
+            case PLAYER:
+                player = (Player) object;
+                break;
+            case TANK:
+                break;
+            case BULLET:
+                bullets.add((Bullet) object);
+                break;
+            case WALL:
+                walls.add((Wall) object);
+                break;
+            case BASE:
+                bases.add((Base) object);
+                break;
+        }
+        // TODO: Add a cell to the wall layer
             /*
             if(wallLayer.getCell((int) (object.getX() / gameScreen.TILE_SIZE),
                     (int) (object.getY() / gameScreen.TILE_SIZE)) == null){
@@ -257,9 +264,6 @@ public class Level {
                         (int) (object.getY() / gameScreen.TILE_SIZE), cell);
             }
             */
-        } else if (object instanceof Enemy) {
-            enemies.add((Enemy) object);
-        }
     }
 
     /**
@@ -268,18 +272,29 @@ public class Level {
      * @param object the object to remove
      */
     public void removeObject(GameObj object) {
-        if (object instanceof Bullet) {
-            bullets.removeValue((Bullet) object, true);
-        } else if (object instanceof Wall) {
-            walls.removeValue((Wall) object, true);
-            wallLayer.getCell((int) (object.getX() / GameScreen.TILE_SIZE),
-                    (int) (object.getY() / GameScreen.TILE_SIZE)).setTile(backgroundTile);
-        } else if (object instanceof Enemy) {
-            enemies.removeValue((Enemy) object, true);
-        } else if (object instanceof Player) {
-            levelComplete();
-        } else if (object instanceof Base) {
-            levelComplete();
+        GameObj.GameObjType objType = object.getGameObjType();
+        switch (objType) {
+            case GAMEOBJ:
+                break;
+            case ENEMY:
+                enemies.removeValue((Enemy) object, true);
+                break;
+            case PLAYER:
+                levelComplete();
+                break;
+            case TANK:
+                break;
+            case BULLET:
+                bullets.removeValue((Bullet) object, true);
+                break;
+            case WALL:
+                walls.removeValue((Wall) object, true);
+                wallLayer.setCell((int) (object.getX() / GameScreen.TILE_SIZE),
+                        (int) (object.getY() / GameScreen.TILE_SIZE), null);
+                break;
+            case BASE:
+                levelComplete();
+                break;
         }
     }
 
@@ -294,7 +309,7 @@ public class Level {
      * Unloads the level file from {@code assetManager} and disposes {@code map}
      */
     public void dispose() {
-        gameScreen.game.assetManager.unload(levelString);
+        gameScreen.unloadAsset(levelString);
         map.dispose();
     }
 
@@ -302,8 +317,8 @@ public class Level {
      * Check whether the level is complete or not. If conditions are met, call
      * {@code levelComplete()}
      */
-    public void checkLevelCompletion(){
-        if(remainingEnemies.size == 0 && enemies.size == 0){
+    public void checkLevelCompletion() {
+        if (remainingEnemies.size == 0 && enemies.size == 0) {
             levelComplete();
         }
     }

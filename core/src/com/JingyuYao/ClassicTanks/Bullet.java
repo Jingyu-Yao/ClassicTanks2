@@ -7,8 +7,8 @@ public class Bullet extends GameObj {
     static final float BULLET_SPEED = 300f;
 
     // Properties
-    private Tank origin;
-    private BulletType type;
+    private final Tank origin;
+    private final BulletType bulletType;
 
     /**
      * @param x
@@ -16,11 +16,12 @@ public class Bullet extends GameObj {
      * @param direction
      * @param origin    the source of the bullet
      */
-    public Bullet(Level level, float x, float y, Direction direction, Tank origin, BulletType type) {
+    public Bullet(Level level, float x, float y, Direction direction, Tank origin, BulletType bulletType) {
         super(level, x / GameScreen.TILE_SIZE, y / GameScreen.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
         this.origin = origin;
-        setType(type);
+        this.bulletType = bulletType;
         setProperRecBound();
+        gameObjType = GameObjType.BULLET;
     }
 
     /**
@@ -48,12 +49,8 @@ public class Bullet extends GameObj {
         return origin;
     }
 
-    public void setType(BulletType type){
-        this.type = type;
-    }
-
-    public BulletType getType(){
-        return type;
+    public BulletType getBulletType() {
+        return bulletType;
     }
 
     /**
@@ -74,10 +71,10 @@ public class Bullet extends GameObj {
             }
 
             // If bullet is fired by the player
-            if (this.getOrigin() instanceof Player) {
+            if (origin.gameObjType == GameObjType.PLAYER) {
                 // and it hits a wall
-                if (result instanceof Wall) {
-                    switch (((Wall) result).getType()){
+                if (result.getGameObjType() == GameObjType.WALL) {
+                    switch (((Wall) result).getWallType()) {
                         case NORMAL:
                             result.damage();
                             removeSelf();
@@ -85,7 +82,7 @@ public class Bullet extends GameObj {
                         case WATER:
                             break;
                         case CONCRETE:
-                            if(getType() == BulletType.SUPER) {
+                            if (getBulletType() == BulletType.SUPER) {
                                 result.damage();
                             }
                             removeSelf();
@@ -100,10 +97,10 @@ public class Bullet extends GameObj {
                 }
             } else {
                 // Enemy tank damages everything except other enemies
-                if (result instanceof Enemy) {
+                if (result.getGameObjType() == GameObjType.ENEMY) {
                     removeSelf();
-                } else if (result instanceof Wall) {
-                    switch (((Wall) result).getType()){
+                } else if (result.getGameObjType() == GameObjType.WALL) {
+                    switch (((Wall) result).getWallType()) {
                         case NORMAL:
                             result.damage();
                             removeSelf();
@@ -111,7 +108,7 @@ public class Bullet extends GameObj {
                         case WATER:
                             break;
                         case CONCRETE:
-                            if(getType() == BulletType.SUPER) {
+                            if (getBulletType() == BulletType.SUPER) {
                                 result.damage();
                             }
                             removeSelf();
@@ -133,11 +130,12 @@ public class Bullet extends GameObj {
      * count by one.
      */
     private void removeSelf() {
+        //same as super.damage()
         getLevel().removeObject(this);
         origin.addBullet();
     }
 
-    public enum BulletType{
+    public static enum BulletType {
         NORMAL,
         SUPER
     }
