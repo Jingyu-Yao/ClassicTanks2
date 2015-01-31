@@ -4,47 +4,63 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class LevelScreen implements Screen {
+public class LevelSelectionScreen implements Screen {
 
-    public static final int CAMERA_SIZE = 640;
+    public static final int PANEL_SIZE = 100;
 
-    final ClassicTanks game;
+    private final ClassicTanks game;
 
     /*
     Renderer objects
      */
-    Viewport viewPort;
-    OrthographicCamera camera;
-    Stage stage;
+    private final Viewport viewPort;
+    private final OrthographicCamera camera;
+    private final Stage stage;
+    private final ShapeRenderer shapeRenderer;
 
-    public LevelScreen(final ClassicTanks g) {
+    public LevelSelectionScreen(final ClassicTanks g) {
         game = g;
 
         // Camera setup
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         viewPort = new ScreenViewport();
         viewPort.setCamera(camera);
+        shapeRenderer = new ShapeRenderer();
 
         // Stage setup
         stage = new Stage();
         stage.setViewport(viewPort);
 
-        stage.addActor(new LevelPanel(this, 100, CAMERA_SIZE - 100, 1));
+        addLevel(1, 0, 1);
 
         Gdx.input.setInputProcessor(stage);
     }
 
+    public void startLevel(int levelNumber){
+        game.setScreen(new GameScreen(game, levelNumber));
+    }
+
+    public OrthographicCamera getCamera(){
+        return camera;
+    }
+
     /**
-     * TODO
-     * The main game loop for this screen.
-     *
-     * @param delta
+     * Factory method to create and add {@code LevelPanel} to the stage
+     * @param levelNumber
+     * @param x grid position
+     * @param y grid position
      */
+    private void addLevel(int levelNumber, int x, int y){
+        stage.addActor(new LevelPanel(this, levelNumber, shapeRenderer, game.font,
+                x*PANEL_SIZE, Gdx.graphics.getHeight() - y*PANEL_SIZE));
+    }
+
     @Override
     public void render(float delta) {
         // Delay guard
@@ -86,7 +102,6 @@ public class LevelScreen implements Screen {
 
     @Override
     public void dispose() {
-
     }
 
 }

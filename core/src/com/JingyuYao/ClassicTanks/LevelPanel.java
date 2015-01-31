@@ -1,9 +1,9 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -14,20 +14,24 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 public class LevelPanel extends Actor {
 
     private final int levelNumber;
-    private LevelScreen levelScreen;
-    Sprite sprite;
+    private final String levelString;
+    private final LevelSelectionScreen levelSelectionScreen;
+    private final ShapeRenderer shapeRenderer;
+    private final BitmapFont font;
 
-    public LevelPanel(final LevelScreen levelScreen, int x, int y, final int levelNumber){
-        this.levelScreen = levelScreen;
+    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, ShapeRenderer shapeRenderer, BitmapFont font, int x, int y){
+        this.levelSelectionScreen = levelSelectionScreen;
         this.levelNumber = levelNumber;
+        this.shapeRenderer = shapeRenderer;
+        this.font = font;
+        this.levelString = "Level " + levelNumber;
 
-        setBounds(x, y, 64, 64);
-        sprite = new Sprite(new Texture(Gdx.files.internal("level1.png")));
+        setBounds(x, y, LevelSelectionScreen.PANEL_SIZE, LevelSelectionScreen.PANEL_SIZE);
 
         addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                levelScreen.game.setScreen(new GameScreen(levelScreen.game, levelNumber));
+                levelSelectionScreen.startLevel(levelNumber);
                 return true;
             }
         });
@@ -35,8 +39,13 @@ public class LevelPanel extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha){
-        sprite.setX(getX());
-        sprite.setY(getY());
-        sprite.draw(batch);
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.setProjectionMatrix(levelSelectionScreen.getCamera().combined);
+        shapeRenderer.rect(getX(),getY(),getWidth(),getHeight());
+        shapeRenderer.end();
+        batch.begin();
+        font.draw(batch, levelString, getX(), getY() + getHeight()/2);
     }
 }

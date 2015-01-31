@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -26,56 +25,23 @@ public class GameScreen implements Screen {
     private final ClassicTanks game;
 
     // Loaded sprites
-    public Sprite bulletSprite;
-    public Map<Tank.TankType, Sprite> tankSprites;
+    private final Sprite bulletSprite;
+    private final Map<Tank.TankType, Sprite> tankSprites;
 
     /*
     Renderer objects
      */
-    Viewport viewPort;
-    OrthographicCamera camera;
-    OrthogonalTiledMapRenderer tiledMapRenderer;
+    private final Viewport viewPort;
+    private final OrthographicCamera camera;
+    private final OrthogonalTiledMapRenderer tiledMapRenderer;
 
     private Level level;
 
     public GameScreen(final ClassicTanks g, int levelNumber) {
         game = g;
-        tankSprites = new HashMap<Tank.TankType, Sprite>();
-        createSprites();
 
-        // Camera setup
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
-        viewPort = new ScreenViewport();
-        viewPort.setCamera(camera);
-        loadLevel(levelNumber);
-    }
-
-    /**
-     * Create a new {@code Level} using the given {@code levelNumber}.
-     * Also set {@code tiledMapRenderer} to draw the current level
-     *
-     * @param levelNumber set the current level of the game
-     */
-    public void loadLevel(int levelNumber) {
-        String assetName = "level" + levelNumber + ".tmx";
-        if (level != null) {
-            level.dispose();
-            unloadAsset(assetName);
-        }
-
-        loadAsset(assetName, TiledMap.class);
-        level = new Level(levelNumber, (TiledMap) getAsset(assetName), tankSprites, bulletSprite, viewPort);
-
-        // set up tiled map renderer
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), TILED_SCALE);
-    }
-
-    /**
-     * Loads up the sprites for tanks and bullets
-     */
-    private void createSprites() {
         bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
+        tankSprites = new HashMap<Tank.TankType, Sprite>();
         tankSprites.put(Tank.TankType.ARMORED,
                 new Sprite(new Texture(Gdx.files.internal("ARMORED.png"))));
         tankSprites.put(Tank.TankType.NORMAL,
@@ -90,21 +56,32 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("SUPER.png"))));
         tankSprites.put(Tank.TankType.GM,
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
+
+        // Camera setup
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
+        viewPort = new ScreenViewport();
+        viewPort.setCamera(camera);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
+
+        loadLevel(levelNumber);
     }
 
-    public void loadAsset(String fileName, Class type) {
-        game.assetManager.load(fileName, type);
-        game.assetManager.finishLoading();
-    }
-
-    public <T> T getAsset(String assetName) {
-        return game.assetManager.get(assetName);
-    }
-
-    public void unloadAsset(String assetName) {
-        if(game.assetManager.get(assetName) != null){
-            game.assetManager.unload(assetName);
+    /**
+     * Create a new {@code Level} using the given {@code levelNumber}.
+     * Also set {@code tiledMapRenderer} to draw the current level
+     *
+     * @param levelNumber set the current level of the game
+     */
+    public void loadLevel(int levelNumber) {
+        if (level != null) {
+            level.dispose();
         }
+
+        level = new Level(levelNumber, game.assetManager, tankSprites, bulletSprite, viewPort);
+
+        // set up tiled map renderer
+        tiledMapRenderer.setMap(level.getMap());
     }
 
     /**
@@ -138,7 +115,7 @@ public class GameScreen implements Screen {
         if(level.checkLevelCompletion()){
             level.dispose();
             game.assetManager.clear();
-            game.setScreen(new LevelScreen(game));
+            game.setScreen(new LevelSelectionScreen(game));
         }
     }
 
@@ -169,7 +146,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
     }
 
 }

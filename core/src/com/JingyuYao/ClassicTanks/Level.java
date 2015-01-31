@@ -1,6 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -28,40 +29,47 @@ public class Level {
     Meta data
      */
     private final int levelNumber;
-    protected Map<Tank.TankType, Sprite> tankSprites;
-    protected Sprite bulletSprite;
-    protected Viewport viewPort;
+    private final String assetName;
+    protected final Map<Tank.TankType, Sprite> tankSprites;
+    protected final Sprite bulletSprite;
+    protected final Viewport viewPort;
+    private final AssetManager assetManager;
 
     /*
     Level data
      */
     // Layers: Walls, Background, Base, Spawns, Start, Enemies
-    private TiledMap map;
-    private TiledMapTileLayer wallLayer;
-    private Stage stage;
-    private Array<GameObj> spawnPositions;
-    private Vector2 startPosition;
-    private Vector2 basePosition;
-    private Array<Enemy> remainingEnemies;
+    private final TiledMap map;
+    private final TiledMapTileLayer wallLayer;
+    private final Stage stage;
+    private final Array<GameObj> spawnPositions;
+    private final Vector2 startPosition;
+    private final Vector2 basePosition;
+    private final Array<Enemy> remainingEnemies;
+    private final long spawnInterval;
     private int numEnemiesOnMap;
-    private long spawnInterval;
     private long lastSpawn;
     private boolean gameOver;
 
     /**
-     * Also starts the {@code KeyboardInputListener}
+     * Also starts the {@code PlayerKeyboardListener}
      *
      * @param levelNumber
+     *
      */
-    public Level(int levelNumber, TiledMap map, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort) {
+    public Level(int levelNumber, AssetManager assetManager, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort) {
         // Meta data
         this.levelNumber = levelNumber;
+        this.assetName = "level" + levelNumber + ".tmx";
         this.tankSprites = tankSprites;
         this.bulletSprite = bulletSprite;
         this.viewPort = viewPort;
+        this.assetManager = assetManager;
 
         // TiledMap setup
-        this.map = map;
+        this.assetManager.load(assetName, TiledMap.class);
+        this.assetManager.finishLoading();
+        this.map = this.assetManager.get(assetName, TiledMap.class);
 
         // Data extraction loads objects into stage
         stage = new Stage();
@@ -284,6 +292,7 @@ public class Level {
     public void dispose() {
         map.dispose();
         stage.dispose();
+        assetManager.unload(assetName);
     }
 
     /**

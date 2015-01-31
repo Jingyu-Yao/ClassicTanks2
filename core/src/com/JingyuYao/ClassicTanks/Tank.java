@@ -9,12 +9,14 @@ public class Tank extends GameObj {
     static final float SIZE = Level.TILE_SIZE;
     static final float HALF_SIZE = SIZE / 2f;
     static final float ONE_DISTANCE = HALF_SIZE; // pixels
+
     // Tank tankType defaults
     static final float DEFAULT_VELOCITY = 100f;
     static final long DEFAULT_FIRE_RATE = 1000000000l;
     static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
     static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
     static final float SUPER_VELOCITY = 150.0f;
+
     // Tank properties
     private TankType tankType;
     private Bullet.BulletType bulletType;
@@ -23,6 +25,7 @@ public class Tank extends GameObj {
     private int numBulletsOut;
     private int maxBullets;
     private boolean shooting;
+
     // Variables for movement
     private Direction moveTowards;
     private boolean moving;

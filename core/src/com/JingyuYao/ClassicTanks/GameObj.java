@@ -15,13 +15,19 @@ import com.badlogic.gdx.utils.Array;
  */
 public class GameObj extends Actor {
 
+    /*
+    Meta data
+     */
     private final Level level;
-    private Direction direction;
-    private float velocity;
-    private int hp;
+    protected GameObjType gameObjType;
     protected Sprite sprite;
 
-    protected GameObjType gameObjType;
+    /*
+    Object data
+     */
+    protected Direction direction;
+    protected float velocity;
+    protected int hp;
 
     /**
      * Create a GameObj in a {@code Level}.
@@ -39,15 +45,6 @@ public class GameObj extends Actor {
         hp = 1;
         gameObjType = GameObjType.GAMEOBJ;
         this.sprite = sprite;
-        /*
-        addListener(new ClickListener(){
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button){
-                System.out.println(toString());
-                return true;
-            }
-        });
-        */
     }
 
     /**
