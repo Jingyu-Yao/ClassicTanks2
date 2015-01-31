@@ -6,8 +6,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,19 +19,35 @@ import java.util.Map;
  */
 public class GameScreen implements Screen {
 
+    public static final int CAMERA_SIZE = Level.TILE_SIZE * 20;
+    public static final int CAMERA_INNER_BOUND = CAMERA_SIZE / 8;
+    public static final float TILED_SCALE = 1f;
+
     private final ClassicTanks game;
 
     // Loaded sprites
     public Sprite bulletSprite;
     public Map<Tank.TankType, Sprite> tankSprites;
 
+    /*
+    Renderer objects
+     */
+    Viewport viewPort;
+    OrthographicCamera camera;
+    OrthogonalTiledMapRenderer tiledMapRenderer;
+
     private Level level;
 
     public GameScreen(final ClassicTanks g) {
         game = g;
-
         tankSprites = new HashMap<Tank.TankType, Sprite>();
         createSprites();
+
+        // Camera setup
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
+        viewPort = new ScreenViewport();
+        viewPort.setCamera(camera);
 
         loadLevel(1);
     }
@@ -41,10 +59,17 @@ public class GameScreen implements Screen {
      * @param levelNumber set the current level of the game
      */
     public void loadLevel(int levelNumber) {
+        String assetName = "level" + levelNumber + ".tmx";
         if (level != null) {
             level.dispose();
+            unloadAsset(assetName);
         }
-        level = new Level(levelNumber, this);
+
+        loadAsset(assetName, TiledMap.class);
+        level = new Level(levelNumber, (TiledMap) getAsset(assetName), tankSprites, bulletSprite, viewPort);
+
+        // set up tiled map renderer
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), TILED_SCALE);
     }
 
     /**
@@ -78,7 +103,9 @@ public class GameScreen implements Screen {
     }
 
     public void unloadAsset(String assetName) {
-        game.assetManager.unload(assetName);
+        if(game.assetManager.get(assetName) != null){
+            game.assetManager.unload(assetName);
+        }
     }
 
     /**
@@ -94,24 +121,29 @@ public class GameScreen implements Screen {
             return;
         }
 
-		/* *********************************************************
-         * Draw and then updates the position in one place saves the use of
-		 * another loop and easier to organize Also handles collisions
+        /* *********************************************************
+         * openGL stuff
 		 * ********************************************************
 		 */
-        // note for matrices: projection=lense,view=camera,model=model(duh)
+        Gdx.gl.glClearColor(0, 0, 0.2f, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        /*
+         * Render tiled map including background and walls
+		 */
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+
         level.advanceTime(delta);
 
-		/* *********************************************************
-         * Input handling has been replaced by KeyboardInputListener class
-		 * which is started when a level is created.
-		 * ********************************************************
-		 */
+        if(level.checkLevelCompletion()){
+            loadLevel(1);
+        }
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewPort.update(width,height);
     }
 
     @Override

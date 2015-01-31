@@ -1,6 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * Created by Jingyu_Yao on 1/16/2015.
@@ -34,21 +34,22 @@ public class Enemy extends Tank {
     }
 
     /**
-     * Return a new random direction that is biased towards the base
+     * Return a new RANDOM direction that is biased towards the base
      *
-     * @return a new biased random direction
+     * @return a new biased RANDOM direction
      */
     public Direction getBiasedDirection() {
-        if (Level.random.nextFloat() < BIASED_CHANCE) {
+        if (Level.RANDOM.nextFloat() < BIASED_CHANCE) {
+            Vector2 basePosition = getLevel().getBasePosition();
             // Half chance to adjust X or Y position
-            if (Level.random.nextBoolean()) {
-                if (this.getX() < getLevel().getBaseX()) {
+            if (Level.RANDOM.nextBoolean()) {
+                if (this.getX() < basePosition.x) {
                     return Direction.RIGHT;
                 } else {
                     return Direction.LEFT;
                 }
             } else {
-                if (this.getY() < getLevel().getBaseY()) {
+                if (this.getY() < basePosition.y) {
                     return Direction.UP;
                 } else {
                     return Direction.DOWN;
@@ -56,7 +57,7 @@ public class Enemy extends Tank {
             }
         } else {
             // Evenly distribute chance if no bias
-            switch (Level.random.nextInt(4)) {
+            switch (Level.RANDOM.nextInt(4)) {
                 case 0:
                     return Direction.UP;
                 case 1:

@@ -74,7 +74,7 @@ public class Tank extends GameObj {
      * @return a evenly distributed TankType (except GM)
      */
     public static TankType getRandomTankType() {
-        switch (Level.random.nextInt(6)) {
+        switch (Level.RANDOM.nextInt(6)) {
             case 0:
                 return TankType.NORMAL;
             case 1:
@@ -96,7 +96,7 @@ public class Tank extends GameObj {
     public void setTankType(TankType t) {
         resetType();
         tankType = t;
-        sprite = getLevel().gameScreen.tankSprites.get(getTankType());
+        sprite = getLevel().tankSprites.get(getTankType());
         switch (tankType) {
             case NORMAL:
                 break;
@@ -169,7 +169,7 @@ public class Tank extends GameObj {
 
             float bodyX = getX(), bodyY = getY();
             Direction direction = getDirection();
-            Bullet bullet = new Bullet(getLevel(), getLevel().gameScreen.bulletSprite, -1, -1, direction, this, bulletType);
+            Bullet bullet = new Bullet(getLevel(), getLevel().bulletSprite, -1, -1, direction, this, bulletType);
             switch (direction) {
                 case DOWN:
                     bullet.setX(bodyX + HALF_SIZE - Bullet.WIDTH / 2f);

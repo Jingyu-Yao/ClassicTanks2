@@ -10,13 +10,11 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public class ClassicTanks extends Game {
 
-    SpriteBatch batch;
     BitmapFont font;
     AssetManager assetManager;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
         font = new BitmapFont();
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
@@ -25,7 +23,6 @@ public class ClassicTanks extends Game {
 
     @Override
     public void dispose() {
-        batch.dispose();
         font.dispose();
         assetManager.dispose();
     }

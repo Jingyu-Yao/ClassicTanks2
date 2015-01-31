@@ -65,10 +65,10 @@ public class GameObj extends Actor {
     }
 
     /**
-     * @return a evenly distributed random direction
+     * @return a evenly distributed RANDOM direction
      */
     public static Direction getRandomDirection() {
-        switch (Level.random.nextInt(4)) {
+        switch (Level.RANDOM.nextInt(4)) {
             case 0:
                 return Direction.UP;
             case 1:

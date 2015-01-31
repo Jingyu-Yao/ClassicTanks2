@@ -1,19 +1,17 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -21,88 +19,82 @@ import java.util.Random;
  */
 public class Level {
 
-    public static final Random random = new Random();
-
-    public static final int TILE_SIZE = 32;
-    static final int CAMERA_SIZE = TILE_SIZE * 20;
-    static final int CAMERA_INNER_BOUND = CAMERA_SIZE / 8;
-    static final float TILED_SCALE = 1f;
-    public final GameScreen gameScreen;
-    private final int levelNumber;
-    private final String levelString;
-
-    private Stage stage;
-    private Array<GameObj> spawnPoints;
-    private Array<Enemy> remainingEnemies;
-    private int enemiesOnMap;
-    private Player player;
-    private Vector2 start;
-    private long spawnInterval;
-    private long lastSpawn;
-    private float baseX, baseY;
     /*
-    A map have the following layers:
-    Walls, Background, Base, Spawns, Start, Enemies
+    GLOBAL CONSTANTS
      */
+    public static final Random RANDOM = new Random();
+    public static final int TILE_SIZE = 32;
+    /*
+    Meta data
+     */
+    private final int levelNumber;
+    protected Map<Tank.TankType, Sprite> tankSprites;
+    protected Sprite bulletSprite;
+    protected Viewport viewPort;
+
+    /*
+    Level data
+     */
+    // Layers: Walls, Background, Base, Spawns, Start, Enemies
     private TiledMap map;
     private TiledMapTileLayer wallLayer;
-
-    OrthographicCamera camera;
-    Viewport viewPort;
-    OrthogonalTiledMapRenderer tiledMapRenderer;
+    private Stage stage;
+    private Array<GameObj> spawnPositions;
+    private Vector2 startPosition;
+    private Vector2 basePosition;
+    private Array<Enemy> remainingEnemies;
+    private int numEnemiesOnMap;
+    private long spawnInterval;
+    private long lastSpawn;
+    private boolean gameOver;
 
     /**
      * Also starts the {@code KeyboardInputListener}
      *
      * @param levelNumber
-     * @param gameScreen
      */
-    public Level(int levelNumber, GameScreen gameScreen) {
+    public Level(int levelNumber, TiledMap map, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort) {
+        // Meta data
         this.levelNumber = levelNumber;
-        this.gameScreen = gameScreen;
+        this.tankSprites = tankSprites;
+        this.bulletSprite = bulletSprite;
+        this.viewPort = viewPort;
+
+        // TiledMap setup
+        this.map = map;
+
+        // Data extraction loads objects into stage
+        stage = new Stage();
+
+        // Extract data from map
+        wallLayer = extractWallData(map);
+        basePosition = extractBaseData(map);
+        spawnPositions = extractSpawnPositionData(map);
+        startPosition = extractStartPositionData(map);
+        remainingEnemies = extractEnemyListData(map);
+
+        // Misc.
         spawnInterval = 7000000000l; //7s
         lastSpawn = 0l;
-        spawnPoints = new Array<GameObj>();
-        remainingEnemies = new Array<Enemy>();
-        enemiesOnMap = 0;
+        numEnemiesOnMap = 0;
+        gameOver = false;
 
-        stage = new Stage();
-        // create camera
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
-        viewPort = new ScreenViewport();
-        viewPort.setCamera(camera);
         stage.setViewport(viewPort);
 
-        levelString = "level" + levelNumber + ".tmx";
-
-        // load tiled map
-        this.gameScreen.loadAsset(levelString, TiledMap.class);
-
-        map = this.gameScreen.getAsset(levelString);
-        // set up tiled map renderer
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(map, TILED_SCALE);
-
-        // get a default background grass tile to replace the wallz
-        makeWallFromTileLayer();
-        makeBaseFromTileLayer();
-        makeSpawnPointsFromTileLayer();
-        getStartPoint();
-        populateEnemiesList();
-
-        player = new Player(this, start.x, start.y, Tank.TankType.NORMAL, GameObj.Direction.UP);
-
+        // Setup player
+        Player player = new Player(this, startPosition.x, startPosition.y, Tank.TankType.NORMAL, GameObj.Direction.UP);
         addObject(player);
         stage.setKeyboardFocus(player);
 
+        // Set input processor to stage
         Gdx.input.setInputProcessor(stage);
     }
 
     /**
      * Populates {@code walls} from given layer.
      */
-    private void makeWallFromTileLayer() {
-        wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
+    private TiledMapTileLayer extractWallData(TiledMap map) {
+        TiledMapTileLayer wallLayer = (TiledMapTileLayer) map.getLayers().get("Walls");
         TiledMapTileLayer.Cell cell;
         String type;
         for (int i = 0; i < wallLayer.getWidth(); i++) {
@@ -125,12 +117,14 @@ public class Level {
                 }
             }
         }
+        return wallLayer;
     }
 
     /**
      * Populates {@code bases} from given layer.
      */
-    private void makeBaseFromTileLayer() {
+    private Vector2 extractBaseData(TiledMap map) {
+        Vector2 basePosition = null;
         TiledMapTileLayer baseLayer = (TiledMapTileLayer) map.getLayers().get("Base");
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < baseLayer.getWidth(); i++) {
@@ -138,44 +132,46 @@ public class Level {
                 cell = baseLayer.getCell(i, j);
                 if (cell != null) {
                     addObject(new Base(this, i, j, TILE_SIZE, TILE_SIZE));
-                    baseX = i * TILE_SIZE;
-                    baseY = j * TILE_SIZE;
+                    basePosition = new Vector2(i*TILE_SIZE,j*TILE_SIZE);
                 }
             }
         }
+        return basePosition;
     }
 
     /**
-     * Populates {@code spawnPoints} from given layer.
+     * Populates {@code spawnPositions} from given layer.
      */
-    private void makeSpawnPointsFromTileLayer() {
+    private Array<GameObj> extractSpawnPositionData(TiledMap map) {
+        Array<GameObj> spawnPositions = new Array<GameObj>();
         TiledMapTileLayer spawnLayer = (TiledMapTileLayer) map.getLayers().get("Spawns");
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < spawnLayer.getWidth(); i++) {
             for (int j = 0; j < spawnLayer.getHeight(); j++) {
                 cell = spawnLayer.getCell(i, j);
                 if (cell != null) {
-                    spawnPoints.add(new GameObj(this, null, i, j, TILE_SIZE, TILE_SIZE));
+                    spawnPositions.add(new GameObj(this, null, i, j, TILE_SIZE, TILE_SIZE));
                 }
             }
         }
+        return spawnPositions;
     }
 
-    private void getStartPoint() {
+    private Vector2 extractStartPositionData(TiledMap map) {
         TiledMapTileLayer startLayer = (TiledMapTileLayer) map.getLayers().get("Start");
         TiledMapTileLayer.Cell cell;
         for (int i = 0; i < startLayer.getWidth(); i++) {
             for (int j = 0; j < startLayer.getHeight(); j++) {
                 cell = startLayer.getCell(i, j);
                 if (cell != null) {
-                    start = new Vector2(i, j);
-                    return;
+                    return new Vector2(i, j);
                 }
             }
         }
+        return null;
     }
 
-    private void populateEnemiesList() {
+    private Array<Enemy> extractEnemyListData(TiledMap map) {
         TiledMapTileLayer enemiesLayer = (TiledMapTileLayer) map.getLayers().get("Enemies");
         MapProperties properties = enemiesLayer.getProperties();
         int numNormal = Integer.parseInt(properties.get("Normal", String.class));
@@ -183,6 +179,8 @@ public class Level {
         int numDual = Integer.parseInt(properties.get("Dual", String.class));
         int numArmored = Integer.parseInt(properties.get("Armored", String.class));
         int numFast = Integer.parseInt(properties.get("Fast", String.class));
+
+        Array<Enemy> remainingEnemies = new Array<Enemy>();
 
         for (int i = 0; i < numNormal; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.NORMAL));
@@ -199,17 +197,19 @@ public class Level {
         for (int i = 0; i < numFast; i++) {
             remainingEnemies.add(new Enemy(this, -1, -1, Tank.TankType.FAST));
         }
+
+        return remainingEnemies;
     }
 
     /**
-     * Tries to spawn a {@code Enemy} from the to-spawn list at a random spawn location
+     * Tries to spawn a {@code Enemy} from the to-spawn list at a RANDOM spawn location
      * if {@code spawnInterval} nanoseconds has passed.
      */
     public void spawn() {
         long curTime = TimeUtils.nanoTime();
         if (curTime - lastSpawn > spawnInterval &&
                 remainingEnemies.size > 0) {
-            GameObj spawnPoint = spawnPoints.get(random.nextInt(spawnPoints.size));
+            GameObj spawnPoint = spawnPositions.get(RANDOM.nextInt(spawnPositions.size));
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
                 Enemy toAdd = remainingEnemies.random();
                 remainingEnemies.removeValue(toAdd, true);
@@ -226,13 +226,7 @@ public class Level {
         return map;
     }
 
-    public float getBaseX() {
-        return baseX;
-    }
-
-    public float getBaseY() {
-        return baseY;
-    }
+    public Vector2 getBasePosition() { return basePosition; }
 
     /**
      * Add an object to the level
@@ -242,7 +236,7 @@ public class Level {
     public void addObject(GameObj object) {
         stage.addActor(object);
         if(object.getGameObjType() == GameObj.GameObjType.ENEMY){
-            enemiesOnMap++;
+            numEnemiesOnMap++;
         }
     }
 
@@ -257,10 +251,10 @@ public class Level {
             case GAMEOBJ:
                 break;
             case ENEMY:
-                enemiesOnMap--;
+                numEnemiesOnMap--;
                 break;
             case PLAYER:
-                levelComplete();
+                gameOver();
                 break;
             case TANK:
                 break;
@@ -271,7 +265,7 @@ public class Level {
                         (int) (object.getY() / TILE_SIZE), null);
                 break;
             case BASE:
-                levelComplete();
+                gameOver();
                 break;
         }
         object.remove();
@@ -280,16 +274,16 @@ public class Level {
     /**
      * GG, currently gg = reset level to 1
      */
-    public void levelComplete() {
-        gameScreen.loadLevel(1);
+    public void gameOver() {
+        gameOver = true;
     }
 
     /**
      * Unloads the level file from {@code assetManager} and disposes {@code map}
      */
     public void dispose() {
-        gameScreen.unloadAsset(levelString);
         map.dispose();
+        stage.dispose();
     }
 
     /**
@@ -297,41 +291,24 @@ public class Level {
      * @param delta change in time
      */
     public void advanceTime(float delta){
-        /* *********************************************************
-         * openGL stuff
-		 * ********************************************************
-		 */
-        Gdx.gl.glClearColor(0, 0, 0.2f, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		/*
-         * Render tiled map including background and walls
-		 */
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
-
         stage.act(delta);
         stage.draw();
         spawn();
-        checkLevelCompletion();
     }
 
     /**
      * Check whether the level is complete or not. If conditions are met, call
-     * {@code levelComplete()}
+     * {@code gameOver()}
      */
-    public void checkLevelCompletion() {
-        if (remainingEnemies.size == 0 && enemiesOnMap == 0) {
-            levelComplete();
-        }
+    public boolean checkLevelCompletion() {
+        return gameOver || (remainingEnemies.size == 0 && numEnemiesOnMap == 0);
     }
 
     @Override
     public String toString() {
         return "Level{" +
                 "remainingEnemies.size=" + remainingEnemies.size +
-                ", player info=" + player.toString() +
-                ", start=" + start +
+                ", startPosition=" + startPosition +
                 ", levelNumber=" + levelNumber +
                 ", spawnInterval=" + spawnInterval +
                 ", lastSpawn=" + lastSpawn +
