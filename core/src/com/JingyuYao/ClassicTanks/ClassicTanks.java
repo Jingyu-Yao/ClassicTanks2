@@ -18,7 +18,7 @@ public class ClassicTanks extends Game {
         font = new BitmapFont();
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
-        this.setScreen(new GameScreen(this));
+        this.setScreen(new LevelScreen(this));
     }
 
     @Override

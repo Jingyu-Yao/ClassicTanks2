@@ -38,7 +38,7 @@ public class GameScreen implements Screen {
 
     private Level level;
 
-    public GameScreen(final ClassicTanks g) {
+    public GameScreen(final ClassicTanks g, int levelNumber) {
         game = g;
         tankSprites = new HashMap<Tank.TankType, Sprite>();
         createSprites();
@@ -48,8 +48,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
         viewPort = new ScreenViewport();
         viewPort.setCamera(camera);
-
-        loadLevel(1);
+        loadLevel(levelNumber);
     }
 
     /**
@@ -137,7 +136,9 @@ public class GameScreen implements Screen {
         level.advanceTime(delta);
 
         if(level.checkLevelCompletion()){
-            loadLevel(1);
+            level.dispose();
+            game.assetManager.clear();
+            game.setScreen(new LevelScreen(game));
         }
     }
 
