@@ -2,7 +2,9 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -30,10 +32,13 @@ public class Level {
      */
     private final int levelNumber;
     private final String assetName;
+
+    private final AssetManager assetManager;
+    private final BitmapFont font;
     protected final Map<Tank.TankType, Sprite> tankSprites;
     protected final Sprite bulletSprite;
     protected final Viewport viewPort;
-    private final AssetManager assetManager;
+    private final SpriteBatch batch;
 
     /*
     Level data
@@ -57,7 +62,7 @@ public class Level {
      * @param levelNumber
      *
      */
-    public Level(int levelNumber, AssetManager assetManager, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort) {
+    public Level(int levelNumber, AssetManager assetManager, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort, BitmapFont font) {
         // Meta data
         this.levelNumber = levelNumber;
         this.assetName = "level" + levelNumber + ".tmx";
@@ -65,6 +70,8 @@ public class Level {
         this.bulletSprite = bulletSprite;
         this.viewPort = viewPort;
         this.assetManager = assetManager;
+        this.font = font;
+        this.batch = new SpriteBatch();
 
         // TiledMap setup
         this.assetManager.load(assetName, TiledMap.class);
@@ -302,6 +309,10 @@ public class Level {
     public void advanceTime(float delta){
         stage.act(delta);
         stage.draw();
+        batch.begin();
+        font.draw(batch, "Enemies remaining: " + remainingEnemies.size, 0, Gdx.graphics.getHeight()-50);
+        font.draw(batch, "Enemies on map: " + numEnemiesOnMap, 0, Gdx.graphics.getHeight()-70);
+        batch.end();
         spawn();
     }
 

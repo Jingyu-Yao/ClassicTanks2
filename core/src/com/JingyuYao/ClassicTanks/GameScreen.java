@@ -78,7 +78,7 @@ public class GameScreen implements Screen {
             level.dispose();
         }
 
-        level = new Level(levelNumber, game.assetManager, tankSprites, bulletSprite, viewPort);
+        level = new Level(levelNumber, game.assetManager, tankSprites, bulletSprite, viewPort, game.font);
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
