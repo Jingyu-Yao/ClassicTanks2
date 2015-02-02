@@ -21,7 +21,7 @@ import java.util.Map;
 import javafx.scene.text.Font;
 
 /**
- * this class is completely replaced by level..... wtf
+ * Handles level deployment and interaction with LevelSelectionScreen
  */
 public class GameScreen implements Screen {
 
