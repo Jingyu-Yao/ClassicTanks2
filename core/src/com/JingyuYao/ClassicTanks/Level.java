@@ -311,8 +311,10 @@ public class Level {
      */
     public void dispose() {
         map.dispose();
-        stage.dispose();
-        assetManager.unload(assetName);
+        assetManager.clear();
+        
+        //TODO: find out why this is causing error with GWT
+        //stage.dispose();
     }
 
     /**

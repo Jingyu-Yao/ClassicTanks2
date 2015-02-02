@@ -40,6 +40,7 @@ public class LevelSelectionScreen implements Screen {
 
         addLevel(1, 0, 1, Color.GREEN);
         addLevel(2, 1, 1, Color.BLUE);
+        addLevel(3, 2, 1, Color.BLACK);
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -70,8 +71,8 @@ public class LevelSelectionScreen implements Screen {
             return;
         }
 
-        Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl20.glClearColor(1.0f, 1.0f, 1.0f, 0);
+        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.act(delta);
         stage.draw();
@@ -104,6 +105,8 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
+        shapeRenderer.dispose();
     }
 
 }
