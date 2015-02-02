@@ -2,6 +2,7 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -37,13 +38,14 @@ public class LevelSelectionScreen implements Screen {
         stage = new Stage();
         stage.setViewport(viewPort);
 
-        addLevel(1, 0, 1);
+        addLevel(1, 0, 1, Color.GREEN);
+        addLevel(2, 1, 1, Color.BLUE);
 
         Gdx.input.setInputProcessor(stage);
     }
 
     public void startLevel(int levelNumber){
-        game.setScreen(new GameScreen(game, levelNumber));
+        game.setToGameScreen(levelNumber);
     }
 
     public OrthographicCamera getCamera(){
@@ -56,9 +58,9 @@ public class LevelSelectionScreen implements Screen {
      * @param x grid position
      * @param y grid position
      */
-    private void addLevel(int levelNumber, int x, int y){
+    private void addLevel(int levelNumber, int x, int y, Color color){
         stage.addActor(new LevelPanel(this, levelNumber, shapeRenderer, game.font,
-                x*PANEL_SIZE, Gdx.graphics.getHeight() - y*PANEL_SIZE));
+                x*PANEL_SIZE, Gdx.graphics.getHeight() - y*PANEL_SIZE, color));
     }
 
     @Override

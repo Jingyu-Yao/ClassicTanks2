@@ -9,6 +9,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public class ClassicTanks extends Game {
 
+    public static final int SCREEN_SIZE = 500;
+
     BitmapFont font;
     AssetManager assetManager;
 
@@ -17,7 +19,16 @@ public class ClassicTanks extends Game {
         font = new BitmapFont();
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+
+        setToLevelSelectionScreen();
+    }
+
+    public void setToLevelSelectionScreen(){
         this.setScreen(new LevelSelectionScreen(this));
+    }
+
+    public void setToGameScreen(int levelNumber){
+        this.setScreen(new GameScreen(this, levelNumber));
     }
 
     @Override

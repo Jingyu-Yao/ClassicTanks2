@@ -18,13 +18,15 @@ public class LevelPanel extends Actor {
     private final LevelSelectionScreen levelSelectionScreen;
     private final ShapeRenderer shapeRenderer;
     private final BitmapFont font;
+    private final Color color;
 
-    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, ShapeRenderer shapeRenderer, BitmapFont font, int x, int y){
+    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, ShapeRenderer shapeRenderer, BitmapFont font, int x, int y, Color color){
         this.levelSelectionScreen = levelSelectionScreen;
         this.levelNumber = levelNumber;
         this.shapeRenderer = shapeRenderer;
         this.font = font;
         this.levelString = "Level " + levelNumber;
+        this.color = color;
 
         setBounds(x, y, LevelSelectionScreen.PANEL_SIZE, LevelSelectionScreen.PANEL_SIZE);
 
@@ -41,7 +43,7 @@ public class LevelPanel extends Actor {
     public void draw(Batch batch, float parentAlpha){
         batch.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.setColor(color);
         shapeRenderer.setProjectionMatrix(levelSelectionScreen.getCamera().combined);
         shapeRenderer.rect(getX(),getY(),getWidth(),getHeight());
         shapeRenderer.end();

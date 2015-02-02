@@ -1,17 +1,24 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javafx.scene.text.Font;
 
 /**
  * this class is completely replaced by level..... wtf
@@ -32,13 +39,20 @@ public class GameScreen implements Screen {
     Renderer objects
      */
     private final Viewport viewPort;
-    private final OrthographicCamera camera;
     private final OrthogonalTiledMapRenderer tiledMapRenderer;
+    private final SpriteBatch batch;
 
     private Level level;
+    private boolean levelRunning;
+    private boolean showEndLevelText;
+    private String endLevelText;
 
     public GameScreen(final ClassicTanks g, int levelNumber) {
         game = g;
+        levelRunning = true;
+        showEndLevelText = true;
+        batch = new SpriteBatch();
+        endLevelText = "";
 
         bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
         tankSprites = new HashMap<Tank.TankType, Sprite>();
@@ -58,10 +72,7 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("GM.png"))));
 
         // Camera setup
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, CAMERA_SIZE, CAMERA_SIZE);
-        viewPort = new ScreenViewport();
-        viewPort.setCamera(camera);
+        viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
 
         loadLevel(levelNumber);
@@ -78,7 +89,9 @@ public class GameScreen implements Screen {
             level.dispose();
         }
 
-        level = new Level(levelNumber, game.assetManager, tankSprites, bulletSprite, viewPort, game.font);
+        level = new Level(levelNumber, game.assetManager,
+                tankSprites, bulletSprite,
+                viewPort, game.font, batch);
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
@@ -107,16 +120,83 @@ public class GameScreen implements Screen {
         /*
          * Render tiled map including background and walls
 		 */
-        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.setView((OrthographicCamera)viewPort.getCamera());
         tiledMapRenderer.render();
 
-        level.advanceTime(delta);
+        if(!levelRunning){
+            if(showEndLevelText) {
+                batch.begin();
+                game.font.drawMultiLine(batch, endLevelText,
+                        viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
+                batch.end();
+            }else{
+                level.dispose();
+                game.setToLevelSelectionScreen();
+            }
+        }else{
+            if(level.checkLevelCompletion()) {
+                levelRunning = false;
+                if(level.isLevelLost()){
+                    endLevelText = "You lose. \n" +
+                            "Press anywhere to return to level select.";
+                }else{
+                    endLevelText = "You win. \n" +
+                            "Press anywhere to return to level select.";
+                }
+                Gdx.input.setInputProcessor(new InputProcessor() {
+                    @Override
+                    public boolean keyDown(int keycode) {
+                        return false;
+                    }
 
-        if(level.checkLevelCompletion()){
-            level.dispose();
-            game.assetManager.clear();
-            game.setScreen(new LevelSelectionScreen(game));
+                    @Override
+                    public boolean keyUp(int keycode) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean keyTyped(char character) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                        showEndLevelText = false;
+                        return true;
+                    }
+
+                    @Override
+                    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean touchDragged(int screenX, int screenY, int pointer) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean mouseMoved(int screenX, int screenY) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean scrolled(int amount) {
+                        return false;
+                    }
+                });
+            }else{
+                level.actLevel(delta);
+                level.spawn();
+            }
         }
+        level.drawLevel();
+
+        batch.begin();
+        game.font.drawMultiLine(batch, "Debug mode, build 2/2/15 \n" +
+                "Tank type change keys: A,S,D,F,G,B,N",
+                0, viewPort.getScreenHeight()-10);
+        batch.end();
     }
 
     @Override

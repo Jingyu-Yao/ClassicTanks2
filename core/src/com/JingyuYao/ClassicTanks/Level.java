@@ -51,10 +51,11 @@ public class Level {
     private final Vector2 startPosition;
     private final Vector2 basePosition;
     private final Array<Enemy> remainingEnemies;
-    private final long spawnInterval;
+    private long spawnInterval;
+    private int spawnLimit;
     private int numEnemiesOnMap;
     private long lastSpawn;
-    private boolean gameOver;
+    private boolean levelLost;
 
     /**
      * Also starts the {@code PlayerKeyboardListener}
@@ -62,7 +63,9 @@ public class Level {
      * @param levelNumber
      *
      */
-    public Level(int levelNumber, AssetManager assetManager, Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite, Viewport viewPort, BitmapFont font) {
+    public Level(int levelNumber, AssetManager assetManager,
+                 Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite,
+                 Viewport viewPort, BitmapFont font, SpriteBatch batch) {
         // Meta data
         this.levelNumber = levelNumber;
         this.assetName = "level" + levelNumber + ".tmx";
@@ -71,7 +74,7 @@ public class Level {
         this.viewPort = viewPort;
         this.assetManager = assetManager;
         this.font = font;
-        this.batch = new SpriteBatch();
+        this.batch = batch;
 
         // TiledMap setup
         this.assetManager.load(assetName, TiledMap.class);
@@ -84,15 +87,14 @@ public class Level {
         // Extract data from map
         wallLayer = extractWallData(map);
         basePosition = extractBaseData(map);
-        spawnPositions = extractSpawnPositionData(map);
+        spawnPositions = extractSpawnData(map);
         startPosition = extractStartPositionData(map);
         remainingEnemies = extractEnemyListData(map);
 
         // Misc.
-        spawnInterval = 7000000000l; //7s
         lastSpawn = 0l;
         numEnemiesOnMap = 0;
-        gameOver = false;
+        levelLost = false;
 
         stage.setViewport(viewPort);
 
@@ -156,8 +158,9 @@ public class Level {
 
     /**
      * Populates {@code spawnPositions} from given layer.
+     * Also sets spawnInterval and spawnLimit
      */
-    private Array<GameObj> extractSpawnPositionData(TiledMap map) {
+    private Array<GameObj> extractSpawnData(TiledMap map) {
         Array<GameObj> spawnPositions = new Array<GameObj>();
         TiledMapTileLayer spawnLayer = (TiledMapTileLayer) map.getLayers().get("Spawns");
         TiledMapTileLayer.Cell cell;
@@ -169,6 +172,11 @@ public class Level {
                 }
             }
         }
+
+        MapProperties properties = spawnLayer.getProperties();
+        spawnInterval = Long.parseLong(properties.get("SpawnInterval", String.class)) * 1000000000l;
+        spawnLimit = Integer.parseInt(properties.get("SpawnLimit", String.class));
+
         return spawnPositions;
     }
 
@@ -223,7 +231,8 @@ public class Level {
     public void spawn() {
         long curTime = TimeUtils.nanoTime();
         if (curTime - lastSpawn > spawnInterval &&
-                remainingEnemies.size > 0) {
+                remainingEnemies.size > 0 &&
+                numEnemiesOnMap < spawnLimit) {
             GameObj spawnPoint = spawnPositions.get(RANDOM.nextInt(spawnPositions.size));
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
                 Enemy toAdd = remainingEnemies.random();
@@ -269,7 +278,7 @@ public class Level {
                 numEnemiesOnMap--;
                 break;
             case PLAYER:
-                gameOver();
+                loseLevel();
                 break;
             case TANK:
                 break;
@@ -280,7 +289,7 @@ public class Level {
                         (int) (object.getY() / TILE_SIZE), null);
                 break;
             case BASE:
-                gameOver();
+                loseLevel();
                 break;
         }
         object.remove();
@@ -289,8 +298,12 @@ public class Level {
     /**
      * GG, currently gg = reset level to 1
      */
-    public void gameOver() {
-        gameOver = true;
+    public void loseLevel() {
+        levelLost = true;
+    }
+
+    public boolean isLevelLost(){
+        return levelLost;
     }
 
     /**
@@ -306,22 +319,24 @@ public class Level {
      * Advance the state of the level, both the model and the view.
      * @param delta change in time
      */
-    public void advanceTime(float delta){
+    public void actLevel(float delta){
         stage.act(delta);
+    }
+
+    public void drawLevel(){
         stage.draw();
         batch.begin();
-        font.draw(batch, "Enemies remaining: " + remainingEnemies.size, 0, Gdx.graphics.getHeight()-50);
-        font.draw(batch, "Enemies on map: " + numEnemiesOnMap, 0, Gdx.graphics.getHeight()-70);
+        font.draw(batch, "Enemies remaining: " + remainingEnemies.size, 0, viewPort.getScreenHeight()-50);
+        font.draw(batch, "Enemies on map: " + numEnemiesOnMap, 0, viewPort.getScreenHeight()-70);
         batch.end();
-        spawn();
     }
 
     /**
      * Check whether the level is complete or not. If conditions are met, call
-     * {@code gameOver()}
+     * {@code levelLost()}
      */
     public boolean checkLevelCompletion() {
-        return gameOver || (remainingEnemies.size == 0 && numEnemiesOnMap == 0);
+        return levelLost || (remainingEnemies.size == 0 && numEnemiesOnMap == 0);
     }
 
     @Override
