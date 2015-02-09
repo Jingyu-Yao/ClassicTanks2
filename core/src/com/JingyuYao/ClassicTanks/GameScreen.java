@@ -41,6 +41,7 @@ public class GameScreen implements Screen {
     private final Viewport viewPort;
     private final OrthogonalTiledMapRenderer tiledMapRenderer;
     private final SpriteBatch batch;
+    private final BitmapFont font;
 
     private Level level;
     private boolean levelRunning;
@@ -51,7 +52,8 @@ public class GameScreen implements Screen {
         game = g;
         levelRunning = true;
         showEndLevelText = true;
-        batch = new SpriteBatch();
+        batch = game.batch;
+        font = game.font;
         endLevelText = "";
 
         bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
@@ -87,7 +89,7 @@ public class GameScreen implements Screen {
     public void loadLevel(int levelNumber) {
         level = new Level(levelNumber, game.assetManager,
                 tankSprites, bulletSprite,
-                viewPort, game.font, batch);
+                viewPort, font, batch);
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
@@ -122,7 +124,7 @@ public class GameScreen implements Screen {
         if(!levelRunning){
             if(showEndLevelText) {
                 batch.begin();
-                game.font.drawMultiLine(batch, endLevelText,
+                font.drawMultiLine(batch, endLevelText,
                         viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
                 batch.end();
             }else{
@@ -189,8 +191,9 @@ public class GameScreen implements Screen {
         }
         level.drawLevel();
 
+        //Test mode stuff
         batch.begin();
-        game.font.drawMultiLine(batch, "Debug mode, build 2/2/15 \n" +
+        font.drawMultiLine(batch, "Debug mode, build 2/2/15 \n" +
                 "Tank type change keys: A,S,D,F,G,B,N",
                 0, viewPort.getScreenHeight()-10);
         batch.end();

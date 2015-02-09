@@ -48,17 +48,8 @@ public class Tank extends GameObj {
     }
 
     public Tank(Level level, float x, float y, TankType tankType, Direction direction) {
-        super(level, null, x, y, SIZE, SIZE, DEFAULT_VELOCITY, direction);
-        setTankType(tankType);
-        moving = false;
-        lastBulletTime = 0l;
-        fireRate = DEFAULT_FIRE_RATE;
-        numBulletsOut = 0;
-        maxBullets = 1;
-        moveTowards = Direction.NONE;
-        shooting = false;
-        bulletType = Bullet.BulletType.NORMAL;
-        gameObjType = GameObjType.TANK;
+        this(level, x, y, tankType);
+        setDirection(direction);
     }
 
     public void addBullet() {

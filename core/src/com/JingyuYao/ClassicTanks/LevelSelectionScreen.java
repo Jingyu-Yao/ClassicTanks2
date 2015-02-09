@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -23,9 +25,13 @@ public class LevelSelectionScreen implements Screen {
     private final OrthographicCamera camera;
     private final Stage stage;
     private final ShapeRenderer shapeRenderer;
+    private final SpriteBatch batch;
+    private final BitmapFont font;
 
     public LevelSelectionScreen(final ClassicTanks g) {
         game = g;
+        batch = game.batch;
+        font = game.font;
 
         // Camera setup
         camera = new OrthographicCamera();
@@ -76,6 +82,16 @@ public class LevelSelectionScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+
+        //Test mode stuff
+        batch.begin();
+        font.drawMultiLine(batch, "Arrow keys to move, \n" +
+                "hold down space to shoot. \n" +
+                "A,S,D,F,G,B,N to switch tank types \n" +
+                "A=Armored, B=Barrage, D=Dualshot, \n" +
+                "F=Fast, G=Godmode(for testing), \n" +
+                "S=Super, N=Normal",10,200);
+        batch.end();
     }
 
     @Override

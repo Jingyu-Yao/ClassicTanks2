@@ -58,13 +58,9 @@ public class GameObj extends Actor {
      * @param direction the direction of the object
      */
     public GameObj(Level level, Sprite sprite, float x, float y, float width, float height, float velocity, Direction direction) {
-        this.level = level;
-        setBounds(x * Level.TILE_SIZE, y * Level.TILE_SIZE, width, height);
+        this(level, sprite, x, y, width, height);
         this.direction = direction;
         this.velocity = velocity;
-        hp = 1;
-        gameObjType = GameObjType.GAMEOBJ;
-        this.sprite = sprite;
     }
 
     //Getters
