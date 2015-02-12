@@ -25,8 +25,8 @@ public class LevelSelectionScreen implements Screen {
     private final OrthographicCamera camera;
     private final Stage stage;
     private final ShapeRenderer shapeRenderer;
-    private final SpriteBatch batch;
-    private final BitmapFont font;
+    private final SpriteBatch batch; //From game
+    private final BitmapFont font; //From game
 
     public LevelSelectionScreen(final ClassicTanks g) {
         game = g;

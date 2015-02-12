@@ -1,9 +1,16 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.math.Vector2;
+
 /**
  * Created by Jingyu_Yao on 1/16/2015.
  */
 public class Player extends Tank {
+
+    /*
+    For player hp = life, not the hit points needed to kill the tank.
+    Player tank always die in one hit.
+     */
 
     public Player(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);
@@ -41,5 +48,20 @@ public class Player extends Tank {
     public void act(float deltaTime){
         super.act(deltaTime);
         moveCamera();
+    }
+
+    @Override
+    public void damage(){
+        if(hp > 0){
+            hp--;
+        }
+        if(hp == 0){
+            getLevel().removeObject(this);
+        }else{
+            setTankType(TankType.NORMAL);
+            setDirection(Direction.UP);
+            Vector2 startPos = getLevel().getStartPosition();
+            setPosition(startPos.x*Level.TILE_SIZE, startPos.y*Level.TILE_SIZE);
+        }
     }
 }

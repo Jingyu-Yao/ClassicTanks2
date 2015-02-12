@@ -12,6 +12,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 public class ClassicTanks extends Game {
 
     public static final int SCREEN_SIZE = 500;
+    public static final boolean DEBUG = true;
+    public static final String BUILD_DATE = "2/12/15";
 
     BitmapFont font;
     SpriteBatch batch;

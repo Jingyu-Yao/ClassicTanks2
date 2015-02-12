@@ -12,13 +12,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javafx.scene.text.Font;
 
 /**
  * Handles level deployment and interaction with LevelSelectionScreen
@@ -40,14 +37,19 @@ public class GameScreen implements Screen {
      */
     private final Viewport viewPort;
     private final OrthogonalTiledMapRenderer tiledMapRenderer;
-    private final SpriteBatch batch;
-    private final BitmapFont font;
+    private final SpriteBatch batch; //From game
+    private final BitmapFont font; //From game
 
     private Level level;
     private boolean levelRunning;
     private boolean showEndLevelText;
     private String endLevelText;
 
+    /**
+     * Create a new {@code GameScreen} of {@code levelNumber}
+     * @param g the {@code Game} this {@code Screen} belongs to
+     * @param levelNumber the level number to load into this {@code GameScreen}
+     */
     public GameScreen(final ClassicTanks g, int levelNumber) {
         game = g;
         levelRunning = true;
@@ -77,22 +79,13 @@ public class GameScreen implements Screen {
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
 
-        loadLevel(levelNumber);
-    }
-
-    /**
-     * Create a new {@code Level} using the given {@code levelNumber}.
-     * Also set {@code tiledMapRenderer} to draw the current level
-     *
-     * @param levelNumber set the current level of the game
-     */
-    public void loadLevel(int levelNumber) {
         level = new Level(levelNumber, game.assetManager,
                 tankSprites, bulletSprite,
                 viewPort, font, batch);
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
+
     }
 
     /**
@@ -128,12 +121,11 @@ public class GameScreen implements Screen {
                         viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
                 batch.end();
             }else{
-                level.dispose();
                 dispose();
                 game.setToLevelSelectionScreen();
             }
         }else{
-            if(level.checkLevelCompletion()) {
+            if(level.isLevelEnded()) {
                 levelRunning = false;
                 if(level.isLevelLost()){
                     endLevelText = "You lose. \n" +
@@ -192,11 +184,13 @@ public class GameScreen implements Screen {
         level.drawLevel();
 
         //Test mode stuff
-        batch.begin();
-        font.drawMultiLine(batch, "Debug mode, build 2/2/15 \n" +
-                "Tank type change keys: A,S,D,F,G,B,N",
-                0, viewPort.getScreenHeight()-10);
-        batch.end();
+        if(ClassicTanks.DEBUG) {
+            batch.begin();
+            font.drawMultiLine(batch, "Debug mode," + ClassicTanks.BUILD_DATE + "\n" +
+                            "Tank type change keys: A,S,D,F,G,B,N",
+                    0, viewPort.getScreenHeight() - 10);
+            batch.end();
+        }
     }
 
     @Override
@@ -226,6 +220,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        level.dispose();
         tiledMapRenderer.dispose();
     }
 

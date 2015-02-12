@@ -46,16 +46,29 @@ public class Level {
     // Layers: Walls, Background, Base, Spawns, Start, Enemies
     private final TiledMap map;
     private final TiledMapTileLayer wallLayer;
+
     private final Stage stage;
+    private final Player player;
+
     private final Array<GameObj> spawnPositions;
     private final Vector2 startPosition;
     private final Vector2 basePosition;
+
     private final Array<Enemy> remainingEnemies;
+    private int numEnemiesOnMap;
+
     private long spawnInterval;
     private int spawnLimit;
-    private int numEnemiesOnMap;
     private long lastSpawn;
+
     private boolean levelLost;
+    private boolean levelComplete;
+
+    /*
+    Level stat
+     */
+    private final LevelStat stat;
+    private long startTime;
 
     /**
      * Also starts the {@code PlayerKeyboardListener}
@@ -95,17 +108,22 @@ public class Level {
         lastSpawn = 0l;
         numEnemiesOnMap = 0;
         levelLost = false;
+        levelComplete = false;
+        stat = new LevelStat();
+        startTime = TimeUtils.nanoTime();
 
         stage.setViewport(viewPort);
 
         // Setup player
-        Player player = new Player(this, startPosition.x, startPosition.y, Tank.TankType.NORMAL, GameObj.Direction.UP);
+        player = new Player(this, startPosition.x, startPosition.y, Tank.TankType.NORMAL, GameObj.Direction.UP);
         addObject(player);
         stage.setKeyboardFocus(player);
 
         // Set input processor to stage
         Gdx.input.setInputProcessor(stage);
     }
+
+    //************** Constructor Helpers ***************************************
 
     /**
      * Populates {@code walls} from given layer.
@@ -224,6 +242,28 @@ public class Level {
         return remainingEnemies;
     }
 
+    //************************** Getters *******************************
+
+    public TiledMap getMap() {
+        return map;
+    }
+
+    public Vector2 getBasePosition() { return basePosition; }
+
+    public Vector2 getStartPosition() {
+        return startPosition;
+    }
+
+    public LevelStat getStat(){
+        return stat;
+    }
+
+    public boolean isLevelLost(){
+        return levelLost;
+    }
+
+    //************************* Level maintenance ******************
+
     /**
      * Tries to spawn a {@code Enemy} from the to-spawn list at a RANDOM spawn location
      * if {@code spawnInterval} nanoseconds has passed.
@@ -245,12 +285,6 @@ public class Level {
             }
         }
     }
-
-    public TiledMap getMap() {
-        return map;
-    }
-
-    public Vector2 getBasePosition() { return basePosition; }
 
     /**
      * Add an object to the level
@@ -276,45 +310,44 @@ public class Level {
                 break;
             case ENEMY:
                 numEnemiesOnMap--;
+                if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
+                    levelComplete();
+                }
                 break;
             case PLAYER:
-                loseLevel();
+                levelLost();
                 break;
             case TANK:
+                switch(((Tank)object).getTankType()){
+                    case NORMAL:
+                        stat.normalKills++;
+                        break;
+                    case BARRAGE:
+                        stat.barrageKills++;
+                        break;
+                    case DUAL:
+                        stat.dualKills++;
+                        break;
+                    case FAST:
+                        stat.fastKills++;
+                        break;
+                    case ARMORED:
+                        stat.armoredKills++;
+                        break;
+                }
                 break;
             case BULLET:
                 break;
             case WALL:
                 wallLayer.setCell((int) (object.getX() / TILE_SIZE),
                         (int) (object.getY() / TILE_SIZE), null);
+                stat.wallKills++;
                 break;
             case BASE:
-                loseLevel();
+                levelLost();
                 break;
         }
         object.remove();
-    }
-
-    /**
-     * GG, currently gg = reset level to 1
-     */
-    public void loseLevel() {
-        levelLost = true;
-    }
-
-    public boolean isLevelLost(){
-        return levelLost;
-    }
-
-    /**
-     * Unloads the level file from {@code assetManager} and disposes {@code map}
-     */
-    public void dispose() {
-        map.dispose();
-        assetManager.clear();
-        
-        //TODO: find out why this is causing error with GWT
-        //stage.dispose();
     }
 
     /**
@@ -333,12 +366,44 @@ public class Level {
         batch.end();
     }
 
+    //****************** Level conditions ******************
+
     /**
      * Check whether the level is complete or not. If conditions are met, call
      * {@code levelLost()}
      */
-    public boolean checkLevelCompletion() {
-        return levelLost || (remainingEnemies.size == 0 && numEnemiesOnMap == 0);
+    public boolean isLevelEnded() {
+        return levelLost || levelComplete;
+    }
+
+    private void levelComplete(){
+        levelComplete = true;
+        fillEndGameStat();
+    }
+
+    private void levelLost(){
+        levelLost = true;
+        fillEndGameStat();
+    }
+
+    //******************** Misc. *************************************
+
+    private void fillEndGameStat(){
+        stat.currentPlayerType = player.getTankType();
+        stat.lifeLeft = player.getHp();
+        stat.won = levelComplete;
+        stat.levelDuration = TimeUtils.timeSinceNanos(startTime);
+    }
+
+    /**
+     * Unloads the level file from {@code assetManager} and disposes {@code map}
+     */
+    public void dispose() {
+        //map.dispose();
+        assetManager.clear();
+
+        //TODO: find out why this is causing error with GWT
+        //stage.dispose();
     }
 
     @Override
