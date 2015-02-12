@@ -48,12 +48,9 @@ public class GameScreen implements Screen {
     /**
      * Create a new {@code GameScreen} of {@code levelNumber}
      * @param g the {@code Game} this {@code Screen} belongs to
-     * @param levelNumber the level number to load into this {@code GameScreen}
      */
-    public GameScreen(final ClassicTanks g, int levelNumber) {
+    public GameScreen(final ClassicTanks g) {
         game = g;
-        levelRunning = true;
-        showEndLevelText = true;
         batch = game.batch;
         font = game.font;
         endLevelText = "";
@@ -78,6 +75,13 @@ public class GameScreen implements Screen {
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
+    }
+
+    public void loadNewLevel(int levelNumber){
+        levelRunning = true;
+        showEndLevelText = true;
+        viewPort.setScreenX(CAMERA_SIZE / 2);
+        viewPort.setScreenY(CAMERA_SIZE / 2);
 
         level = new Level(levelNumber, game.assetManager,
                 tankSprites, bulletSprite,
@@ -85,11 +89,9 @@ public class GameScreen implements Screen {
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
-
     }
 
     /**
-     * TODO
      * The main game loop for this screen.
      *
      * @param delta
@@ -121,7 +123,7 @@ public class GameScreen implements Screen {
                         viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
                 batch.end();
             }else{
-                dispose();
+                level.dispose();
                 game.setToLevelSelectionScreen();
             }
         }else{
@@ -220,7 +222,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        level.dispose();
+        System.out.println("GameScreen dispose");
+        if(level != null){
+            level.dispose();
+        }
         tiledMapRenderer.dispose();
     }
 

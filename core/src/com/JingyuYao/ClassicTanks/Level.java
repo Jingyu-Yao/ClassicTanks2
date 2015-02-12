@@ -393,16 +393,18 @@ public class Level {
         stat.lifeLeft = player.getHp();
         stat.won = levelComplete;
         stat.levelDuration = TimeUtils.timeSinceNanos(startTime);
+        stat.levelNumber = levelNumber;
     }
 
     /**
      * Unloads the level file from {@code assetManager} and disposes {@code map}
      */
     public void dispose() {
-        //map.dispose();
-        assetManager.clear();
+        System.out.println("Level dispose");
+        if(assetManager.isLoaded(assetName)) {
+            assetManager.unload(assetName);
+        }
 
-        //TODO: find out why this is causing error with GWT
         //stage.dispose();
     }
 

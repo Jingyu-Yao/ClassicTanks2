@@ -18,30 +18,40 @@ public class ClassicTanks extends Game {
     BitmapFont font;
     SpriteBatch batch;
     AssetManager assetManager;
+    GameScreen gameScreen;
+    LevelSelectionScreen levelSelectionScreen;
 
     @Override
     public void create() {
         font = new BitmapFont();
         font.setColor(Color.RED);
+
         batch = new SpriteBatch();
+
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+
+        gameScreen = new GameScreen(this);
+        levelSelectionScreen = new LevelSelectionScreen(this);
 
         setToLevelSelectionScreen();
     }
 
     public void setToLevelSelectionScreen(){
-        this.setScreen(new LevelSelectionScreen(this));
+        this.setScreen(levelSelectionScreen);
     }
 
     public void setToGameScreen(int levelNumber){
-        this.setScreen(new GameScreen(this, levelNumber));
+        gameScreen.loadNewLevel(levelNumber);
+        this.setScreen(gameScreen);
     }
 
     @Override
     public void dispose() {
         font.dispose();
         assetManager.dispose();
+        gameScreen.dispose();
+        levelSelectionScreen.dispose();
     }
 
     @Override

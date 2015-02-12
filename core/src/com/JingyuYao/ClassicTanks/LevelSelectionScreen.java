@@ -47,8 +47,6 @@ public class LevelSelectionScreen implements Screen {
         addLevel(1, 0, 1, Color.GREEN);
         addLevel(2, 1, 1, Color.BLUE);
         addLevel(3, 2, 1, Color.BLACK);
-
-        Gdx.input.setInputProcessor(stage);
     }
 
     public void startLevel(int levelNumber){
@@ -101,7 +99,7 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -121,6 +119,7 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void dispose() {
+        System.out.println("Levelselection dispose");
         stage.dispose();
         shapeRenderer.dispose();
     }

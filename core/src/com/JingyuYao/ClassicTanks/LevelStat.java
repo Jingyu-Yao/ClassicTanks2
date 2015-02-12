@@ -8,6 +8,7 @@ package com.JingyuYao.ClassicTanks;
  * Contains statistics for a level used by {@code EndScreen} ans data saving.
  */
 public class LevelStat {
+    public int levelNumber;
     public int armoredKills;
     public int fastKills;
     public int dualKills;
