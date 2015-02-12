@@ -191,7 +191,7 @@ public class GameScreen implements Screen {
             batch.begin();
             font.drawMultiLine(batch, "Debug mode," + ClassicTanks.BUILD_DATE + "\n" +
                             "Tank type change keys: A,S,D,F,G,B,N",
-                    0, viewPort.getScreenHeight() - 10);
+                    0, viewPort.getScreenHeight() - font.getScaleY());
             batch.end();
         }
     }
@@ -224,9 +224,6 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         System.out.println("GameScreen dispose");
-        if(level != null){
-            level.dispose();
-        }
         tiledMapRenderer.dispose();
     }
 

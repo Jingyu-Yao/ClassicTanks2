@@ -13,9 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
  * Created by Jingyu_Yao on 1/30/2015.
  * TODO: Nine-patch
  */
-public class LevelPanel extends TextButton {
+public class LevelButton extends TextButton {
 
-    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, TextButtonStyle style){
+    public LevelButton(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, TextButtonStyle style){
         super("Level " + levelNumber + " ", style);
 
         addListener(new InputListener(){

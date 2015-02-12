@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -67,14 +66,14 @@ public class LevelSelectionScreen implements Screen {
     }
 
     /**
-     * Factory method to create and add {@code LevelPanel} to the stage
+     * Factory method to create and add {@code LevelButton} to the stage
      * @param levelNumber
      */
     private void addLevel(int levelNumber, Color color){
         TextButton.TextButtonStyle tempB = new TextButton.TextButtonStyle();
         tempB.font = font;
         tempB.fontColor = color;
-        table.add(new LevelPanel(this, levelNumber, tempB)).size(PANEL_SIZE,PANEL_SIZE);
+        table.add(new LevelButton(this, levelNumber, tempB)).size(PANEL_SIZE,PANEL_SIZE);
     }
 
     @Override

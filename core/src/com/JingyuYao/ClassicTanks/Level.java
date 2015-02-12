@@ -409,7 +409,7 @@ public class Level {
             System.out.println("Asset disposed: " + assetName);
         }
 
-        //stage.dispose();
+        stage.dispose();
     }
 
     @Override
