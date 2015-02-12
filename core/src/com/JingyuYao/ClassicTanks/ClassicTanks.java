@@ -20,6 +20,7 @@ public class ClassicTanks extends Game {
     AssetManager assetManager;
     GameScreen gameScreen;
     LevelSelectionScreen levelSelectionScreen;
+    EndScreen endScreen;
 
     @Override
     public void create() {
@@ -33,6 +34,7 @@ public class ClassicTanks extends Game {
 
         gameScreen = new GameScreen(this);
         levelSelectionScreen = new LevelSelectionScreen(this);
+        endScreen = new EndScreen(this);
 
         setToLevelSelectionScreen();
     }
@@ -46,12 +48,20 @@ public class ClassicTanks extends Game {
         this.setScreen(gameScreen);
     }
 
+    public void setToEndScreen(LevelStat stat){
+        endScreen.setStat(stat);
+        this.setScreen(endScreen);
+    }
+
     @Override
     public void dispose() {
+        System.out.println("ClassicTanks dispose");
         font.dispose();
+        batch.dispose();
         assetManager.dispose();
         gameScreen.dispose();
         levelSelectionScreen.dispose();
+        endScreen.dispose();
     }
 
     @Override

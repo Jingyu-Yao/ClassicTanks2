@@ -71,7 +71,7 @@ public class Level {
     private long startTime;
 
     /**
-     * Also starts the {@code PlayerKeyboardListener}
+     * Also starts the {@code GameScreenKeyboardListener}
      *
      * @param levelNumber
      *
@@ -92,6 +92,7 @@ public class Level {
         // TiledMap setup
         this.assetManager.load(assetName, TiledMap.class);
         this.assetManager.finishLoading();
+        System.out.println("Asset loaded: " + assetName);
         this.map = this.assetManager.get(assetName, TiledMap.class);
 
         // Data extraction loads objects into stage
@@ -121,6 +122,8 @@ public class Level {
 
         // Set input processor to stage
         Gdx.input.setInputProcessor(stage);
+
+        System.out.println("Level loaded: " + levelNumber);
     }
 
     //************** Constructor Helpers ***************************************
@@ -403,6 +406,7 @@ public class Level {
         System.out.println("Level dispose");
         if(assetManager.isLoaded(assetName)) {
             assetManager.unload(assetName);
+            System.out.println("Asset disposed: " + assetName);
         }
 
         //stage.dispose();

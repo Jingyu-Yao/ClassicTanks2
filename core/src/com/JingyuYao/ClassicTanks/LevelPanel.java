@@ -7,28 +7,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 /**
  * Created by Jingyu_Yao on 1/30/2015.
+ * TODO: Nine-patch
  */
-public class LevelPanel extends Actor {
+public class LevelPanel extends TextButton {
 
-    private final int levelNumber;
-    private final String levelString;
-    private final LevelSelectionScreen levelSelectionScreen;
-    private final ShapeRenderer shapeRenderer;
-    private final BitmapFont font;
-    private final Color color;
-
-    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, ShapeRenderer shapeRenderer, BitmapFont font, int x, int y, Color color){
-        this.levelSelectionScreen = levelSelectionScreen;
-        this.levelNumber = levelNumber;
-        this.shapeRenderer = shapeRenderer;
-        this.font = font;
-        this.levelString = "Level " + levelNumber;
-        this.color = color;
-
-        setBounds(x, y, LevelSelectionScreen.PANEL_SIZE, LevelSelectionScreen.PANEL_SIZE);
+    public LevelPanel(final LevelSelectionScreen levelSelectionScreen, final int levelNumber, TextButtonStyle style){
+        super("Level " + levelNumber + " ", style);
 
         addListener(new InputListener(){
             @Override
@@ -37,17 +25,5 @@ public class LevelPanel extends Actor {
                 return true;
             }
         });
-    }
-
-    @Override
-    public void draw(Batch batch, float parentAlpha){
-        batch.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(color);
-        shapeRenderer.setProjectionMatrix(levelSelectionScreen.getCamera().combined);
-        shapeRenderer.rect(getX(),getY(),getWidth(),getHeight());
-        shapeRenderer.end();
-        batch.begin();
-        font.draw(batch, levelString, getX(), getY() + getHeight()/2);
     }
 }

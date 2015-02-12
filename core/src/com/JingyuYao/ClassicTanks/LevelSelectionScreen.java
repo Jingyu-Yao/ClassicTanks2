@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -24,6 +27,7 @@ public class LevelSelectionScreen implements Screen {
     private final Viewport viewPort;
     private final OrthographicCamera camera;
     private final Stage stage;
+    private final Table table;
     private final ShapeRenderer shapeRenderer;
     private final SpriteBatch batch; //From game
     private final BitmapFont font; //From game
@@ -41,12 +45,17 @@ public class LevelSelectionScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
 
         // Stage setup
+        table = new Table();
+        //The positioning is mad weird.
+        table.setPosition(PANEL_SIZE*1.5f, Gdx.graphics.getHeight() - PANEL_SIZE/2);
         stage = new Stage();
         stage.setViewport(viewPort);
+        stage.addActor(table);
 
-        addLevel(1, 0, 1, Color.GREEN);
-        addLevel(2, 1, 1, Color.BLUE);
-        addLevel(3, 2, 1, Color.BLACK);
+        //TODO: automate level adding according to files in folder.
+        addLevel(1, Color.GREEN);
+        addLevel(2, Color.BLUE);
+        addLevel(3, Color.BLACK);
     }
 
     public void startLevel(int levelNumber){
@@ -60,12 +69,12 @@ public class LevelSelectionScreen implements Screen {
     /**
      * Factory method to create and add {@code LevelPanel} to the stage
      * @param levelNumber
-     * @param x grid position
-     * @param y grid position
      */
-    private void addLevel(int levelNumber, int x, int y, Color color){
-        stage.addActor(new LevelPanel(this, levelNumber, shapeRenderer, game.font,
-                x*PANEL_SIZE, Gdx.graphics.getHeight() - y*PANEL_SIZE, color));
+    private void addLevel(int levelNumber, Color color){
+        TextButton.TextButtonStyle tempB = new TextButton.TextButtonStyle();
+        tempB.font = font;
+        tempB.fontColor = color;
+        table.add(new LevelPanel(this, levelNumber, tempB)).size(PANEL_SIZE,PANEL_SIZE);
     }
 
     @Override
@@ -99,6 +108,7 @@ public class LevelSelectionScreen implements Screen {
 
     @Override
     public void show() {
+        System.out.println("LevelSelection show");
         Gdx.input.setInputProcessor(stage);
     }
 

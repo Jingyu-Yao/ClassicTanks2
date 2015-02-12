@@ -12,11 +12,11 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 /**
  * Created by Jingyu on 1/22/2015.
  */
-public class PlayerKeyboardListener extends InputListener {
+public class GameScreenKeyboardListener extends InputListener {
 
     private final Player player;
 
-    public PlayerKeyboardListener(Player player) {
+    public GameScreenKeyboardListener(Player player) {
         this.player = player;
     }
 

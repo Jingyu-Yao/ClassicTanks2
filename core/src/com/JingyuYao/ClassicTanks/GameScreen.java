@@ -123,8 +123,9 @@ public class GameScreen implements Screen {
                         viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
                 batch.end();
             }else{
+                // Disposing doesn't get rid of the stat
                 level.dispose();
-                game.setToLevelSelectionScreen();
+                game.setToEndScreen(level.getStat());
             }
         }else{
             if(level.isLevelEnded()) {
@@ -202,7 +203,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        System.out.println("GameScreen show");
     }
 
     @Override
