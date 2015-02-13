@@ -109,6 +109,7 @@ public class LevelSelectionScreen implements Screen {
     public void show() {
         System.out.println("LevelSelection show");
         Gdx.input.setInputProcessor(stage);
+        font.setColor(Color.RED);
     }
 
     @Override

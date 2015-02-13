@@ -1,8 +1,8 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -41,19 +41,16 @@ public class GameScreen implements Screen {
     private final BitmapFont font; //From game
 
     private Level level;
-    private boolean levelRunning;
-    private boolean showEndLevelText;
-    private String endLevelText;
 
     /**
      * Create a new {@code GameScreen} of {@code levelNumber}
+     *
      * @param g the {@code Game} this {@code Screen} belongs to
      */
     public GameScreen(final ClassicTanks g) {
         game = g;
         batch = game.batch;
         font = game.font;
-        endLevelText = "";
 
         bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
         tankSprites = new HashMap<Tank.TankType, Sprite>();
@@ -77,9 +74,7 @@ public class GameScreen implements Screen {
         tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
     }
 
-    public void loadNewLevel(int levelNumber){
-        levelRunning = true;
-        showEndLevelText = true;
+    public void loadNewLevel(int levelNumber) {
         viewPort.setScreenX(CAMERA_SIZE / 2);
         viewPort.setScreenY(CAMERA_SIZE / 2);
 
@@ -113,81 +108,21 @@ public class GameScreen implements Screen {
         /*
          * Render tiled map including background and walls
 		 */
-        tiledMapRenderer.setView((OrthographicCamera)viewPort.getCamera());
+        tiledMapRenderer.setView((OrthographicCamera) viewPort.getCamera());
         tiledMapRenderer.render();
 
-        if(!levelRunning){
-            if(showEndLevelText) {
-                batch.begin();
-                font.drawMultiLine(batch, endLevelText,
-                        viewPort.getScreenWidth() / 3, viewPort.getScreenHeight() / 3);
-                batch.end();
-            }else{
-                // Disposing doesn't get rid of the stat
-                level.dispose();
-                game.setToEndScreen(level.getStat());
-            }
-        }else{
-            if(level.isLevelEnded()) {
-                levelRunning = false;
-                if(level.isLevelLost()){
-                    endLevelText = "You lose. \n" +
-                            "Press anywhere to return to level select.";
-                }else{
-                    endLevelText = "You win. \n" +
-                            "Press anywhere to return to level select.";
-                }
-                Gdx.input.setInputProcessor(new InputProcessor() {
-                    @Override
-                    public boolean keyDown(int keycode) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean keyUp(int keycode) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean keyTyped(char character) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                        showEndLevelText = false;
-                        return true;
-                    }
-
-                    @Override
-                    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean touchDragged(int screenX, int screenY, int pointer) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean mouseMoved(int screenX, int screenY) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean scrolled(int amount) {
-                        return false;
-                    }
-                });
-            }else{
-                level.actLevel(delta);
-                level.spawn();
-            }
+        if (level.isLevelEnded()) {
+            // Disposing doesn't get rid of the stat
+            level.dispose();
+            game.setToEndScreen(level.getStat());
         }
+
+        level.actLevel(delta);
+        level.spawn();
         level.drawLevel();
 
         //Test mode stuff
-        if(ClassicTanks.DEBUG) {
+        if (ClassicTanks.DEBUG) {
             batch.begin();
             font.drawMultiLine(batch, "Debug mode," + ClassicTanks.BUILD_DATE + "\n" +
                             "Tank type change keys: A,S,D,F,G,B,N",
@@ -198,12 +133,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewPort.update(width,height);
+        viewPort.update(width, height);
     }
 
     @Override
     public void show() {
         System.out.println("GameScreen show");
+        font.setColor(Color.RED);
     }
 
     @Override

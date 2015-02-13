@@ -49,7 +49,8 @@ public class EndScreen implements Screen{
 
     public void setStat(LevelStat stat){
         this.stat = stat;
-        statString = "Armor kills: " + stat.armoredKills + "\n"
+        statString = (stat.won ? "Level complete..." : "You lost...") + "\n"
+                + "Armor kills: " + stat.armoredKills + "\n"
                 + "Wall kills: " + stat.wallKills + "\n"
                 + "Play time: " + stat.levelDuration + "\n"
                 + "...";
@@ -59,6 +60,7 @@ public class EndScreen implements Screen{
     public void show() {
         System.out.println("EndScreen show");
         Gdx.input.setInputProcessor(stage);
+        font.setColor(Color.BLACK);
     }
 
     @Override
