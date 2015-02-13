@@ -45,9 +45,6 @@ public class GameScreenKeyboardListener extends InputListener {
             case Keys.A:
                 player.setTankType(TankType.ARMORED);
                 return true;
-            case Keys.G:
-                player.setTankType(TankType.GM);
-                return true;
             case Keys.F:
                 player.setTankType(TankType.FAST);
                 return true;

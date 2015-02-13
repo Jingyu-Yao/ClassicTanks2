@@ -313,14 +313,6 @@ public class Level {
                 break;
             case ENEMY:
                 numEnemiesOnMap--;
-                if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
-                    levelComplete();
-                }
-                break;
-            case PLAYER:
-                levelLost();
-                break;
-            case TANK:
                 switch(((Tank)object).getTankType()){
                     case NORMAL:
                         stat.normalKills++;
@@ -338,6 +330,14 @@ public class Level {
                         stat.armoredKills++;
                         break;
                 }
+                if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
+                    levelComplete();
+                }
+                break;
+            case PLAYER:
+                levelLost();
+                break;
+            case TANK:
                 break;
             case BULLET:
                 break;
@@ -364,8 +364,10 @@ public class Level {
     public void drawLevel(){
         stage.draw();
         batch.begin();
-        font.draw(batch, "Enemies remaining: " + remainingEnemies.size, 0, viewPort.getScreenHeight()-50);
-        font.draw(batch, "Enemies on map: " + numEnemiesOnMap, 0, viewPort.getScreenHeight()-70);
+        font.drawMultiLine(batch, "Enemies remaining: " + remainingEnemies.size + "\n"
+                + "Enemies on map: " + numEnemiesOnMap + "\n"
+                + "HP: " + player.getHp(),
+                0, viewPort.getScreenHeight()-50);
         batch.end();
     }
 

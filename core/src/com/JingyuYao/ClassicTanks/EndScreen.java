@@ -49,11 +49,7 @@ public class EndScreen implements Screen{
 
     public void setStat(LevelStat stat){
         this.stat = stat;
-        statString = (stat.won ? "Level complete..." : "You lost...") + "\n"
-                + "Armor kills: " + stat.armoredKills + "\n"
-                + "Wall kills: " + stat.wallKills + "\n"
-                + "Play time: " + stat.levelDuration + "\n"
-                + "...";
+        statString = stat.toString();
     }
 
     @Override

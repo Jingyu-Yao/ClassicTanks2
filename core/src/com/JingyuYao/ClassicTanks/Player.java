@@ -51,6 +51,13 @@ public class Player extends Tank {
     }
 
     @Override
+    public void setTankType(TankType t) {
+        int oldHP = getHp();
+        super.setTankType(t);
+        setHp(oldHP);
+    }
+
+    @Override
     public void damage(){
         if(hp > 0){
             hp--;

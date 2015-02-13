@@ -19,4 +19,17 @@ public class LevelStat {
     public Tank.TankType currentPlayerType;
     public int lifeLeft;
     public boolean won;
+
+    @Override
+    public String toString() {
+        return (won ? "Level" + levelNumber + " complete..." : "You lost...") + "\n"
+                + "Armor kills: " + armoredKills + "\n"
+                + "Barrage kills: " + barrageKills + "\n"
+                + "Dual kills: " + dualKills + "\n"
+                + "Fast kills: " + fastKills + "\n"
+                + "Normal kills: " + dualKills + "\n"
+                + "Wall kills: " + wallKills + "\n"
+                + "Play time: " + levelDuration + "\n"
+                + "Life left: " + lifeLeft + "\n";
+    }
 }

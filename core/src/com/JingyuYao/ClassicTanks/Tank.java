@@ -112,12 +112,6 @@ public class Tank extends GameObj {
                 bulletType = Bullet.BulletType.SUPER;
                 setVelocity(SUPER_VELOCITY);
                 break;
-            case GM:
-                fireRate = DUAL_FIRE_RATE;
-                bulletType = Bullet.BulletType.SUPER;
-                setVelocity(SUPER_VELOCITY);
-                setHp(1000); //Basically God mode...
-                break;
         }
     }
 
@@ -307,7 +301,6 @@ public class Tank extends GameObj {
         FAST, // Fast movement
         ARMORED, // Extra health
         SUPER,
-        GM, // 'God mode'
     }
 
     @Override

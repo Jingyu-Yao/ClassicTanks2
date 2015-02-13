@@ -66,8 +66,6 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("FAST.png"))));
         tankSprites.put(Tank.TankType.SUPER,
                 new Sprite(new Texture(Gdx.files.internal("SUPER.png"))));
-        tankSprites.put(Tank.TankType.GM,
-                new Sprite(new Texture(Gdx.files.internal("GM.png"))));
 
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
@@ -125,7 +123,7 @@ public class GameScreen implements Screen {
         if (ClassicTanks.DEBUG) {
             batch.begin();
             font.drawMultiLine(batch, "Debug mode," + ClassicTanks.BUILD_DATE + "\n" +
-                            "Tank type change keys: A,S,D,F,G,B,N",
+                            "Tank type change keys: A,S,D,F,B,N",
                     0, viewPort.getScreenHeight() - font.getScaleY());
             batch.end();
         }
