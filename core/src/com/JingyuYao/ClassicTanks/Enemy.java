@@ -8,11 +8,21 @@ import com.badlogic.gdx.math.Vector2;
 public class Enemy extends Tank {
 
     private final static float BIASED_CHANCE = 0.6f;
+    protected boolean shiny;
 
     public Enemy(Level level, float x, float y, TankType type) {
         super(level, x, y, type);
         startShooting();
         gameObjType = GameObjType.ENEMY;
+        shiny = false;
+    }
+
+    public void setShiny(){
+        shiny = true;
+    }
+
+    public boolean isShiny(){
+        return shiny;
     }
 
     /**

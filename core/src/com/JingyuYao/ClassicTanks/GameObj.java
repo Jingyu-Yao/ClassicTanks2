@@ -254,6 +254,7 @@ public class GameObj extends Actor {
         BULLET,
         WALL,
         BASE,
+        BUFF
     }
 
     public static enum Direction {

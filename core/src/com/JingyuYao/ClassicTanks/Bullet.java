@@ -93,7 +93,7 @@ public class Bullet extends GameObj {
                             removeSelf();
                             break;
                     }
-                } else {
+                } else if (result.getGameObjType() != GameObjType.BUFF){
                     result.damage();
                     removeSelf();
                 }
@@ -119,7 +119,7 @@ public class Bullet extends GameObj {
                             removeSelf();
                             break;
                     }
-                } else {
+                } else if (result.getGameObjType() != GameObjType.BUFF){
                     result.damage();
                     removeSelf();
                 }

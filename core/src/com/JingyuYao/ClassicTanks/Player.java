@@ -45,6 +45,38 @@ public class Player extends Tank {
     }
 
     @Override
+    protected void handleBuff(Buff buff){
+        switch(buff.getBuffType()){
+            case STAR:
+                //Normal -> Fast -> Barrage -> Dual -> Super
+                switch (getTankType()){
+                    case NORMAL:
+                        setTankType(TankType.FAST);
+                        break;
+                    case BARRAGE:
+                        setTankType(TankType.DUAL);
+                        break;
+                    case DUAL:
+                        setTankType(TankType.SUPER);
+                        break;
+                    case FAST:
+                        setTankType(TankType.BARRAGE);
+                        break;
+                    case SUPER:
+                        break;
+                }
+                break;
+            case FREEZE:
+                break;
+            case BOOM:
+                break;
+            case ARMOR_UP:
+                break;
+        }
+        getLevel().removeObject(buff);
+    }
+
+    @Override
     public void act(float deltaTime){
         super.act(deltaTime);
         moveCamera();

@@ -38,6 +38,7 @@ public class GameScreenKeyboardListener extends InputListener {
             case Keys.SPACE:
                 player.startShooting();
                 return true;
+            /*
             // for testing
             case Keys.B:
                 player.setTankType(TankType.BARRAGE);
@@ -57,6 +58,7 @@ public class GameScreenKeyboardListener extends InputListener {
             case Keys.S:
                 player.setTankType(TankType.SUPER);
                 return true;
+                */
             case Keys.P:
                 System.out.println(player.toString());
                 return true;

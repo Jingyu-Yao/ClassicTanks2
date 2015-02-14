@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
     // Loaded sprites
     private final Sprite bulletSprite;
     private final Map<Tank.TankType, Sprite> tankSprites;
+    private final Map<Buff.BuffType, Sprite> buffSprites;
 
     /*
     Renderer objects
@@ -52,20 +53,24 @@ public class GameScreen implements Screen {
         batch = game.batch;
         font = game.font;
 
-        bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullet.png")));
+        bulletSprite = new Sprite(new Texture(Gdx.files.internal("sprites/bullet.png")));
         tankSprites = new HashMap<Tank.TankType, Sprite>();
         tankSprites.put(Tank.TankType.ARMORED,
-                new Sprite(new Texture(Gdx.files.internal("ARMORED.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/ARMORED.png"))));
         tankSprites.put(Tank.TankType.NORMAL,
-                new Sprite(new Texture(Gdx.files.internal("NORMAL.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/NORMAL.png"))));
         tankSprites.put(Tank.TankType.BARRAGE,
-                new Sprite(new Texture(Gdx.files.internal("BARRAGE.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/BARRAGE.png"))));
         tankSprites.put(Tank.TankType.DUAL,
-                new Sprite(new Texture(Gdx.files.internal("DUAL.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/DUAL.png"))));
         tankSprites.put(Tank.TankType.FAST,
-                new Sprite(new Texture(Gdx.files.internal("FAST.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/FAST.png"))));
         tankSprites.put(Tank.TankType.SUPER,
-                new Sprite(new Texture(Gdx.files.internal("SUPER.png"))));
+                new Sprite(new Texture(Gdx.files.internal("sprites/SUPER.png"))));
+
+        buffSprites = new HashMap<Buff.BuffType, Sprite>();
+        buffSprites.put(Buff.BuffType.STAR,
+                new Sprite(new Texture(Gdx.files.internal("sprites/STAR.png"))));
 
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
@@ -77,7 +82,7 @@ public class GameScreen implements Screen {
         viewPort.setScreenY(CAMERA_SIZE / 2);
 
         level = new Level(levelNumber, game.assetManager,
-                tankSprites, bulletSprite,
+                tankSprites, bulletSprite, buffSprites,
                 viewPort, font, batch);
 
         // set up tiled map renderer

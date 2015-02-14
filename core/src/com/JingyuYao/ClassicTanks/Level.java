@@ -27,6 +27,7 @@ public class Level {
      */
     public static final Random RANDOM = new Random();
     public static final int TILE_SIZE = 32;
+    public static final float SHINY_CHANCE = 0.15f;
     /*
     Meta data
      */
@@ -35,8 +36,10 @@ public class Level {
 
     private final AssetManager assetManager;
     private final BitmapFont font;
-    protected final Map<Tank.TankType, Sprite> tankSprites;
-    protected final Sprite bulletSprite;
+    //These are public so Tanks can assign their own sprites
+    public final Map<Tank.TankType, Sprite> tankSprites;
+    public final Sprite bulletSprite;
+    public final Map<Buff.BuffType, Sprite> buffSprites;
     protected final Viewport viewPort;
     private final SpriteBatch batch;
 
@@ -78,12 +81,14 @@ public class Level {
      */
     public Level(int levelNumber, AssetManager assetManager,
                  Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite,
+                 Map<Buff.BuffType, Sprite> buffSprites,
                  Viewport viewPort, BitmapFont font, SpriteBatch batch) {
         // Meta data
         this.levelNumber = levelNumber;
         this.assetName = "level" + levelNumber + ".tmx";
         this.tankSprites = tankSprites;
         this.bulletSprite = bulletSprite;
+        this.buffSprites = buffSprites;
         this.viewPort = viewPort;
         this.assetManager = assetManager;
         this.font = font;
@@ -279,6 +284,9 @@ public class Level {
             GameObj spawnPoint = spawnPositions.get(RANDOM.nextInt(spawnPositions.size));
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
                 Enemy toAdd = remainingEnemies.random();
+                if(RANDOM.nextFloat() <= SHINY_CHANCE){
+                    toAdd.setShiny();
+                }
                 remainingEnemies.removeValue(toAdd, true);
 
                 toAdd.setX(spawnPoint.getX());
@@ -313,7 +321,8 @@ public class Level {
                 break;
             case ENEMY:
                 numEnemiesOnMap--;
-                switch(((Tank)object).getTankType()){
+                Enemy temp = (Enemy) object;
+                switch(temp.getTankType()){
                     case NORMAL:
                         stat.normalKills++;
                         break;
@@ -329,6 +338,12 @@ public class Level {
                     case ARMORED:
                         stat.armoredKills++;
                         break;
+                }
+                if(temp.isShiny()){
+                    //TODO: spawn different types of buff
+                    Buff tb = new Buff(this,0,0, Buff.BuffType.STAR);
+                    tb.setPosition(temp.getX(), temp.getY());
+                    addObject(tb);
                 }
                 if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
                     levelComplete();

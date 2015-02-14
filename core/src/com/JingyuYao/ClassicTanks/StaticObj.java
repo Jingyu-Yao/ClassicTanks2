@@ -16,10 +16,4 @@ public class StaticObj extends GameObj {
     public void act(float deltaTime){
         //do nothing
     }
-
-    @Override
-    public void draw(Batch batch, float parentAlpha){
-        // do nothing
-        // drawing of static objects is handled by TiledMapRenderer
-    }
 }

@@ -197,6 +197,11 @@ public class Tank extends GameObj {
         }
     }
 
+    protected void handleBuff(Buff buff){
+        //does nothing by default
+        //should be overridden by child class to handle buffs.
+    }
+
     /**
      * Set a target position for this unit to move towards.
      * Also checks for collision with other objects before moving.
@@ -228,7 +233,10 @@ public class Tank extends GameObj {
         // This prevents tanks dodging bullets
         if (result == null || result instanceof Bullet) {
             setMoving(true);
-        } else {
+        } else if(result instanceof Buff){
+            handleBuff((Buff) result);
+            setMoving(true);
+        }else {
             setMoving(false);
         }
         return getMoving();

@@ -89,16 +89,11 @@ public class LevelSelectionScreen implements Screen {
         stage.act(delta);
         stage.draw();
 
-        if(ClassicTanks.DEBUG) {
-            //Test mode stuff
-            batch.begin();
-            font.drawMultiLine(batch, "Arrow keys to move, \n" +
-                    "hold down space to shoot. \n" +
-                    "A,S,D,F,G,B,N to switch tank types \n" +
-                    "A=Armored, B=Barrage, D=Dualshot, \n" +
-                    "F=Fast, S=Super, N=Normal", 10, 200);
-            batch.end();
-        }
+        //Test mode stuff
+        batch.begin();
+        font.drawMultiLine(batch, "Arrow keys to move, \n" +
+                "hold down space to shoot.", 10, 200);
+        batch.end();
     }
 
     @Override
