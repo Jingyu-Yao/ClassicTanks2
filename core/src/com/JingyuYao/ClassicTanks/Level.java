@@ -282,11 +282,8 @@ public class Level {
                 remainingEnemies.size > 0 &&
                 numEnemiesOnMap < spawnLimit) {
             GameObj spawnPoint = spawnPositions.get(RANDOM.nextInt(spawnPositions.size));
-            if (spawnPoint.collideAll(0.0f, 0.0f) == null
-                    && spawnPoint.collideAll(TILE_SIZE / 2, 0.0f) == null
-                    && spawnPoint.collideAll(0.0f, TILE_SIZE / 2) == null
-                    && spawnPoint.collideAll(-TILE_SIZE / 2, 0.0f) == null
-                    && spawnPoint.collideAll(0.0f, -TILE_SIZE / 2) == null) {
+            addObject(spawnPoint); //Add to stage so collision will work
+            if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
                 Enemy toAdd = remainingEnemies.random();
                 if(RANDOM.nextFloat() <= SHINY_CHANCE){
                     toAdd.setShiny();
@@ -298,6 +295,7 @@ public class Level {
                 addObject(toAdd);
                 lastSpawn = curTime;
             }
+            removeObject(spawnPoint);
         }
     }
 
