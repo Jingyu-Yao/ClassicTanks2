@@ -233,9 +233,9 @@ public class Tank extends GameObj {
         // This prevents tanks dodging bullets
         if (result == null || result instanceof Bullet) {
             setMoving(true);
-        } else if(result instanceof Buff){
-            handleBuff((Buff) result);
+        }else if(result instanceof Buff){
             setMoving(true);
+            handleBuff((Buff) result);
         }else {
             setMoving(false);
         }
@@ -272,19 +272,19 @@ public class Tank extends GameObj {
                 }
                 return;
             }
-            // change the distance
+            // change the distance and bump back if it hit something
             switch (getDirection()) {
                 case UP:
-                    setY(getY() + curMove);
+                        setY(getY() + curMove);
                     break;
                 case DOWN:
-                    setY(getY() - curMove);
+                        setY(getY() - curMove);
                     break;
                 case LEFT:
-                    setX(getX() - curMove);
+                        setX(getX() - curMove);
                     break;
                 case RIGHT:
-                    setX(getX() + curMove);
+                        setX(getX() + curMove);
                     break;
             }
         } else if (moveTowards != Direction.NONE) {

@@ -237,6 +237,25 @@ public class GameObj extends Actor {
         }
     }
 
+    protected void reverseDirection(){
+        switch(direction){
+            case NONE:
+                break;
+            case UP:
+                direction = Direction.DOWN;
+                break;
+            case DOWN:
+                direction = Direction.UP;
+                break;
+            case LEFT:
+                direction = Direction.RIGHT;
+                break;
+            case RIGHT:
+                direction = Direction.LEFT;
+                break;
+        }
+    }
+
     @Override
     public String toString() {
         return "GameObj{" +

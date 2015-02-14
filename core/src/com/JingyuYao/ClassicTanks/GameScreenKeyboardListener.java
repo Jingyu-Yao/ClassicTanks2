@@ -38,6 +38,9 @@ public class GameScreenKeyboardListener extends InputListener {
             case Keys.SPACE:
                 player.startShooting();
                 return true;
+            case Keys.S:
+                player.setHp(5);
+                return true;
             /*
             // for testing
             case Keys.B:
