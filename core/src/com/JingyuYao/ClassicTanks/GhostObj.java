@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 
 /**
  * Created by Jingyu_Yao on 2/14/2015.
+ * Does nothing and not show itself
  */
 public class GhostObj extends GameObj {
     public GhostObj(Level level, Sprite sprite, float x, float y, float width, float height) {

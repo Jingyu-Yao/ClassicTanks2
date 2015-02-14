@@ -33,7 +33,7 @@ public class Tank extends GameObj {
     private float target;
     private float distanceLeft = ONE_DISTANCE;
 
-    // Constructors
+    //************************************ Constructors *********************************
     public Tank(Level level, float x, float y, TankType tankType) {
         super(level, null, x, y, SIZE, SIZE, DEFAULT_VELOCITY, getRandomDirection());
         setTankType(tankType);
@@ -54,14 +54,7 @@ public class Tank extends GameObj {
         setDirection(direction);
     }
 
-    public void addBullet() {
-        //How can this break....
-        if(numBulletsOut > 0){
-            numBulletsOut--;
-        }
-    }
-
-    // Getters
+    //************************************ Getters ***************************************
     public TankType getTankType() {
         return tankType;
     }
@@ -88,7 +81,15 @@ public class Tank extends GameObj {
         }
     }
 
-    // Setters
+    public boolean getMoving() {
+        return moving;
+    }
+
+    public Direction getMoveTowards() {
+        return moveTowards;
+    }
+
+    //************************************ Setters **************************************
     public void setTankType(TankType t) {
         resetType();
         tankType = t;
@@ -125,21 +126,11 @@ public class Tank extends GameObj {
         maxBullets = 1;
     }
 
-    public boolean getMoving() {
-        return moving;
-    }
-
-    public void setMoving(boolean moving) {
+    protected void setMoving(boolean moving) {
         this.moving = moving;
     }
 
-    public void freeze(float duration){
-        freezeDuration += duration;
-    }
-
-    public Direction getMoveTowards() {
-        return moveTowards;
-    }
+    //************************************ Control ************************************
 
     public void moveTowards(Direction direction) {
         moveTowards = direction;
@@ -153,10 +144,23 @@ public class Tank extends GameObj {
         shooting = false;
     }
 
+    //******************************* Gameplay ***********************
+
+    public void freeze(float duration){
+        freezeDuration += duration;
+    }
+
+    public void addBullet() {
+        //How can this break....
+        if(numBulletsOut > 0){
+            numBulletsOut--;
+        }
+    }
+
     /**
      * Fire a bullet iff {@code curTime - lastBulletTime < fireRate || numBulletsOut >= maxBullets}
      */
-    public void shoot() {
+    private void shoot() {
         long curTime = TimeUtils.nanoTime();
         if (curTime - lastBulletTime > fireRate && numBulletsOut < maxBullets) {
             lastBulletTime = curTime;
@@ -208,13 +212,15 @@ public class Tank extends GameObj {
         //should be overridden by child class to handle buffs.
     }
 
+    //******************************* Movement ************************
+
     /**
      * Set a target position for this unit to move towards.
      * Also checks for collision with other objects before moving.
      *
      * @return
      */
-    public boolean forward() {
+    protected boolean forward() {
         GameObj result = null;
         float bodyX = getX(), bodyY = getY();
         // set a target value to avoid rounding errors
@@ -247,6 +253,8 @@ public class Tank extends GameObj {
         }
         return getMoving();
     }
+
+    //******************************** Actor methods *******************
 
     /**
      * Updates the tanks position while preventing rounding error of final position.
@@ -310,6 +318,8 @@ public class Tank extends GameObj {
         }
     }
 
+    //******************************* Enum data types *******************
+
     /**
      * TODO: Use subclass instead of enum
      * All tankType of tanks.
@@ -321,6 +331,8 @@ public class Tank extends GameObj {
         ARMORED, // Extra health
         SUPER,
     }
+
+    //******************************* Debug ******************************
 
     @Override
     public String toString() {

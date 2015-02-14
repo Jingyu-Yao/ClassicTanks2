@@ -29,6 +29,8 @@ public class GameObj extends Actor {
     protected float velocity;
     protected int hp;
 
+    //********************************** Constructors ********************************
+
     /**
      * Create a GameObj in a {@code Level}.
      *  @param level  the {@code Level} this object belongs in
@@ -63,9 +65,13 @@ public class GameObj extends Actor {
         this.velocity = velocity;
     }
 
-    //Getters
+    //********************************** Getters **********************************
     public Direction getDirection() {
         return direction;
+    }
+
+    public float getVelocity() {
+        return velocity;
     }
 
     /**
@@ -86,19 +92,6 @@ public class GameObj extends Actor {
         }
     }
 
-    //Setters
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
-    public float getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(float velocity) {
-        this.velocity = velocity;
-    }
-
     public int getGridX() {
         return (int) getX() / Level.TILE_SIZE;
     }
@@ -111,10 +104,6 @@ public class GameObj extends Actor {
         return hp;
     }
 
-    public void setHp(int hp) {
-        this.hp = hp;
-    }
-
     public Level getLevel() {
         return level;
     }
@@ -122,6 +111,33 @@ public class GameObj extends Actor {
     public GameObjType getGameObjType() {
         return gameObjType;
     }
+
+    //********************************** Setters ******************************
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public void setVelocity(float velocity) {
+        this.velocity = velocity;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+
+    /**
+     * Reduce object's hp by one
+     */
+    public void damage() {
+        if(hp > 0){
+            hp--;
+        }
+        if(hp == 0){
+            level.removeObject(this);
+        }
+    }
+
+    //********************************** Collision ****************************
 
     /**
      * Check collision with another GameObj
@@ -172,6 +188,7 @@ public class GameObj extends Actor {
         return result;
     }
 
+    //********************************* Actor methods *************************
     /**
      * Updates the object's position based on deltaTime.
      *
@@ -194,18 +211,6 @@ public class GameObj extends Actor {
             case RIGHT:
                 setX(getX() + curMove);
                 break;
-        }
-    }
-
-    /**
-     * Reduce object's hp by one
-     */
-    public void damage() {
-        if(hp > 0){
-            hp--;
-        }
-        if(hp == 0){
-            level.removeObject(this);
         }
     }
 
@@ -237,33 +242,7 @@ public class GameObj extends Actor {
         }
     }
 
-    protected void reverseDirection(){
-        switch(direction){
-            case NONE:
-                break;
-            case UP:
-                direction = Direction.DOWN;
-                break;
-            case DOWN:
-                direction = Direction.UP;
-                break;
-            case LEFT:
-                direction = Direction.RIGHT;
-                break;
-            case RIGHT:
-                direction = Direction.LEFT;
-                break;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "GameObj{" +
-                ", direction=" + direction +
-                ", velocity=" + velocity +
-                ", hp=" + hp +
-                '}';
-    }
+    //******************************** Enum data types ***********************
 
     public static enum GameObjType {
         GAMEOBJ,
@@ -282,5 +261,15 @@ public class GameObj extends Actor {
         DOWN,
         LEFT,
         RIGHT
+    }
+
+    //******************************** Debug *********************************
+    @Override
+    public String toString() {
+        return "GameObj{" +
+                ", direction=" + direction +
+                ", velocity=" + velocity +
+                ", hp=" + hp +
+                '}';
     }
 }
