@@ -12,10 +12,11 @@ public class Tank extends GameObj {
 
     // Tank tankType defaults
     static final float DEFAULT_VELOCITY = 100f;
+    static final float SUPER_VELOCITY = 125.0f;
+    static final float FAST_VELOCITY = 150.0f;
     static final long DEFAULT_FIRE_RATE = 1000000000l;
     static final long BARRAGE_FIRE_RATE = DEFAULT_FIRE_RATE / 3;
     static final long DUAL_FIRE_RATE = DEFAULT_FIRE_RATE / 5;
-    static final float SUPER_VELOCITY = 150.0f;
 
     // Tank properties
     private TankType tankType;
@@ -97,23 +98,24 @@ public class Tank extends GameObj {
         switch (tankType) {
             case NORMAL:
                 break;
+            case FAST:
+                setVelocity(FAST_VELOCITY);
+                break;
             case BARRAGE:
+                setVelocity(SUPER_VELOCITY);
                 fireRate = BARRAGE_FIRE_RATE;
                 break;
             case DUAL:
-                maxBullets = 2;
-                break;
-            case FAST:
                 setVelocity(SUPER_VELOCITY);
-                break;
-            case ARMORED:
-                setHp(3);
+                maxBullets = 2;
                 break;
             case SUPER:
                 fireRate = BARRAGE_FIRE_RATE;
-                setHp(2);
                 bulletType = Bullet.BulletType.SUPER;
-                setVelocity(SUPER_VELOCITY);
+                setVelocity(FAST_VELOCITY);
+                break;
+            case ARMORED:
+                setHp(3);
                 break;
         }
     }
@@ -126,11 +128,11 @@ public class Tank extends GameObj {
         maxBullets = 1;
     }
 
-    protected void setMoving(boolean moving) {
+    public void setMoving(boolean moving) {
         this.moving = moving;
     }
 
-    //************************************ Control ************************************
+    //************************************ Con
 
     public void moveTowards(Direction direction) {
         moveTowards = direction;
@@ -220,7 +222,7 @@ public class Tank extends GameObj {
      *
      * @return
      */
-    protected boolean forward() {
+    public boolean forward() {
         GameObj result = null;
         float bodyX = getX(), bodyY = getY();
         // set a target value to avoid rounding errors
@@ -325,10 +327,11 @@ public class Tank extends GameObj {
      * All tankType of tanks.
      */
     public static enum TankType {
-        NORMAL, BARRAGE, // Fast bullets
+        NORMAL,
+        BARRAGE, // Fast bullets
         DUAL, // Dual shot
         FAST, // Fast movement
-        ARMORED, // Extra health
+        ARMORED, // Extra health, Enemy only
         SUPER,
     }
 

@@ -11,7 +11,7 @@ import jdk.nashorn.internal.objects.Global;
  */
 public class Player extends Tank {
 
-    private final float FREEZE_DURATION = 3f;
+    private final float FREEZE_DURATION = 10f;
 
     /*
     For player hp = life, not the hit points needed to kill the tank.

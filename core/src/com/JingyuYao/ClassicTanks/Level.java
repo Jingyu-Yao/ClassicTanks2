@@ -27,7 +27,7 @@ public class Level {
      */
     public static final Random RANDOM = new Random();
     public static final int TILE_SIZE = 32;
-    public static final float SHINY_CHANCE = 0.2f;
+    public static final float SHINY_CHANCE = 0.15f;
     /*
     Meta data
      */
