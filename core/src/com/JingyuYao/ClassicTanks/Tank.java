@@ -25,6 +25,7 @@ public class Tank extends GameObj {
     private int numBulletsOut;
     private int maxBullets;
     private boolean shooting;
+    private float freezeDuration;
 
     // Variables for movement
     private Direction moveTowards;
@@ -45,6 +46,7 @@ public class Tank extends GameObj {
         shooting = false;
         bulletType = Bullet.BulletType.NORMAL;
         gameObjType = GameObjType.TANK;
+        freezeDuration = 0l;
     }
 
     public Tank(Level level, float x, float y, TankType tankType, Direction direction) {
@@ -129,6 +131,10 @@ public class Tank extends GameObj {
 
     public void setMoving(boolean moving) {
         this.moving = moving;
+    }
+
+    public void freeze(float duration){
+        freezeDuration += duration;
     }
 
     public Direction getMoveTowards() {
@@ -250,6 +256,11 @@ public class Tank extends GameObj {
      */
     @Override
     public void act(float deltaTime) {
+        if(freezeDuration > 0){
+            freezeDuration -= deltaTime;
+            freezeDuration = freezeDuration < 0 ? 0 : freezeDuration;
+            return;
+        }
         if (moving) {
             float curMove = deltaTime * getVelocity();
             distanceLeft -= curMove;

@@ -4,10 +4,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
+import jdk.nashorn.internal.objects.Global;
+
 /**
  * Created by Jingyu_Yao on 1/16/2015.
  */
 public class Player extends Tank {
+
+    private final float FREEZE_DURATION = 3f;
 
     /*
     For player hp = life, not the hit points needed to kill the tank.
@@ -48,35 +52,25 @@ public class Player extends Tank {
 
     @Override
     protected void handleBuff(Buff buff){
+        Array<Actor> actors = getStage().getActors();
         switch(buff.getBuffType()){
             case STAR:
                 System.out.println("Ate STAR");
-                //Normal -> Fast -> Barrage -> Dual -> Super
-                switch (getTankType()){
-                    case NORMAL:
-                        setTankType(TankType.FAST);
-                        break;
-                    case BARRAGE:
-                        setTankType(TankType.DUAL);
-                        break;
-                    case DUAL:
-                        setTankType(TankType.SUPER);
-                        break;
-                    case FAST:
-                        setTankType(TankType.BARRAGE);
-                        break;
-                    case SUPER:
-                        break;
-                }
+                advanceType();
                 break;
             case FREEZE:
                 System.out.println("Ate FREEZE");
-                //TODO
+                //Remove starting at last index so index won't get messed up
+                for(int i = 0; i < actors.size; i++){
+                    GameObj obj = (GameObj) actors.get(i);
+                    if(obj.getGameObjType() == GameObjType.ENEMY){
+                        ((Enemy)obj).freeze(FREEZE_DURATION);
+                    }
+                }
                 break;
             case BOOM:
                 System.out.println("Ate BOOM");
                 // KILL ALL ENEMIES!
-                Array<Actor> actors = getStage().getActors();
                 //Remove starting at last index so index won't get messed up
                 for(int i = actors.size - 1; i > 0; i--){
                     GameObj obj = (GameObj) actors.get(i);
@@ -88,7 +82,7 @@ public class Player extends Tank {
                 break;
             case ARMOR_UP:
                 System.out.println("Ate ARMOR_UP");
-                //TODO
+                //TODO, change base wall to concrete for x time
                 break;
             case LIFE:
                 System.out.println("Ate LIFE");
@@ -96,6 +90,26 @@ public class Player extends Tank {
                 break;
         }
         getLevel().removeObject(buff);
+    }
+
+    private void advanceType(){
+        //Normal -> Fast -> Barrage -> Dual -> Super
+        switch (getTankType()){
+            case NORMAL:
+                setTankType(TankType.FAST);
+                break;
+            case BARRAGE:
+                setTankType(TankType.DUAL);
+                break;
+            case DUAL:
+                setTankType(TankType.SUPER);
+                break;
+            case FAST:
+                setTankType(TankType.BARRAGE);
+                break;
+            case SUPER:
+                break;
+        }
     }
 
     @Override
