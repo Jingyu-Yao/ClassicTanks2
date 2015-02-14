@@ -79,7 +79,9 @@ public class Enemy extends Tank {
             }
 
             sprite.draw(batch);
-            sprite.setColor(Color.WHITE);
+            if(shiny) {
+                sprite.setColor(Color.WHITE);
+            }
         }
     }
 

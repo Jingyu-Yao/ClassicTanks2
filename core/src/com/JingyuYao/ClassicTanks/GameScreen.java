@@ -2,6 +2,7 @@ package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -32,6 +33,9 @@ public class GameScreen implements Screen {
     private final Sprite bulletSprite;
     private final Map<Tank.TankType, Sprite> tankSprites;
     private final Map<Buff.BuffType, Sprite> buffSprites;
+
+    // Loaded sounds
+    private final Sound shoot;
 
     /*
     Renderer objects
@@ -77,8 +81,8 @@ public class GameScreen implements Screen {
                 new Sprite(new Texture(Gdx.files.internal("sprites/BOOM.png"))));
         buffSprites.put(Buff.BuffType.LIFE,
                 new Sprite(new Texture(Gdx.files.internal("sprites/LIFE.png"))));
-        buffSprites.put(Buff.BuffType.ARMOR_UP,
-                new Sprite(new Texture(Gdx.files.internal("sprites/ARMOR_UP.png"))));
+
+        shoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
 
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
@@ -91,6 +95,7 @@ public class GameScreen implements Screen {
 
         level = new Level(levelNumber, game.assetManager,
                 tankSprites, bulletSprite, buffSprites,
+                shoot,
                 viewPort, font, batch);
 
         // set up tiled map renderer

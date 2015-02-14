@@ -23,7 +23,6 @@ public class EndScreen implements Screen{
     private LevelStat stat;
     private String statString;
     private final Stage stage;
-    private final Viewport viewPort;
     private final TextButton returnToLevelSelect;
     private final float statStringYLoc;
 
@@ -31,9 +30,7 @@ public class EndScreen implements Screen{
         this.game = game;
         batch = game.batch;
         font = game.font;
-        viewPort = new ScreenViewport();
         stage = new Stage();
-        stage.setViewport(viewPort);
         statStringYLoc =  Gdx.graphics.getHeight() - font.getScaleY();
 
         TextButton.TextButtonStyle rtls = new TextButton.TextButtonStyle();
@@ -84,7 +81,7 @@ public class EndScreen implements Screen{
 
     @Override
     public void resize(int width, int height) {
-        viewPort.update(width,height);
+        stage.getViewport().update(width,height);
     }
 
     @Override

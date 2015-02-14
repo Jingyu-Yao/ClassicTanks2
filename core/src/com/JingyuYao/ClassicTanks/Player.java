@@ -65,10 +65,6 @@ public class Player extends Tank {
                     }
                 }
                 break;
-            case ARMOR_UP:
-                System.out.println("Ate ARMOR_UP");
-                //TODO, change base wall to concrete for x time
-                break;
             case LIFE:
                 System.out.println("Ate LIFE");
                 setHp(getHp() + 1);
@@ -95,6 +91,11 @@ public class Player extends Tank {
             case SUPER:
                 break;
         }
+    }
+
+    @Override
+    protected void postFiring(){
+        getLevel().shoot.play();
     }
 
     @Override

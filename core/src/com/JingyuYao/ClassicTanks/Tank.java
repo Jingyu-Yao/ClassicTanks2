@@ -196,6 +196,8 @@ public class Tank extends GameObj {
                 getStage().addActor(bullet);
                 numBulletsOut++;
 
+                postFiring();
+
                 //special conditions for DUAL tankType
                 //flips fire rate every bullet
                 if (tankType == TankType.DUAL) {
@@ -207,6 +209,13 @@ public class Tank extends GameObj {
                 }
             }
         }
+    }
+
+    /**
+     * Should be overridden if child want to apply some post firing effects
+     */
+    protected void postFiring(){
+        //default do nothing
     }
 
     protected void handleBuff(Buff buff){
@@ -331,8 +340,8 @@ public class Tank extends GameObj {
         BARRAGE, // Fast bullets
         DUAL, // Dual shot
         FAST, // Fast movement
-        ARMORED, // Extra health, Enemy only
-        SUPER,
+        ARMORED, // Extra health for enemy
+        SUPER, // Fast movement and shots, super bullets
     }
 
     //******************************* Debug ******************************

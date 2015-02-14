@@ -32,9 +32,6 @@ public class Buff extends GameObj {
                 this.buffType = BuffType.BOOM;
                 break;
             case 3:
-                this.buffType = BuffType.ARMOR_UP;
-                break;
-            case 4:
                 this.buffType = BuffType.LIFE;
                 break;
             default:
@@ -60,7 +57,6 @@ public class Buff extends GameObj {
         STAR,
         FREEZE,
         BOOM,
-        ARMOR_UP,
         LIFE
     }
 }

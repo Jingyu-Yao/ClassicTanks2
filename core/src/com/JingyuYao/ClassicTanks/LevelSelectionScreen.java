@@ -20,6 +20,14 @@ public class LevelSelectionScreen implements Screen {
 
     private final ClassicTanks game;
 
+    private final String instructions =
+            "Arrow keys to move, hold down space to shoot. \n" +
+            "Shiny enemies drop buffs:\n" +
+            "Red = kill everything\n" +
+            "Green = hp++\n" +
+            "Blue = freeze enemies for 10s\n" +
+            "Yellow = advance tank type";
+
     /*
     Renderer objects
      */
@@ -91,8 +99,7 @@ public class LevelSelectionScreen implements Screen {
 
         //Test mode stuff
         batch.begin();
-        font.drawMultiLine(batch, "Arrow keys to move, \n" +
-                "hold down space to shoot.", 10, 200);
+        font.drawMultiLine(batch, instructions, 10, 200);
         batch.end();
     }
 
