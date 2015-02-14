@@ -1,6 +1,9 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.TimeUtils;
 
 /**
  * Created by Jingyu_Yao on 1/16/2015.
@@ -8,13 +11,16 @@ import com.badlogic.gdx.math.Vector2;
 public class Enemy extends Tank {
 
     private final static float BIASED_CHANCE = 0.6f;
+    private final static long flickerTime = 100000000l; //0.1s
     protected boolean shiny;
+    private long lastTint;
 
     public Enemy(Level level, float x, float y, TankType type) {
         super(level, x, y, type);
         startShooting();
         gameObjType = GameObjType.ENEMY;
         shiny = false;
+        lastTint = 0l;
     }
 
     public void setShiny(){
@@ -40,6 +46,40 @@ public class Enemy extends Tank {
         if (!getMoving()) {
             moveTowards(getBiasedDirection());
             forward();
+        }
+    }
+
+    /**
+     * Draw this object using its sprite in the correct orientation
+     * @param batch
+     * @param parentAlpha
+     */
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        if(sprite != null){
+            sprite.setX(getX());
+            sprite.setY(getY());
+            switch (getDirection()) {
+                case DOWN:
+                    sprite.setRotation(180);
+                    break;
+                case LEFT:
+                    sprite.setRotation(90);
+                    break;
+                case RIGHT:
+                    sprite.setRotation(270);
+                    break;
+                case UP:
+                    sprite.setRotation(0);
+                    break;
+            }
+            if(shiny && TimeUtils.nanoTime() - lastTint > flickerTime){
+                sprite.setColor(Color.YELLOW);
+                lastTint = TimeUtils.nanoTime();
+            }
+
+            sprite.draw(batch);
+            sprite.setColor(Color.WHITE);
         }
     }
 

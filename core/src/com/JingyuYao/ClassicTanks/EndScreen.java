@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by Jingyu_Yao on 2/12/2015.
@@ -21,6 +23,7 @@ public class EndScreen implements Screen{
     private LevelStat stat;
     private String statString;
     private final Stage stage;
+    private final Viewport viewPort;
     private final TextButton returnToLevelSelect;
     private final float statStringYLoc;
 
@@ -28,7 +31,9 @@ public class EndScreen implements Screen{
         this.game = game;
         batch = game.batch;
         font = game.font;
+        viewPort = new ScreenViewport();
         stage = new Stage();
+        stage.setViewport(viewPort);
         statStringYLoc =  Gdx.graphics.getHeight() - font.getScaleY();
 
         TextButton.TextButtonStyle rtls = new TextButton.TextButtonStyle();
@@ -79,7 +84,7 @@ public class EndScreen implements Screen{
 
     @Override
     public void resize(int width, int height) {
-
+        viewPort.update(width,height);
     }
 
     @Override

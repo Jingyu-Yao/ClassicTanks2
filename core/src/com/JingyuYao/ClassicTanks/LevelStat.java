@@ -29,7 +29,7 @@ public class LevelStat {
                 + "Fast kills: " + fastKills + "\n"
                 + "Normal kills: " + dualKills + "\n"
                 + "Wall kills: " + wallKills + "\n"
-                + "Play time: " + levelDuration + "\n"
+                + "Play time: " + (float)levelDuration / 1000000000f + "\n"
                 + "Life left: " + lifeLeft + "\n";
     }
 }

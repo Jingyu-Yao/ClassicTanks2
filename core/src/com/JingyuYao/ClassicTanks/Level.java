@@ -373,6 +373,8 @@ public class Level {
         }
     }
 
+    //************************** Stage functions *************************
+
     /**
      * Advance the state of the level, both the model and the view.
      * @param delta change in time
@@ -387,7 +389,7 @@ public class Level {
         font.drawMultiLine(batch, "Enemies remaining: " + remainingEnemies.size + "\n"
                 + "Enemies on map: " + numEnemiesOnMap + "\n"
                 + "HP: " + player.getHp(),
-                0, viewPort.getScreenHeight()-50);
+                0, viewPort.getScreenHeight()- font.getScaleY());
         batch.end();
     }
 
