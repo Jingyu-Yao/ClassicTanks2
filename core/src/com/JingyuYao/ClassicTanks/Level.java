@@ -27,7 +27,7 @@ public class Level {
      */
     public static final Random RANDOM = new Random();
     public static final int TILE_SIZE = 32;
-    public static final float SHINY_CHANCE = 0.15f;
+    public static final float SHINY_CHANCE = 1f;
     /*
     Meta data
      */
@@ -322,34 +322,7 @@ public class Level {
             case GAMEOBJ:
                 break;
             case ENEMY:
-                numEnemiesOnMap--;
-                Enemy temp = (Enemy) object;
-                switch(temp.getTankType()){
-                    case NORMAL:
-                        stat.normalKills++;
-                        break;
-                    case BARRAGE:
-                        stat.barrageKills++;
-                        break;
-                    case DUAL:
-                        stat.dualKills++;
-                        break;
-                    case FAST:
-                        stat.fastKills++;
-                        break;
-                    case ARMORED:
-                        stat.armoredKills++;
-                        break;
-                }
-                if(temp.isShiny()){
-                    //TODO: spawn different types of buff
-                    Buff tb = new Buff(this,0,0, Buff.BuffType.STAR);
-                    tb.setPosition(temp.getX(), temp.getY());
-                    addObject(tb);
-                }
-                if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
-                    levelComplete();
-                }
+                handleEnemyDeath((Enemy) object);
                 break;
             case PLAYER:
                 levelLost();
@@ -368,6 +341,36 @@ public class Level {
                 break;
         }
         object.remove();
+    }
+
+    private void handleEnemyDeath(Enemy enemy){
+        numEnemiesOnMap--;
+        switch(enemy.getTankType()){
+            case NORMAL:
+                stat.normalKills++;
+                break;
+            case BARRAGE:
+                stat.barrageKills++;
+                break;
+            case DUAL:
+                stat.dualKills++;
+                break;
+            case FAST:
+                stat.fastKills++;
+                break;
+            case ARMORED:
+                stat.armoredKills++;
+                break;
+        }
+        if(enemy.isShiny()){
+            //TODO: spawn different types of buff
+            Buff tb = new Buff(this, 0, 0);
+            tb.setPosition(enemy.getX(), enemy.getY());
+            addObject(tb);
+        }
+        if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
+            levelComplete();
+        }
     }
 
     /**

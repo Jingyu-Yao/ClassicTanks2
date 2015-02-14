@@ -1,6 +1,8 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Jingyu_Yao on 1/16/2015.
@@ -48,6 +50,7 @@ public class Player extends Tank {
     protected void handleBuff(Buff buff){
         switch(buff.getBuffType()){
             case STAR:
+                System.out.println("Ate STAR");
                 //Normal -> Fast -> Barrage -> Dual -> Super
                 switch (getTankType()){
                     case NORMAL:
@@ -67,10 +70,29 @@ public class Player extends Tank {
                 }
                 break;
             case FREEZE:
+                System.out.println("Ate FREEZE");
+                //TODO
                 break;
             case BOOM:
+                System.out.println("Ate BOOM");
+                // KILL ALL ENEMIES!
+                Array<Actor> actors = getStage().getActors();
+                //Remove starting at last index so index won't get messed up
+                for(int i = actors.size - 1; i > 0; i--){
+                    GameObj obj = (GameObj) actors.get(i);
+                    if(obj.getGameObjType() == GameObjType.ENEMY){
+                        getLevel().removeObject(obj);
+                        System.out.println("killed");
+                    }
+                }
                 break;
             case ARMOR_UP:
+                System.out.println("Ate ARMOR_UP");
+                //TODO
+                break;
+            case LIFE:
+                System.out.println("Ate LIFE");
+                setHp(getHp() + 1);
                 break;
         }
         getLevel().removeObject(buff);

@@ -22,7 +22,7 @@ public class LevelStat {
 
     @Override
     public String toString() {
-        return (won ? "Level" + levelNumber + " complete..." : "You lost...") + "\n"
+        return (won ? "Level " + levelNumber + " complete..." : "You lost...") + "\n"
                 + "Armor kills: " + armoredKills + "\n"
                 + "Barrage kills: " + barrageKills + "\n"
                 + "Dual kills: " + dualKills + "\n"

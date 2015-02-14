@@ -3,7 +3,7 @@ package com.JingyuYao.ClassicTanks;
 /**
  * Hp: -1 = outer wall, -2 = water, hp > 0 == normal destructible wall
  */
-public class Wall extends StaticObj {
+public class Wall extends GhostObj {
 
     private final WallType wallType;
 

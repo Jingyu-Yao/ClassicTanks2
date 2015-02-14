@@ -71,6 +71,14 @@ public class GameScreen implements Screen {
         buffSprites = new HashMap<Buff.BuffType, Sprite>();
         buffSprites.put(Buff.BuffType.STAR,
                 new Sprite(new Texture(Gdx.files.internal("sprites/STAR.png"))));
+        buffSprites.put(Buff.BuffType.FREEZE,
+                new Sprite(new Texture(Gdx.files.internal("sprites/FREEZE.png"))));
+        buffSprites.put(Buff.BuffType.BOOM,
+                new Sprite(new Texture(Gdx.files.internal("sprites/BOOM.png"))));
+        buffSprites.put(Buff.BuffType.LIFE,
+                new Sprite(new Texture(Gdx.files.internal("sprites/LIFE.png"))));
+        buffSprites.put(Buff.BuffType.ARMOR_UP,
+                new Sprite(new Texture(Gdx.files.internal("sprites/ARMOR_UP.png"))));
 
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);

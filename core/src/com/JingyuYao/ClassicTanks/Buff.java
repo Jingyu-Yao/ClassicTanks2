@@ -15,21 +15,30 @@ public class Buff extends StaticObj {
      * @param y world coordinates
      * @param type
      */
-    public Buff(Level level, float x, float y, BuffType type) {
+    public Buff(Level level, float x, float y) {
         super(level, null, x, y, Level.TILE_SIZE, Level.TILE_SIZE);
         gameObjType = GameObjType.BUFF;
-        this.buffType = type;
-        switch(type){
-            case STAR:
-                sprite = getLevel().buffSprites.get(type);
+        switch (Level.RANDOM.nextInt(BuffType.values().length)){
+            case 0:
+                this.buffType = BuffType.STAR;
                 break;
-            case FREEZE:
+            case 1:
+                this.buffType = BuffType.FREEZE;
                 break;
-            case BOOM:
+            case 2:
+                this.buffType = BuffType.BOOM;
                 break;
-            case ARMOR_UP:
+            case 3:
+                this.buffType = BuffType.ARMOR_UP;
+                break;
+            case 4:
+                this.buffType = BuffType.LIFE;
+                break;
+            default:
+                this.buffType = BuffType.STAR;
                 break;
         }
+        sprite = getLevel().buffSprites.get(buffType);
     }
 
     public BuffType getBuffType(){
@@ -41,5 +50,6 @@ public class Buff extends StaticObj {
         FREEZE,
         BOOM,
         ARMOR_UP,
+        LIFE
     }
 }
