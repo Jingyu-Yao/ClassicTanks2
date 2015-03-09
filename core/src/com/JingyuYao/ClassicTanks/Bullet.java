@@ -18,8 +18,10 @@ public class Bullet extends GameObj {
      * @param direction
      * @param origin    the source of the bullet
      */
-    public Bullet(Level level, Sprite sprite, float x, float y, Direction direction, Tank origin, BulletType bulletType) {
-        super(level, sprite, x / Level.TILE_SIZE, y / Level.TILE_SIZE, HEIGHT, WIDTH, BULLET_SPEED, direction);
+    public Bullet(Level level, float x, float y, Direction direction, Tank origin, BulletType bulletType) {
+        super(level, new Sprite(level.getTextureAtlas().findRegion("bullet")),
+                x / Level.TILE_SIZE, y / Level.TILE_SIZE,
+                HEIGHT, WIDTH, BULLET_SPEED, direction);
         this.origin = origin;
         this.bulletType = bulletType;
         setProperRecBound();

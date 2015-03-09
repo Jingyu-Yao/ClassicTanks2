@@ -1,6 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.TimeUtils;
 
 @SuppressWarnings("serial")
@@ -95,7 +96,7 @@ public class Tank extends GameObj {
     public void setTankType(TankType t) {
         resetType();
         tankType = t;
-        sprite = getLevel().tankSprites.get(getTankType());
+        sprite = chooseSprite();
         switch (tankType) {
             case NORMAL:
                 break;
@@ -127,6 +128,25 @@ public class Tank extends GameObj {
         fireRate = DEFAULT_FIRE_RATE;
         setVelocity(DEFAULT_VELOCITY);
         maxBullets = 1;
+    }
+
+    private Sprite chooseSprite(){
+        TextureAtlas atlas = getLevel().getTextureAtlas();
+        switch(getTankType()){
+            case NORMAL:
+                return new Sprite(atlas.findRegion("NORMAL"));
+            case BARRAGE:
+                return new Sprite(atlas.findRegion("BARRAGE"));
+            case DUAL:
+                return new Sprite(atlas.findRegion("DUAL"));
+            case FAST:
+                return new Sprite(atlas.findRegion("FAST"));
+            case ARMORED:
+                return new Sprite(atlas.findRegion("ARMORED"));
+            case SUPER:
+                return new Sprite(atlas.findRegion("SUPER"));
+        }
+        return null;
     }
 
     public void setMoving(boolean moving) {
@@ -170,7 +190,8 @@ public class Tank extends GameObj {
 
             float bodyX = getX(), bodyY = getY();
             Direction direction = getDirection();
-            Bullet bullet = new Bullet(getLevel(), getLevel().bulletSprite, -1, -1, direction, this, bulletType);
+            Bullet bullet = new Bullet(getLevel(),
+                    -1, -1, direction, this, bulletType);
             switch (direction) {
                 case DOWN:
                     bullet.setX(bodyX + HALF_SIZE - Bullet.WIDTH / 2f);

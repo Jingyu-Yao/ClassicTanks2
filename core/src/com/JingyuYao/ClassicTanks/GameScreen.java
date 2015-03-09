@@ -30,11 +30,6 @@ public class GameScreen implements Screen {
 
     private final ClassicTanks game;
 
-    // Loaded sprites
-    private final Sprite bulletSprite;
-    private final Map<Tank.TankType, Sprite> tankSprites;
-    private final Map<Buff.BuffType, Sprite> buffSprites;
-
     /*
     Renderer objects
      */
@@ -55,33 +50,6 @@ public class GameScreen implements Screen {
         batch = game.batch;
         font = game.font;
 
-        TextureAtlas tempAtlas = g.assetManager.get("sprites/texture-atlas.txt", TextureAtlas.class);
-
-        bulletSprite = new Sprite(tempAtlas.findRegion("bullet"));
-        tankSprites = new HashMap<Tank.TankType, Sprite>();
-        tankSprites.put(Tank.TankType.ARMORED,
-                new Sprite(tempAtlas.findRegion("ARMORED")));
-        tankSprites.put(Tank.TankType.NORMAL,
-                new Sprite(tempAtlas.findRegion("NORMAL")));
-        tankSprites.put(Tank.TankType.BARRAGE,
-                new Sprite(tempAtlas.findRegion("BARRAGE")));
-        tankSprites.put(Tank.TankType.DUAL,
-                new Sprite(tempAtlas.findRegion("DUAL")));
-        tankSprites.put(Tank.TankType.FAST,
-                new Sprite(tempAtlas.findRegion("FAST")));
-        tankSprites.put(Tank.TankType.SUPER,
-                new Sprite(tempAtlas.findRegion("SUPER")));
-
-        buffSprites = new HashMap<Buff.BuffType, Sprite>();
-        buffSprites.put(Buff.BuffType.STAR,
-                new Sprite(tempAtlas.findRegion("STAR")));
-        buffSprites.put(Buff.BuffType.FREEZE,
-                new Sprite(tempAtlas.findRegion("FREEZE")));
-        buffSprites.put(Buff.BuffType.BOOM,
-                new Sprite(tempAtlas.findRegion("BOOM")));
-        buffSprites.put(Buff.BuffType.LIFE,
-                new Sprite(tempAtlas.findRegion("LIFE")));
-
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
         tiledMapRenderer = new OrthogonalTiledMapRenderer(null, TILED_SCALE);
@@ -92,7 +60,6 @@ public class GameScreen implements Screen {
         viewPort.setScreenY(CAMERA_SIZE / 2);
 
         level = new Level(levelNumber, game.assetManager,
-                tankSprites, bulletSprite, buffSprites,
                 viewPort, font, batch);
 
         // set up tiled map renderer

@@ -1,6 +1,7 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.TimeUtils;
 
 /**
@@ -38,8 +39,23 @@ public class Buff extends GameObj {
                 this.buffType = BuffType.STAR;
                 break;
         }
-        sprite = getLevel().buffSprites.get(buffType);
+        sprite = chooseSprite();
         expiration = TimeUtils.nanoTime() + BUFF_DURATION;
+    }
+
+    private Sprite chooseSprite(){
+        TextureAtlas atlas = getLevel().getTextureAtlas();
+        switch(buffType){
+            case STAR:
+                return new Sprite(atlas.findRegion("STAR"));
+            case FREEZE:
+                return new Sprite(atlas.findRegion("FREEZE"));
+            case BOOM:
+                return new Sprite(atlas.findRegion("BOOM"));
+            case LIFE:
+                return new Sprite(atlas.findRegion("LIFE"));
+        }
+        return null;
     }
 
     public BuffType getBuffType(){

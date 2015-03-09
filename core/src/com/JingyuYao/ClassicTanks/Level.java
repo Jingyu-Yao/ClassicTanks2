@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -36,11 +37,8 @@ public class Level {
     private final String assetName;
 
     private final AssetManager assetManager;
+    private final TextureAtlas textureAtlas;
     private final BitmapFont font;
-    //These are public so Tanks can assign their own sprites
-    public final Map<Tank.TankType, Sprite> tankSprites;
-    public final Sprite bulletSprite;
-    public final Map<Buff.BuffType, Sprite> buffSprites;
     protected final Viewport viewPort;
     private final SpriteBatch batch;
 
@@ -81,17 +79,13 @@ public class Level {
      *
      */
     public Level(int levelNumber, AssetManager assetManager,
-                 Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite,
-                 Map<Buff.BuffType, Sprite> buffSprites,
                  Viewport viewPort, BitmapFont font, SpriteBatch batch) {
         // Meta data
         this.levelNumber = levelNumber;
         this.assetName = "level" + levelNumber + ".tmx";
-        this.tankSprites = tankSprites;
-        this.bulletSprite = bulletSprite;
-        this.buffSprites = buffSprites;
         this.viewPort = viewPort;
         this.assetManager = assetManager;
+        this.textureAtlas = assetManager.get("sprites/texture-atlas.txt", TextureAtlas.class);
         this.font = font;
         this.batch = batch;
 
@@ -272,6 +266,8 @@ public class Level {
     }
 
     public AssetManager getAssetManager() { return assetManager; }
+
+    public TextureAtlas getTextureAtlas() { return textureAtlas; }
 
     //************************* Level maintenance ******************
 
