@@ -39,10 +39,10 @@
  </layer>
  <layer name="Enemies" width="30" height="30" visible="0">
   <properties>
-   <property name="Armored" value="3"/>
-   <property name="Barrage" value="3"/>
-   <property name="Dual" value="3"/>
-   <property name="Fast" value="3"/>
+   <property name="Armored" value="1"/>
+   <property name="Barrage" value="2"/>
+   <property name="Dual" value="2"/>
+   <property name="Fast" value="5"/>
    <property name="Normal" value="10"/>
   </properties>
   <data encoding="base64">

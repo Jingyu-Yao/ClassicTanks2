@@ -1,5 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
@@ -12,6 +13,7 @@ import jdk.nashorn.internal.objects.Global;
 public class Player extends Tank {
 
     private final float FREEZE_DURATION = 10f;
+    private final Sound shootingSound;
 
     /*
     For player hp = life, not the hit points needed to kill the tank.
@@ -21,6 +23,7 @@ public class Player extends Tank {
     public Player(Level level, float x, float y, TankType type, Direction direction) {
         super(level, x, y, type, direction);
         gameObjType = GameObjType.PLAYER;
+        shootingSound = level.getAssetManager().get("sounds/shoot.wav", Sound.class);
         addListener(new GameScreenKeyboardListener(this));
     }
 
@@ -95,7 +98,7 @@ public class Player extends Tank {
 
     @Override
     protected void postFiring(){
-        getLevel().shoot.play();
+        shootingSound.play();
     }
 
     @Override

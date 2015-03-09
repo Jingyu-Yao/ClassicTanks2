@@ -1,13 +1,20 @@
 package com.JingyuYao.ClassicTanks;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+
+import java.util.HashMap;
 
 public class ClassicTanks extends Game {
 
@@ -31,6 +38,13 @@ public class ClassicTanks extends Game {
 
         assetManager = new AssetManager();
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+
+        assetManager.load("sounds/shoot.wav", Sound.class);
+        assetManager.load("sprites/texture-atlas.txt", TextureAtlas.class);
+
+        assetManager.finishLoading();
+        System.out.println("sounds/shoot.wav loaded");
+        System.out.println("sprites/texture-atlas.txt loaded");
 
         gameScreen = new GameScreen(this);
         levelSelectionScreen = new LevelSelectionScreen(this);

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
@@ -34,9 +35,6 @@ public class GameScreen implements Screen {
     private final Map<Tank.TankType, Sprite> tankSprites;
     private final Map<Buff.BuffType, Sprite> buffSprites;
 
-    // Loaded sounds
-    private final Sound shoot;
-
     /*
     Renderer objects
      */
@@ -57,32 +55,32 @@ public class GameScreen implements Screen {
         batch = game.batch;
         font = game.font;
 
-        bulletSprite = new Sprite(new Texture(Gdx.files.internal("sprites/bullet.png")));
+        TextureAtlas tempAtlas = g.assetManager.get("sprites/texture-atlas.txt", TextureAtlas.class);
+
+        bulletSprite = new Sprite(tempAtlas.findRegion("bullet"));
         tankSprites = new HashMap<Tank.TankType, Sprite>();
         tankSprites.put(Tank.TankType.ARMORED,
-                new Sprite(new Texture(Gdx.files.internal("sprites/ARMORED.png"))));
+                new Sprite(tempAtlas.findRegion("ARMORED")));
         tankSprites.put(Tank.TankType.NORMAL,
-                new Sprite(new Texture(Gdx.files.internal("sprites/NORMAL.png"))));
+                new Sprite(tempAtlas.findRegion("NORMAL")));
         tankSprites.put(Tank.TankType.BARRAGE,
-                new Sprite(new Texture(Gdx.files.internal("sprites/BARRAGE.png"))));
+                new Sprite(tempAtlas.findRegion("BARRAGE")));
         tankSprites.put(Tank.TankType.DUAL,
-                new Sprite(new Texture(Gdx.files.internal("sprites/DUAL.png"))));
+                new Sprite(tempAtlas.findRegion("DUAL")));
         tankSprites.put(Tank.TankType.FAST,
-                new Sprite(new Texture(Gdx.files.internal("sprites/FAST.png"))));
+                new Sprite(tempAtlas.findRegion("FAST")));
         tankSprites.put(Tank.TankType.SUPER,
-                new Sprite(new Texture(Gdx.files.internal("sprites/SUPER.png"))));
+                new Sprite(tempAtlas.findRegion("SUPER")));
 
         buffSprites = new HashMap<Buff.BuffType, Sprite>();
         buffSprites.put(Buff.BuffType.STAR,
-                new Sprite(new Texture(Gdx.files.internal("sprites/STAR.png"))));
+                new Sprite(tempAtlas.findRegion("STAR")));
         buffSprites.put(Buff.BuffType.FREEZE,
-                new Sprite(new Texture(Gdx.files.internal("sprites/FREEZE.png"))));
+                new Sprite(tempAtlas.findRegion("FREEZE")));
         buffSprites.put(Buff.BuffType.BOOM,
-                new Sprite(new Texture(Gdx.files.internal("sprites/BOOM.png"))));
+                new Sprite(tempAtlas.findRegion("BOOM")));
         buffSprites.put(Buff.BuffType.LIFE,
-                new Sprite(new Texture(Gdx.files.internal("sprites/LIFE.png"))));
-
-        shoot = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.wav"));
+                new Sprite(tempAtlas.findRegion("LIFE")));
 
         // Camera setup
         viewPort = new ScalingViewport(Scaling.fit, CAMERA_SIZE, CAMERA_SIZE);
@@ -95,7 +93,6 @@ public class GameScreen implements Screen {
 
         level = new Level(levelNumber, game.assetManager,
                 tankSprites, bulletSprite, buffSprites,
-                shoot,
                 viewPort, font, batch);
 
         // set up tiled map renderer

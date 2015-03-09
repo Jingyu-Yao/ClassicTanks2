@@ -41,7 +41,6 @@ public class Level {
     public final Map<Tank.TankType, Sprite> tankSprites;
     public final Sprite bulletSprite;
     public final Map<Buff.BuffType, Sprite> buffSprites;
-    public final Sound shoot;
     protected final Viewport viewPort;
     private final SpriteBatch batch;
 
@@ -84,7 +83,6 @@ public class Level {
     public Level(int levelNumber, AssetManager assetManager,
                  Map<Tank.TankType, Sprite> tankSprites, Sprite bulletSprite,
                  Map<Buff.BuffType, Sprite> buffSprites,
-                 Sound shoot,
                  Viewport viewPort, BitmapFont font, SpriteBatch batch) {
         // Meta data
         this.levelNumber = levelNumber;
@@ -92,7 +90,6 @@ public class Level {
         this.tankSprites = tankSprites;
         this.bulletSprite = bulletSprite;
         this.buffSprites = buffSprites;
-        this.shoot = shoot;
         this.viewPort = viewPort;
         this.assetManager = assetManager;
         this.font = font;
@@ -273,6 +270,8 @@ public class Level {
     public boolean isLevelLost(){
         return levelLost;
     }
+
+    public AssetManager getAssetManager() { return assetManager; }
 
     //************************* Level maintenance ******************
 

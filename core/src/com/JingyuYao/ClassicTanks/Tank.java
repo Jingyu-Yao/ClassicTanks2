@@ -1,5 +1,6 @@
 package com.JingyuYao.ClassicTanks;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.TimeUtils;
 
 @SuppressWarnings("serial")
