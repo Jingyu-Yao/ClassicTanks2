@@ -1,11 +1,13 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.GameData;
+import com.JingyuYao.ClassicTanks.level.Level;
+import com.JingyuYao.ClassicTanks.screens.GameScreen;
+import com.JingyuYao.ClassicTanks.screens.listeners.GameScreenKeyboardListener;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
-
-import jdk.nashorn.internal.objects.Global;
 
 /**
  * Created by Jingyu_Yao on 1/16/2015.
@@ -29,6 +31,7 @@ public class Player extends Tank {
 
     /**
      * Change tank type while maintaining current HP
+     *
      * @param t
      */
     @Override
@@ -39,9 +42,9 @@ public class Player extends Tank {
     }
 
     @Override
-    protected void handleBuff(Buff buff){
+    protected void handleBuff(com.JingyuYao.ClassicTanks.objects.Buff buff) {
         Array<Actor> actors = getStage().getActors();
-        switch(buff.getBuffType()){
+        switch (buff.getBuffType()) {
             case STAR:
                 System.out.println("Ate STAR");
                 advanceType();
@@ -49,10 +52,10 @@ public class Player extends Tank {
             case FREEZE:
                 System.out.println("Ate FREEZE");
                 //Remove starting at last index so index won't get messed up
-                for(int i = 0; i < actors.size; i++){
-                    GameObj obj = (GameObj) actors.get(i);
-                    if(obj.getGameObjType() == GameObjType.ENEMY){
-                        ((Enemy)obj).freeze(FREEZE_DURATION);
+                for (int i = 0; i < actors.size; i++) {
+                    com.JingyuYao.ClassicTanks.objects.GameObj obj = (com.JingyuYao.ClassicTanks.objects.GameObj) actors.get(i);
+                    if (obj.getGameObjType() == GameObjType.ENEMY) {
+                        ((com.JingyuYao.ClassicTanks.objects.Enemy) obj).freeze(FREEZE_DURATION);
                     }
                 }
                 break;
@@ -60,9 +63,9 @@ public class Player extends Tank {
                 System.out.println("Ate BOOM");
                 // KILL ALL ENEMIES!
                 //Remove starting at last index so index won't get messed up
-                for(int i = actors.size - 1; i > 0; i--){
-                    GameObj obj = (GameObj) actors.get(i);
-                    if(obj.getGameObjType() == GameObjType.ENEMY){
+                for (int i = actors.size - 1; i > 0; i--) {
+                    com.JingyuYao.ClassicTanks.objects.GameObj obj = (com.JingyuYao.ClassicTanks.objects.GameObj) actors.get(i);
+                    if (obj.getGameObjType() == GameObjType.ENEMY) {
                         getLevel().removeObject(obj);
                         System.out.println("killed");
                     }
@@ -76,9 +79,9 @@ public class Player extends Tank {
         getLevel().removeObject(buff);
     }
 
-    private void advanceType(){
+    private void advanceType() {
         //Normal -> Fast -> Barrage -> Dual -> Super
-        switch (getTankType()){
+        switch (getTankType()) {
             case NORMAL:
                 setTankType(TankType.FAST);
                 break;
@@ -97,12 +100,12 @@ public class Player extends Tank {
     }
 
     @Override
-    protected void postFiring(){
+    protected void postFiring() {
         shootingSound.play();
     }
 
     @Override
-    public void act(float deltaTime){
+    public void act(float deltaTime) {
         super.act(deltaTime);
         moveCamera();
     }
@@ -128,23 +131,31 @@ public class Player extends Tank {
             dy = playerY - cameraY - GameScreen.CAMERA_INNER_BOUND;
         }
         if (dx != 0 || dy != 0) {
-            getLevel().viewPort.getCamera().translate(dx,dy,0);
+            getLevel().viewPort.getCamera().translate(dx, dy, 0);
             getLevel().viewPort.getCamera().update();
         }
     }
 
     @Override
-    public void damage(){
-        if(hp > 0){
+    public void damage() {
+        if (hp > 0) {
             hp--;
         }
-        if(hp == 0){
+        if (hp == 0) {
             getLevel().removeObject(this);
-        }else{
+        } else {
             setTankType(TankType.NORMAL);
             setDirection(Direction.UP);
             Vector2 startPos = getLevel().getStartPosition();
-            setPosition(startPos.x*Level.TILE_SIZE, startPos.y*Level.TILE_SIZE);
+            setPosition(startPos.x * Level.TILE_SIZE, startPos.y * Level.TILE_SIZE);
         }
+    }
+
+    /**
+     * Reset this player's data.
+     */
+    public void reset(){
+        setHp(GameData.INITIAL_PLAYER_HP);
+        setTankType(TankType.NORMAL);
     }
 }

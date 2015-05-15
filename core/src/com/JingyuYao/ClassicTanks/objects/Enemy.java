@@ -1,5 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -23,11 +24,11 @@ public class Enemy extends Tank {
         lastTint = 0l;
     }
 
-    public void setShiny(){
+    public void setShiny() {
         shiny = true;
     }
 
-    public boolean isShiny(){
+    public boolean isShiny() {
         return shiny;
     }
 
@@ -51,12 +52,13 @@ public class Enemy extends Tank {
 
     /**
      * Draw this object using its sprite in the correct orientation
+     *
      * @param batch
      * @param parentAlpha
      */
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if(sprite != null){
+        if (sprite != null) {
             sprite.setX(getX());
             sprite.setY(getY());
             switch (getDirection()) {
@@ -73,13 +75,13 @@ public class Enemy extends Tank {
                     sprite.setRotation(0);
                     break;
             }
-            if(shiny && TimeUtils.nanoTime() - lastTint > flickerTime){
+            if (shiny && TimeUtils.nanoTime() - lastTint > flickerTime) {
                 sprite.setColor(Color.YELLOW);
                 lastTint = TimeUtils.nanoTime();
             }
 
             sprite.draw(batch);
-            if(shiny) {
+            if (shiny) {
                 sprite.setColor(Color.WHITE);
             }
         }

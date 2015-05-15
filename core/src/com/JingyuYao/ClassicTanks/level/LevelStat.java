@@ -1,4 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.level;
+
+import com.JingyuYao.ClassicTanks.objects.Tank;
 
 /**
  * Created by Jingyu on 2/12/2015.
@@ -29,7 +31,7 @@ public class LevelStat {
                 + "Fast kills: " + fastKills + "\n"
                 + "Normal kills: " + dualKills + "\n"
                 + "Wall kills: " + wallKills + "\n"
-                + "Play time: " + (float)levelDuration / 1000000000f + "\n"
+                + "Play time: " + (float) levelDuration / 1000000000f + "\n"
                 + "Life left: " + lifeLeft + "\n";
     }
 }

@@ -1,5 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
@@ -17,12 +18,12 @@ public class GhostObj extends GameObj {
     }
 
     @Override
-    public void act(float deltaTime){
+    public void act(float deltaTime) {
         //does nothing
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha){
+    public void draw(Batch batch, float parentAlpha) {
         //does nothing
     }
 }

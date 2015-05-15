@@ -1,11 +1,8 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.screens.listeners;
 
-import com.badlogic.gdx.Gdx;
+import com.JingyuYao.ClassicTanks.objects.GameObj.Direction;
+import com.JingyuYao.ClassicTanks.objects.Player;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
-
-import com.JingyuYao.ClassicTanks.GameObj.Direction;
-import com.JingyuYao.ClassicTanks.Tank.TankType;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 

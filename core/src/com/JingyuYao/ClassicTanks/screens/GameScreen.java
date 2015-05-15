@@ -1,23 +1,18 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.screens;
 
+import com.JingyuYao.ClassicTanks.ClassicTanks;
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Handles level deployment and interaction with LevelSelectionScreen
@@ -60,7 +55,7 @@ public class GameScreen implements Screen {
         viewPort.setScreenY(CAMERA_SIZE / 2);
 
         level = new Level(levelNumber, game.assetManager,
-                viewPort, font, batch);
+                viewPort, font, batch, game.playerData);
 
         // set up tiled map renderer
         tiledMapRenderer.setMap(level.getMap());
@@ -92,6 +87,8 @@ public class GameScreen implements Screen {
         tiledMapRenderer.render();
 
         if (level.isLevelEnded()) {
+            game.playerData.currentTankType = level.getPlayer().getTankType();
+            game.playerData.playerHp = level.getPlayer().getHp();
             // Disposing doesn't get rid of the stat
             level.dispose();
             game.setToEndScreen(level.getStat());

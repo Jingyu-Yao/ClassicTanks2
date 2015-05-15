@@ -1,4 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
+
+import com.JingyuYao.ClassicTanks.level.Level;
 
 /**
  * Created by Jingyu_Yao on 1/23/2015.

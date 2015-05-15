@@ -1,5 +1,7 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.screens;
 
+import com.JingyuYao.ClassicTanks.ClassicTanks;
+import com.JingyuYao.ClassicTanks.screens.objects.LevelButton;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -22,11 +24,11 @@ public class LevelSelectionScreen implements Screen {
 
     private final String instructions =
             "Arrow keys to move, hold down space to shoot. \n" +
-            "Shiny enemies drop buffs:\n" +
-            "Red = kill everything\n" +
-            "Green = hp++\n" +
-            "Blue = freeze enemies for 10s\n" +
-            "Yellow = advance tank type";
+                    "Shiny enemies drop buffs:\n" +
+                    "Red = kill everything\n" +
+                    "Green = hp++\n" +
+                    "Blue = freeze enemies for 10s\n" +
+                    "Yellow = advance tank type";
 
     /*
     Renderer objects
@@ -54,7 +56,7 @@ public class LevelSelectionScreen implements Screen {
         // Stage setup
         table = new Table();
         //The positioning is mad weird.
-        table.setPosition(PANEL_SIZE*1.5f, Gdx.graphics.getHeight() - PANEL_SIZE/2);
+        table.setPosition(PANEL_SIZE * 1.5f, Gdx.graphics.getHeight() - PANEL_SIZE / 2);
         stage = new Stage();
         stage.setViewport(viewPort);
         stage.addActor(table);
@@ -65,23 +67,24 @@ public class LevelSelectionScreen implements Screen {
         addLevel(3, Color.BLACK);
     }
 
-    public void startLevel(int levelNumber){
+    public void startLevel(int levelNumber) {
         game.setToGameScreen(levelNumber);
     }
 
-    public OrthographicCamera getCamera(){
+    public OrthographicCamera getCamera() {
         return camera;
     }
 
     /**
      * Factory method to create and add {@code LevelButton} to the stage
+     *
      * @param levelNumber
      */
-    private void addLevel(int levelNumber, Color color){
+    private void addLevel(int levelNumber, Color color) {
         TextButton.TextButtonStyle tempB = new TextButton.TextButtonStyle();
         tempB.font = font;
         tempB.fontColor = color;
-        table.add(new LevelButton(this, levelNumber, tempB)).size(PANEL_SIZE,PANEL_SIZE);
+        table.add(new LevelButton(this, levelNumber, tempB)).size(PANEL_SIZE, PANEL_SIZE);
     }
 
     @Override
@@ -100,12 +103,13 @@ public class LevelSelectionScreen implements Screen {
         //Test mode stuff
         batch.begin();
         font.drawMultiLine(batch, instructions, 10, 200);
+        font.draw(batch, "Player HP: " + game.playerData.playerHp, 10, 250);
         batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        viewPort.update(width,height);
+        viewPort.update(width, height);
     }
 
     @Override

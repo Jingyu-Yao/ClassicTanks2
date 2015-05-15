@@ -1,5 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -14,15 +15,14 @@ public class Buff extends GameObj {
     private final float expiration;
 
     /**
-     *
      * @param level
-     * @param x world coordinates
-     * @param y world coordinates
+     * @param x     world coordinates
+     * @param y     world coordinates
      */
     public Buff(Level level, float x, float y) {
         super(level, null, x, y, Level.TILE_SIZE, Level.TILE_SIZE);
         gameObjType = GameObjType.BUFF;
-        switch (Level.RANDOM.nextInt(BuffType.values().length)){
+        switch (Level.RANDOM.nextInt(BuffType.values().length)) {
             case 0:
                 this.buffType = BuffType.STAR;
                 break;
@@ -43,9 +43,9 @@ public class Buff extends GameObj {
         expiration = TimeUtils.nanoTime() + BUFF_DURATION;
     }
 
-    private Sprite chooseSprite(){
+    private Sprite chooseSprite() {
         TextureAtlas atlas = getLevel().getTextureAtlas();
-        switch(buffType){
+        switch (buffType) {
             case STAR:
                 return new Sprite(atlas.findRegion("STAR"));
             case FREEZE:
@@ -58,18 +58,18 @@ public class Buff extends GameObj {
         return null;
     }
 
-    public BuffType getBuffType(){
+    public BuffType getBuffType() {
         return buffType;
     }
 
     @Override
-    public void act(float delta){
-        if(TimeUtils.nanoTime() > expiration){
+    public void act(float delta) {
+        if (TimeUtils.nanoTime() > expiration) {
             getLevel().removeObject(this);
         }
     }
 
-    public enum BuffType{
+    public enum BuffType {
         STAR,
         FREEZE,
         BOOM,

@@ -1,5 +1,7 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.screens;
 
+import com.JingyuYao.ClassicTanks.ClassicTanks;
+import com.JingyuYao.ClassicTanks.level.LevelStat;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -10,13 +12,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by Jingyu_Yao on 2/12/2015.
  */
-public class EndScreen implements Screen{
+public class EndScreen implements Screen {
     private final ClassicTanks game;
     private final SpriteBatch batch; // From game
     private final BitmapFont font;// From game
@@ -31,16 +31,16 @@ public class EndScreen implements Screen{
         batch = game.batch;
         font = game.font;
         stage = new Stage();
-        statStringYLoc =  Gdx.graphics.getHeight() - font.getScaleY();
+        statStringYLoc = Gdx.graphics.getHeight() - font.getScaleY();
 
         TextButton.TextButtonStyle rtls = new TextButton.TextButtonStyle();
         rtls.font = font;
         rtls.fontColor = Color.BLUE;
         returnToLevelSelect = new TextButton("Return to level select.", rtls);
-        returnToLevelSelect.setBounds(100,100,100,100);
-        returnToLevelSelect.addListener(new InputListener(){
+        returnToLevelSelect.setBounds(100, 100, 100, 100);
+        returnToLevelSelect.addListener(new InputListener() {
             @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 game.setToLevelSelectionScreen();
                 return true;
             }
@@ -49,7 +49,7 @@ public class EndScreen implements Screen{
         stage.addActor(returnToLevelSelect);
     }
 
-    public void setStat(LevelStat stat){
+    public void setStat(LevelStat stat) {
         this.stat = stat;
         statString = stat.toString();
     }
@@ -81,7 +81,7 @@ public class EndScreen implements Screen{
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width,height);
+        stage.getViewport().update(width, height);
     }
 
     @Override

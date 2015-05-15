@@ -1,4 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
+
+import com.JingyuYao.ClassicTanks.level.Level;
 
 /**
  * Hp: -1 = outer wall, -2 = water, hp > 0 == normal destructible wall
@@ -31,7 +33,7 @@ public class Wall extends GhostObj {
         return wallType;
     }
 
-    public static enum WallType {
+    public enum WallType {
         NORMAL,
         WATER,
         CONCRETE,

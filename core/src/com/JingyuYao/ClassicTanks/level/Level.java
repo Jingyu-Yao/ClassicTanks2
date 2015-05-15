@@ -1,10 +1,16 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.level;
 
+import com.JingyuYao.ClassicTanks.GameData;
+import com.JingyuYao.ClassicTanks.objects.Base;
+import com.JingyuYao.ClassicTanks.objects.Buff;
+import com.JingyuYao.ClassicTanks.objects.Enemy;
+import com.JingyuYao.ClassicTanks.objects.GameObj;
+import com.JingyuYao.ClassicTanks.objects.Player;
+import com.JingyuYao.ClassicTanks.objects.Tank;
+import com.JingyuYao.ClassicTanks.objects.Wall;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapProperties;
@@ -16,7 +22,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -39,7 +44,7 @@ public class Level {
     private final AssetManager assetManager;
     private final TextureAtlas textureAtlas;
     private final BitmapFont font;
-    protected final Viewport viewPort;
+    public final Viewport viewPort;
     private final SpriteBatch batch;
 
     /*
@@ -76,10 +81,9 @@ public class Level {
      * Also starts the {@code GameScreenKeyboardListener}
      *
      * @param levelNumber
-     *
      */
     public Level(int levelNumber, AssetManager assetManager,
-                 Viewport viewPort, BitmapFont font, SpriteBatch batch) {
+                 Viewport viewPort, BitmapFont font, SpriteBatch batch, GameData playerData) {
         // Meta data
         this.levelNumber = levelNumber;
         this.assetName = "level" + levelNumber + ".tmx";
@@ -116,7 +120,8 @@ public class Level {
         stage.setViewport(viewPort);
 
         // Setup player
-        player = new Player(this, startPosition.x, startPosition.y, Tank.TankType.NORMAL, GameObj.Direction.UP);
+        player = new Player(this, startPosition.x, startPosition.y, playerData.currentTankType, GameObj.Direction.UP);
+        player.setHp(playerData.playerHp);
         addObject(player);
         stage.setKeyboardFocus(player);
 
@@ -170,7 +175,7 @@ public class Level {
                 cell = baseLayer.getCell(i, j);
                 if (cell != null) {
                     addObject(new Base(this, i, j, TILE_SIZE, TILE_SIZE));
-                    basePosition = new Vector2(i*TILE_SIZE,j*TILE_SIZE);
+                    basePosition = new Vector2(i * TILE_SIZE, j * TILE_SIZE);
                 }
             }
         }
@@ -251,23 +256,33 @@ public class Level {
         return map;
     }
 
-    public Vector2 getBasePosition() { return basePosition; }
+    public Vector2 getBasePosition() {
+        return basePosition;
+    }
 
     public Vector2 getStartPosition() {
         return startPosition;
     }
 
-    public LevelStat getStat(){
+    public LevelStat getStat() {
         return stat;
     }
 
-    public boolean isLevelLost(){
+    public boolean isLevelLost() {
         return levelLost;
     }
 
-    public AssetManager getAssetManager() { return assetManager; }
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
 
-    public TextureAtlas getTextureAtlas() { return textureAtlas; }
+    public TextureAtlas getTextureAtlas() {
+        return textureAtlas;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
 
     //************************* Level maintenance ******************
 
@@ -284,7 +299,7 @@ public class Level {
             addObject(spawnPoint); //Add to stage so collision will work
             if (spawnPoint.collideAll(0.0f, 0.0f) == null) {
                 Enemy toAdd = remainingEnemies.random();
-                if(RANDOM.nextFloat() <= SHINY_CHANCE){
+                if (RANDOM.nextFloat() <= SHINY_CHANCE) {
                     toAdd.setShiny();
                 }
                 remainingEnemies.removeValue(toAdd, true);
@@ -305,7 +320,7 @@ public class Level {
      */
     public void addObject(GameObj object) {
         stage.addActor(object);
-        if(object.getGameObjType() == GameObj.GameObjType.ENEMY){
+        if (object.getGameObjType() == GameObj.GameObjType.ENEMY) {
             numEnemiesOnMap++;
         }
     }
@@ -342,9 +357,9 @@ public class Level {
         object.remove();
     }
 
-    private void handleEnemyDeath(Enemy enemy){
+    private void handleEnemyDeath(Enemy enemy) {
         numEnemiesOnMap--;
-        switch(enemy.getTankType()){
+        switch (enemy.getTankType()) {
             case NORMAL:
                 stat.normalKills++;
                 break;
@@ -361,13 +376,13 @@ public class Level {
                 stat.armoredKills++;
                 break;
         }
-        if(enemy.isShiny()){
+        if (enemy.isShiny()) {
             //TODO: spawn different types of buff
             Buff tb = new Buff(this, 0, 0);
             tb.setPosition(enemy.getX(), enemy.getY());
             addObject(tb);
         }
-        if(remainingEnemies.size == 0 && numEnemiesOnMap == 0){
+        if (remainingEnemies.size == 0 && numEnemiesOnMap == 0) {
             levelComplete();
         }
     }
@@ -376,19 +391,20 @@ public class Level {
 
     /**
      * Advance the state of the level, both the model and the view.
+     *
      * @param delta change in time
      */
-    public void actLevel(float delta){
+    public void actLevel(float delta) {
         stage.act(delta);
     }
 
-    public void drawLevel(){
+    public void drawLevel() {
         stage.draw();
         batch.begin();
         font.drawMultiLine(batch, "Enemies remaining: " + remainingEnemies.size + "\n"
-                + "Enemies on map: " + numEnemiesOnMap + "\n"
-                + "HP: " + player.getHp(),
-                0, viewPort.getScreenHeight()- font.getScaleY());
+                        + "Enemies on map: " + numEnemiesOnMap + "\n"
+                        + "HP: " + player.getHp(),
+                0, viewPort.getScreenHeight() - font.getScaleY());
         batch.end();
     }
 
@@ -402,19 +418,20 @@ public class Level {
         return levelLost || levelComplete;
     }
 
-    private void levelComplete(){
+    private void levelComplete() {
         levelComplete = true;
         fillEndGameStat();
     }
 
-    private void levelLost(){
+    private void levelLost() {
         levelLost = true;
         fillEndGameStat();
+        player.reset();
     }
 
     //******************** Misc. *************************************
 
-    private void fillEndGameStat(){
+    private void fillEndGameStat() {
         stat.currentPlayerType = player.getTankType();
         stat.lifeLeft = player.getHp();
         stat.won = levelComplete;
@@ -427,7 +444,7 @@ public class Level {
      */
     public void dispose() {
         System.out.println("Level dispose");
-        if(assetManager.isLoaded(assetName)) {
+        if (assetManager.isLoaded(assetName)) {
             assetManager.unload(assetName);
             System.out.println("Asset disposed: " + assetName);
         }

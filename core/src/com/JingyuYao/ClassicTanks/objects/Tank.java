@@ -1,5 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -130,9 +131,9 @@ public class Tank extends GameObj {
         maxBullets = 1;
     }
 
-    private Sprite chooseSprite(){
+    private Sprite chooseSprite() {
         TextureAtlas atlas = getLevel().getTextureAtlas();
-        switch(getTankType()){
+        switch (getTankType()) {
             case NORMAL:
                 return new Sprite(atlas.findRegion("NORMAL"));
             case BARRAGE:
@@ -169,13 +170,13 @@ public class Tank extends GameObj {
 
     //******************************* Gameplay ***********************
 
-    public void freeze(float duration){
+    public void freeze(float duration) {
         freezeDuration += duration;
     }
 
     public void addBullet() {
         //How can this break....
-        if(numBulletsOut > 0){
+        if (numBulletsOut > 0) {
             numBulletsOut--;
         }
     }
@@ -236,11 +237,11 @@ public class Tank extends GameObj {
     /**
      * Should be overridden if child want to apply some post firing effects
      */
-    protected void postFiring(){
+    protected void postFiring() {
         //default do nothing
     }
 
-    protected void handleBuff(Buff buff){
+    protected void handleBuff(Buff buff) {
         //does nothing by default
         //should be overridden by child class to handle buffs.
     }
@@ -278,10 +279,10 @@ public class Tank extends GameObj {
         // This prevents tanks dodging bullets
         if (result == null || result instanceof Bullet) {
             setMoving(true);
-        }else if(result instanceof Buff){
+        } else if (result instanceof Buff) {
             setMoving(true);
             handleBuff((Buff) result);
-        }else {
+        } else {
             setMoving(false);
         }
         return getMoving();
@@ -297,7 +298,7 @@ public class Tank extends GameObj {
      */
     @Override
     public void act(float deltaTime) {
-        if(freezeDuration > 0){
+        if (freezeDuration > 0) {
             freezeDuration -= deltaTime;
             freezeDuration = freezeDuration < 0 ? 0 : freezeDuration;
             return;
@@ -327,16 +328,16 @@ public class Tank extends GameObj {
             // change the distance and bump back if it hit something
             switch (getDirection()) {
                 case UP:
-                        setY(getY() + curMove);
+                    setY(getY() + curMove);
                     break;
                 case DOWN:
-                        setY(getY() - curMove);
+                    setY(getY() - curMove);
                     break;
                 case LEFT:
-                        setX(getX() - curMove);
+                    setX(getX() - curMove);
                     break;
                 case RIGHT:
-                        setX(getX() + curMove);
+                    setX(getX() + curMove);
                     break;
             }
         } else if (moveTowards != Direction.NONE) {

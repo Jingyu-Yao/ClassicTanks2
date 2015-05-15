@@ -1,5 +1,6 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class Bullet extends GameObj {
@@ -95,7 +96,7 @@ public class Bullet extends GameObj {
                             removeSelf();
                             break;
                     }
-                } else if (result.getGameObjType() != GameObjType.BUFF){
+                } else if (result.getGameObjType() != GameObjType.BUFF) {
                     result.damage();
                     removeSelf();
                 }
@@ -121,7 +122,7 @@ public class Bullet extends GameObj {
                             removeSelf();
                             break;
                     }
-                } else if (result.getGameObjType() != GameObjType.BUFF){
+                } else if (result.getGameObjType() != GameObjType.BUFF) {
                     result.damage();
                     removeSelf();
                 }

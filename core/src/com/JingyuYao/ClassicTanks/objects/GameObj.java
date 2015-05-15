@@ -1,12 +1,11 @@
-package com.JingyuYao.ClassicTanks;
+package com.JingyuYao.ClassicTanks.objects;
 
+import com.JingyuYao.ClassicTanks.level.Level;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -33,7 +32,8 @@ public class GameObj extends Actor {
 
     /**
      * Create a GameObj in a {@code Level}.
-     *  @param level  the {@code Level} this object belongs in
+     *
+     * @param level  the {@code Level} this object belongs in
      * @param x      the x coordinate of the object in grid location
      * @param y      the y coordinate of the object in grid location
      * @param width  the width of the object
@@ -51,7 +51,8 @@ public class GameObj extends Actor {
 
     /**
      * Create a GameObj in a {@code Level}.
-     *  @param level     the {@code Level} this object belongs in
+     *
+     * @param level     the {@code Level} this object belongs in
      * @param x         the x coordinate of the object in grid location
      * @param y         the y coordinate of the object in grid location
      * @param width     the width of the object
@@ -129,10 +130,10 @@ public class GameObj extends Actor {
      * Reduce object's hp by one
      */
     public void damage() {
-        if(hp > 0){
+        if (hp > 0) {
             hp--;
         }
-        if(hp == 0){
+        if (hp == 0) {
             level.removeObject(this);
         }
     }
@@ -169,15 +170,15 @@ public class GameObj extends Actor {
      * @param dy the change in y position
      * @return the collided {@code GameObj} or {@code null} if no collision
      */
-    public GameObj collideAll(float dx, float dy){
-        if(getStage() == null){
+    public GameObj collideAll(float dx, float dy) {
+        if (getStage() == null) {
             return null;
         }
 
         GameObj result = null;
         Array<Actor> actors = getStage().getActors();
 
-        for(int i = 0; i < actors.size; i++){
+        for (int i = 0; i < actors.size; i++) {
             GameObj obj = (GameObj) actors.get(i);
             result = this.collideObj(dx, dy, obj);
             if (result != null) {
@@ -189,6 +190,7 @@ public class GameObj extends Actor {
     }
 
     //********************************* Actor methods *************************
+
     /**
      * Updates the object's position based on deltaTime.
      *
@@ -216,12 +218,13 @@ public class GameObj extends Actor {
 
     /**
      * Draw this object using its sprite in the correct orientation
+     *
      * @param batch
      * @param parentAlpha
      */
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        if(sprite != null){
+        if (sprite != null) {
             sprite.setX(getX());
             sprite.setY(getY());
             switch (getDirection()) {
